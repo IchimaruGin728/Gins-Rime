@@ -5,10 +5,8 @@ edition = "2024"
 description = "Build zhwiki pinyin dictionary for RIME from Wikipedia dump"
 
 [dependencies]
-quick-xml = { version = "0.37", features = ["async-tokio"] }
-tokio = { version = "1", features = ["full"] }
-rust-pinyin = { package = "pinyin", version = "0.10" }
-opencc-rust = "1"
+quick-xml = "0.37"
+pinyin = "0.10"
 bzip2 = "0.5"
 clap = { version = "4", features = ["derive"] }
 indicatif = "0.17"
