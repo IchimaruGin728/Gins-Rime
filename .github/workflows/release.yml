@@ -1,0 +1,143 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  # ── 1. 打包 scheme ──────────────────────────────────────────
+  package:
+    runs-on: macos-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Build Swift CLI
+        working-directory: tools/gins-rime-cli
+        run: swift build -c release
+
+      - name: Package scheme — Squirrel
+        run: |
+          mkdir -p dist
+          tar czf dist/gins-rime-squirrel.tar.gz \
+            scheme/shared/ \
+            scheme/squirrel/ \
+            dicts/tone_moe.dict.yaml
+
+      - name: Package scheme — Hamster
+        run: |
+          tar czf dist/gins-rime-hamster.tar.gz \
+            scheme/shared/ \
+            scheme/hamster/ \
+            dicts/tone_moe.dict.yaml
+
+      - name: Copy CLI binary
+        run: |
+          cp tools/gins-rime-cli/.build/release/GinsRime dist/gins-rime
+          chmod +x dist/gins-rime
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # ── 2. 上传 R2 ──────────────────────────────────────────────
+  upload-r2:
+    needs: package
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      VERSION: ${{ needs.package.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Upload packages to R2
+        run: |
+          wrangler r2 object put "gins-rime/releases/${VERSION}/squirrel.tar.gz" \
+            --file dist/gins-rime-squirrel.tar.gz \
+            --content-type "application/gzip"
+          wrangler r2 object put "gins-rime/releases/${VERSION}/hamster.tar.gz" \
+            --file dist/gins-rime-hamster.tar.gz \
+            --content-type "application/gzip"
+          wrangler r2 object put "gins-rime/releases/${VERSION}/gins-rime" \
+            --file dist/gins-rime \
+            --content-type "application/octet-stream"
+
+      - name: Update latest.json
+        run: |
+          DATE=$(date +%Y%m%d)
+          wrangler r2 object get gins-rime/releases/latest.json \
+            --file /tmp/latest.json 2>/dev/null || echo '{}' > /tmp/latest.json
+          python3 - <<EOF
+          import json
+          with open('/tmp/latest.json') as f:
+              data = json.load(f)
+          data['version'] = '${VERSION}'
+          data['date'] = '${DATE}'
+          data['squirrel'] = '/releases/${VERSION}/squirrel.tar.gz'
+          data['hamster'] = '/releases/${VERSION}/hamster.tar.gz'
+          data['cli'] = '/releases/${VERSION}/gins-rime'
+          with open('/tmp/latest.json', 'w') as f:
+              json.dump(data, f, indent=2)
+          EOF
+          wrangler r2 object put gins-rime/releases/latest.json \
+            --file /tmp/latest.json \
+            --content-type "application/json"
+
+  # ── 3. 部署 Worker ──────────────────────────────────────────
+  deploy-worker:
+    needs: upload-r2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        working-directory: workers/api
+        run: npm install
+
+      - name: Deploy to Cloudflare Workers
+        working-directory: workers/api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: npx wrangler deploy
+
+  # ── 4. GitHub Release ───────────────────────────────────────
+  github-release:
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.package.outputs.version }}
+        run: |
+          gh release create "$VERSION" \
+            dist/gins-rime-squirrel.tar.gz \
+            dist/gins-rime-hamster.tar.gz \
+            dist/gins-rime \
+            --repo "${{ github.repository }}" \
+            --title "Gins-Rime $VERSION" \
+            --generate-notes

@@ -1,0 +1,14 @@
+# Gins-Rime: 全局默认配置 patch
+
+patch:
+  schema_list:
+    - schema: wanxiang
+
+  # ASCII 模式切换
+  ascii_composer:
+    switch_key:
+      Shift_L: noop
+      Shift_R: noop
+      Control_L: noop
+      Control_R: noop
+      Caps_Lock: clear

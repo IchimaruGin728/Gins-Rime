@@ -1,0 +1,14 @@
+# Gins-Rime: 中英混输词库
+# 来源: 雾凇拼音 (rime-ice) melt_eng
+# 英文词条直接以英文为编码，混入中文候选
+#
+# 注意 import 顺序: en_ext 先加载，其权重优先
+
+---
+name: melt_eng
+version: "2024.1"
+sort: by_weight
+import_tables:
+  - en_dicts/en_ext    # 雾凇扩展英文词库（权重优先）
+  - en_dicts/en        # 雾凇英文主词库
+...

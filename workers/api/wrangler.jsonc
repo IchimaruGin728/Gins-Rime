@@ -1,0 +1,45 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gins-rime-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-03-27",
+  "account_id": "cd4ce461acea5097153abf9e2deb26ec",
+
+  "vars": {
+    "GITHUB_REPO": "ichimarugin728/Gins-Rime"
+  },
+
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "gins-rime"
+    }
+  ],
+
+  "queues": {
+    "producers": [
+      {
+        "binding": "BUILD_QUEUE",
+        "queue": "gins-rime-builds"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "gins-rime-builds",
+        "max_batch_size": 10,
+        "max_batch_timeout": 30,
+        "max_retries": 3,
+        "dead_letter_queue": "gins-rime-builds-dlq"
+      }
+    ]
+  },
+
+  // Workflows: durable multi-step orchestration
+  "workflows": [
+    {
+      "name": "dict-update",
+      "binding": "DICT_UPDATE_WORKFLOW",
+      "class_name": "DictUpdateWorkflow"
+    }
+  ]
+}

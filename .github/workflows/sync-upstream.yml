@@ -1,0 +1,171 @@
+name: Sync Upstream Sources
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  # ── moetype ─────────────────────────────────────────────────
+  sync-moetype:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest release
+        id: meta
+        run: |
+          DATA=$(curl -s https://api.github.com/repos/suiginko/moetype/releases/latest)
+          TAG=$(echo "$DATA" | python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'])")
+          URL=$(echo "$DATA" | python3 -c "
+          import sys,json
+          for a in json.load(sys.stdin)['assets']:
+              if a['name'] == 'tone_moe.dict.yaml':
+                  print(a['browser_download_url']); break
+          ")
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Check tag
+        id: check
+        run: |
+          CURRENT=$(cat .upstream/moetype.tag 2>/dev/null || echo "none")
+          echo "stale=$( [ '$CURRENT' != '${{ steps.meta.outputs.tag }}' ] && echo true || echo false )" >> $GITHUB_OUTPUT
+
+      - name: Download
+        if: steps.check.outputs.stale == 'true'
+        run: |
+          curl -L -o dicts/tone_moe.dict.yaml "${{ steps.meta.outputs.url }}"
+          mkdir -p .upstream && echo "${{ steps.meta.outputs.tag }}" > .upstream/moetype.tag
+
+      - name: Upload to R2 + trigger Workflow
+        if: steps.check.outputs.stale == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          npm install -g wrangler
+          wrangler r2 object put gins-rime/dicts/tone_moe.dict.yaml \
+            --file dicts/tone_moe.dict.yaml \
+            --content-type "text/yaml"
+          DATE=$(date +%Y%m%d)
+          LINES=$(wc -l < dicts/tone_moe.dict.yaml)
+          curl -s -X POST \
+            "https://gins-rime-api.ichimarugin728.workers.dev/workflow/dict-update" \
+            -H "Authorization: Bearer ${{ secrets.WORKER_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"dict\":\"tone_moe\",\"r2Key\":\"dicts/tone_moe.dict.yaml\",\"date\":\"${DATE}\",\"lines\":${LINES},\"triggeredBy\":\"sync-upstream\"}"
+
+      - name: Open PR
+        if: steps.check.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="sync/moetype-${{ steps.meta.outputs.tag }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add dicts/tone_moe.dict.yaml .upstream/moetype.tag
+          git commit -m "sync: moetype ${{ steps.meta.outputs.tag }}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "sync: moetype ${{ steps.meta.outputs.tag }}" \
+            --body "Auto-synced from [moetype](https://github.com/suiginko/moetype/releases/tag/${{ steps.meta.outputs.tag }})." \
+            --base main --head "$BRANCH"
+
+  # ── wanxiang schema ─────────────────────────────────────────
+  sync-wanxiang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest tag
+        id: meta
+        run: |
+          TAG=$(curl -s https://api.github.com/repos/amzxyz/rime_wanxiang/releases/latest \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'])")
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Check tag
+        id: check
+        run: |
+          CURRENT=$(cat .upstream/wanxiang.tag 2>/dev/null || echo "none")
+          echo "stale=$( [ '$CURRENT' != '${{ steps.meta.outputs.tag }}' ] && echo true || echo false )" >> $GITHUB_OUTPUT
+
+      - name: Clone and copy
+        if: steps.check.outputs.stale == 'true'
+        run: |
+          git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/wanxiang
+          mkdir -p scheme/shared/upstream
+          cp /tmp/wanxiang/wanxiang.schema.yaml scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang_algebra.yaml scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang_symbols.yaml scheme/shared/upstream/
+          mkdir -p .upstream && echo "${{ steps.meta.outputs.tag }}" > .upstream/wanxiang.tag
+
+      - name: Open PR
+        if: steps.check.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="sync/wanxiang-${{ steps.meta.outputs.tag }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add scheme/shared/upstream/ .upstream/wanxiang.tag
+          git diff --cached --quiet && exit 0
+          git commit -m "sync: wanxiang ${{ steps.meta.outputs.tag }}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "sync: wanxiang ${{ steps.meta.outputs.tag }}" \
+            --body "Auto-synced from [rime_wanxiang](https://github.com/amzxyz/rime_wanxiang/releases/tag/${{ steps.meta.outputs.tag }})." \
+            --base main --head "$BRANCH"
+
+  # ── rime-ice melt_eng ───────────────────────────────────────
+  sync-melt-eng:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest commit sha
+        id: meta
+        run: |
+          SHA=$(curl -s "https://api.github.com/repos/iDvel/rime-ice/commits?path=melt_eng.schema.yaml&per_page=1" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)[0]['sha'][:7])")
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+
+      - name: Check sha
+        id: check
+        run: |
+          CURRENT=$(cat .upstream/rime-ice-melt.sha 2>/dev/null || echo "none")
+          echo "stale=$( [ '$CURRENT' != '${{ steps.meta.outputs.sha }}' ] && echo true || echo false )" >> $GITHUB_OUTPUT
+
+      - name: Clone and copy
+        if: steps.check.outputs.stale == 'true'
+        run: |
+          git clone --depth 1 https://github.com/iDvel/rime-ice.git /tmp/rime-ice
+          mkdir -p scheme/shared/upstream/en_dicts
+          cp /tmp/rime-ice/melt_eng.schema.yaml scheme/shared/upstream/
+          cp -r /tmp/rime-ice/en_dicts/. scheme/shared/upstream/en_dicts/
+          mkdir -p .upstream && echo "${{ steps.meta.outputs.sha }}" > .upstream/rime-ice-melt.sha
+
+      - name: Open PR
+        if: steps.check.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="sync/melt-eng-${{ steps.meta.outputs.sha }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add scheme/shared/upstream/ .upstream/rime-ice-melt.sha
+          git diff --cached --quiet && exit 0
+          git commit -m "sync: rime-ice melt_eng ${{ steps.meta.outputs.sha }}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "sync: rime-ice melt_eng ${{ steps.meta.outputs.sha }}" \
+            --body "Auto-synced melt_eng + en_dicts from [rime-ice](https://github.com/iDvel/rime-ice)." \
+            --base main --head "$BRANCH"

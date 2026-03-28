@@ -1,0 +1,18 @@
+[package]
+name = "zhwiki-builder"
+version = "0.1.0"
+edition = "2024"
+description = "Build zhwiki pinyin dictionary for RIME from Wikipedia dump"
+
+[dependencies]
+quick-xml = { version = "0.37", features = ["async-tokio"] }
+tokio = { version = "1", features = ["full"] }
+rust-pinyin = { package = "pinyin", version = "0.10" }
+opencc-rust = "1"
+bzip2 = "0.5"
+clap = { version = "4", features = ["derive"] }
+indicatif = "0.17"
+anyhow = "1"
+regex = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

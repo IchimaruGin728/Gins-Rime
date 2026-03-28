@@ -1,0 +1,27 @@
+# Build artifacts
+tools/zhwiki-builder/target/
+tools/gins-rime-cli/.build/
+tools/gins-rime-cli/.swiftpm/
+
+# Node
+workers/api/node_modules/
+workers/api/.wrangler/
+
+# Generated dicts (built by CI)
+dicts/zhwiki.dict.yaml
+
+# RIME user data
+*.userdb/
+*.userdb.kct
+*.userdb.kct.wal
+sync/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.xcworkspace
+xcuserdata/

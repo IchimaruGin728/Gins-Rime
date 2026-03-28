@@ -1,0 +1,33 @@
+# Gins-Rime: 万象拼音词库聚合
+# 通过 import_tables 挂载所有词库到万象方案
+# 基于万象原始 wanxiang.dict.yaml，追加外挂词库
+#
+# 万象词库使用 Unicode 带调拼音编码 (ā á ǎ à)
+# 所有外挂词库必须使用相同的编码格式
+
+---
+name: wanxiang
+version: "LTS"
+sort: by_weight
+use_preset_vocabulary: false
+import_tables:
+  # ── 万象核心词库 ──
+  - dicts/zi            # 字表（所有汉字 + 拼音）
+  - dicts/jichu         # 核心词汇（2-3字词）
+  - dicts/lianxiang     # 联想词汇（5+字）
+  - dicts/cuoyin        # 错音纠正
+  - dicts/duoyin        # 多音字兼容
+  - dicts/shici         # 诗词
+  - dicts/diming        # 地名
+
+  # ── 万象可选词库（默认开启）──
+  - dicts/renming       # 人名词库
+  - dicts/wuzhong       # 物种词库
+
+  # ── 外挂词库 ──
+  - zhwiki              # 维基百科词库 (Rust build, 带调拼音)
+  - tone_moe            # 萌娘百科词库 (moetype, 带调拼音)
+
+  # 注: melt_eng 中英混输有自己的 dict，通过 table_translator 挂载
+  # 注: 雾凇 cn_en 中英混合词条（U盘/B站等）可按需追加
+...
