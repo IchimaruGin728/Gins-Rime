@@ -145,7 +145,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install deps
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: workers/gins-rime/site/pnpm-lock.yaml
+
+      - name: Build site
+        working-directory: workers/gins-rime/site
+        run: CI=true pnpm install --frozen-lockfile && pnpm build
+
+      - name: Install worker deps
         working-directory: workers/gins-rime
         run: npm install
 
