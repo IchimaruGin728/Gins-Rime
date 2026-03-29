@@ -80,34 +80,17 @@ body::after {
 
 ::selection { background-color: #581c87; color: #fff; }
 
-/* ── 导航栏 pill ── */
+/* ── 导航栏 ── */
 header.header {
-  padding: 1rem 1.5rem !important;
-  background: transparent !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
+  background: rgba(5, 5, 5, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .gins-nav-pill {
-  max-width: 80rem;
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 9999px;
-  padding: 0.4rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: 3.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  display: contents;
 }
-
-.gins-nav-start { flex: 0 0 auto; }
-.gins-nav-mid   { flex: 1; display: flex; justify-content: flex-end; }
-.gins-nav-end   { flex: 0 0 auto; display: flex; align-items: center; gap: 0.5rem; }
 
 /* 站点标题渐变 */
 .site-title {

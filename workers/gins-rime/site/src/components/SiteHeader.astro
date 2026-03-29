@@ -7,18 +7,12 @@ import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro'
 import MobileMenuToggle from '@astrojs/starlight/components/MobileMenuToggle.astro'
 ---
 
-<div class="gins-nav-pill">
-  <div class="gins-nav-start">
-    <SiteTitle {...Astro.props} />
-  </div>
-  <div class="gins-nav-mid">
-    <Search {...Astro.props} />
-  </div>
-  <div class="gins-nav-end">
-    <SocialIcons {...Astro.props} />
-    <ThemeSelect {...Astro.props} />
-    <div class="md:hidden">
-      <MobileMenuToggle {...Astro.props} />
-    </div>
-  </div>
+<div class="header-item header-start">
+  <SiteTitle {...Astro.props} />
+</div>
+<div class="header-item header-end">
+  <Search {...Astro.props} />
+  <SocialIcons {...Astro.props} />
+  <ThemeSelect {...Astro.props} />
+  <MobileMenuToggle {...Astro.props} />
 </div>
