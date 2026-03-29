@@ -15,7 +15,7 @@ interface Props {
 
 const DICTS: { key: string; name: string; sub: string }[] = [
   { key: 'zhwiki',      name: '维基百科标题', sub: '中文 Wikipedia' },
-  { key: 'tone_moe',    name: '萌娘百科',     sub: '萌系词库' },
+  { key: 'tone_moe',    name: '萌娘百科',     sub: '二次元词汇' },
   { key: 'gins-shici',  name: '古诗词',       sub: 'chinese-poetry' },
 ]
 
