@@ -55,11 +55,9 @@ export default function HomeStatusPanel({ dictVersions }: Props) {
               <span style="font-size:0.78rem;font-family:var(--sl-font-mono);font-variant-numeric:tabular-nums;color:var(--sl-color-text-accent);margin-top:auto;padding-top:0.4rem">
                 {loading ? '…' : ver}
               </span>
-              {!loading && info?.lines != null && (
-                <span style="font-size:0.68rem;color:color-mix(in srgb,var(--sl-color-text) 38%,transparent);font-variant-numeric:tabular-nums">
-                  {info.lines.toLocaleString()} 条
-                </span>
-              )}
+              <span style={`font-size:0.68rem;color:color-mix(in srgb,var(--sl-color-text) 38%,transparent);font-variant-numeric:tabular-nums;visibility:${!loading && info?.lines != null ? 'visible' : 'hidden'}`}>
+                {info?.lines != null ? `${info.lines.toLocaleString()} 条` : '0 条'}
+              </span>
             </div>
           )
         })}
