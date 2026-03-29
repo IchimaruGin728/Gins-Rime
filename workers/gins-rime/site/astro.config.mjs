@@ -1,11 +1,9 @@
 import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import preact from '@astrojs/preact'
-import cloudflare from '@astrojs/cloudflare'
 
 export default defineConfig({
-  output: 'hybrid',
-  adapter: cloudflare({ platformProxy: { enabled: true } }),
+  output: 'static',
   integrations: [
     starlight({
       title: 'Gins-Rime',
@@ -15,9 +13,9 @@ export default defineConfig({
         dark: './src/assets/logo-dark.svg',
         replacesTitle: false,
       },
-      social: {
-        github: 'https://github.com/IchimaruGin728/Gins-Rime',
-      },
+      social: [
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/IchimaruGin728/Gins-Rime' },
+      ],
       customCss: ['./src/styles/gins.css'],
       sidebar: [
         {

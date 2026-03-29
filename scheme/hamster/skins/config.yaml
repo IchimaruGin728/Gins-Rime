@@ -1,12 +1,3 @@
-# Gins-Rime: 元书 Hamster v3 皮肤配置
-# 映射键盘类型 → 布局文件（按设备/方向）
-#
-# 元书皮肤系统:
-#   1. 开启"皮肤开发者模式"
-#   2. 导入皮肤包
-#   3. 长按皮肤运行 main.jsonnet
-#   4. jsonnet 编译输出 light/ 和 dark/ 目录下的 YAML 文件
-
 name: Gins-Rime
 author: Gins-Rime
 version: "0.1"

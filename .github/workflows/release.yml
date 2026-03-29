@@ -28,9 +28,9 @@ jobs:
       - name: Fetch generated dicts from Worker
         run: |
           mkdir -p dicts
-          curl -fsSL "https://gins-rime.ichimarugin728.workers.dev/dicts/tone_moe" \
+          curl -fsSL "https://rime.ichimarugin728.dev/dicts/tone_moe.dict.yaml" \
             -o dicts/tone_moe.dict.yaml
-          curl -fsSL "https://gins-rime.ichimarugin728.workers.dev/dicts/gins-shici" \
+          curl -fsSL "https://rime.ichimarugin728.dev/dicts/gins-shici.dict.yaml" \
             -o dicts/gins-shici.dict.yaml
 
       - name: Package scheme — Squirrel
@@ -119,11 +119,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install deps
-        working-directory: workers/api
+        working-directory: workers/gins-rime
         run: npm install
 
       - name: Deploy to Cloudflare Workers
-        working-directory: workers/api
+        working-directory: workers/gins-rime
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}

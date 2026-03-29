@@ -2,13 +2,13 @@
 
 ## Overview
 
-Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案，覆盖 macOS（鼠须管 Squirrel）和 iOS（元书输入法 Hamster v3）双平台。
+Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案，覆盖 macOS（鼠须管 Squirrel）和 iOS（元书 Hamster v3）双平台。
 
 ## Architecture Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                          Gins-Rime  Architecture                            │
+│                          Gins-Rime Architecture                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │   ┌─────────────────────── Upstream Sources ───────────────────────┐        │
@@ -17,12 +17,9 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
 │   │  │  万象拼音      │  │  雾凇拼音      │  │  萌娘百科词库        │  │        │
 │   │  │  (wanxiang)   │  │  (rime-ice)  │  │  (moetype)          │  │        │
 │   │  │              │  │              │  │                      │  │        │
-│   │  │ • base scheme │  │ • melt_eng   │  │ • moegirl.dict.yaml │  │        │
-│   │  │ • jichu.dict  │  │   混输翻译器    │  │ • ACG 专有名词       │  │        │
-│   │  │ • 200M 语法模型 │  │ • en dicts   │  │                      │  │        │
-│   │  │ • renming     │  │ • Lua 脚本    │  │                      │  │        │
-│   │  │ • wuzhong     │  │              │  │                      │  │        │
-│   │  │ • Lua 扩展     │  │              │  │                      │  │        │
+│   │  │ • base schema │  │ • melt_eng   │  │ • tone_moe.dict.yaml │  │        │
+│   │  │ • 200M 语法模型 │  │   混输翻译器    │  │ • ACG 专有名词       │  │        │
+│   │  │ • 各类词库      │  │ • en_dicts   │  │                      │  │        │
 │   │  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘  │        │
 │   │         │                 │                      │              │        │
 │   └─────────┼─────────────────┼──────────────────────┼──────────────┘        │
@@ -33,36 +30,36 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
 │   │         │     │   zhwiki-builder      │          │              │        │
 │   │         │     │   (Rust CLI)          │          │              │        │
 │   │         │     │                       │          │              │        │
-│   │         │     │  XML dump → 流式解析    │          │              │        │
-│   │         │     │  → rust-pinyin 标注    │          │              │        │
-│   │         │     │  → OpenCC s2sg 过滤    │          │              │        │
+│   │         │     │  titles.gz → 逐行过滤  │          │              │        │
+│   │         │     │  → OpenCC T2S+S2SG    │          │              │        │
+│   │         │     │  → rayon 并行拼音      │          │              │        │
 │   │         │     │  → zhwiki.dict.yaml   │          │              │        │
 │   │         │     └───────────┬───────────┘          │              │        │
 │   │         │                 │                      │              │        │
 │   │         ▼                 ▼                      ▼              │        │
 │   │  ┌─────────────────────────────────────────────────────┐       │        │
-│   │  │              wanxiang.dict.yaml                      │       │        │
+│   │  │                  gins.dict.yaml                      │       │        │
 │   │  │                                                      │       │        │
 │   │  │  import_tables:                                      │       │        │
-│   │  │    - jichu        (万象核心词库)                        │       │        │
-│   │  │    - renming      (人名词库)                           │       │        │
-│   │  │    - wuzhong      (物种词库)                           │       │        │
-│   │  │    - zhwiki       (维基百科词库 · Rust build)           │       │        │
-│   │  │    - moegirl      (萌娘百科词库)                        │       │        │
-│   │  │    - rime_ice.en  (雾凇英文词库)                        │       │        │
+│   │  │    - wanxiang dicts  (万象核心词库)                    │       │        │
+│   │  │    - zhwiki          (维基百科词库 · Rust build)       │       │        │
+│   │  │    - tone_moe        (萌娘百科词库)                    │       │        │
+│   │  │    - gins-shici      (古诗词补充)                      │       │        │
 │   │  └─────────────────────────────────────────────────────┘       │        │
 │   │                           │                                     │        │
 │   │                           ▼                                     │        │
 │   │  ┌─────────────────────────────────────────────────────┐       │        │
-│   │  │          wanxiang.custom.yaml (patch)                │       │        │
-│   │  │                                                      │       │        │
-│   │  │  patch:                                              │       │        │
-│   │  │    engine/translators/+:                             │       │        │
-│   │  │      - table_translator@melt_eng  (雾凇混输)          │       │        │
-│   │  │    melt_eng:                                         │       │        │
-│   │  │      dictionary: melt_eng                            │       │        │
-│   │  │      enable_sentence: false                          │       │        │
-│   │  │    key_binder/bindings/+: ...                        │       │        │
+│   │  │              gins.schema.yaml (patch)                │       │        │
+│   │  │  __include: wanxiang.schema:/                        │       │        │
+│   │  │  __patch:                                            │       │        │
+│   │  │    schema_id: gins                                   │       │        │
+│   │  │    translator/dictionary: gins                       │       │        │
+│   │  └─────────────────────────────────────────────────────┘       │        │
+│   │                                                                 │        │
+│   │  ┌─────────────────────────────────────────────────────┐       │        │
+│   │  │              gins.custom.yaml (patch)                │       │        │
+│   │  │    table_translator@gins_eng   (英文词库)              │       │        │
+│   │  │    table_translator@gins_cn_en (中英混输)              │       │        │
 │   │  └─────────────────────────────────────────────────────┘       │        │
 │   │                                                                 │        │
 │   └─────────────────────────────────────────────────────────────────┘        │
@@ -75,15 +72,16 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
 │   │  │                     │    │  scheme/hamster/          │    │           │
 │   │  │  scheme/squirrel/   │    │  ├── hamster.custom.yaml  │    │           │
 │   │  │  ├── squirrel.custom│    │  ├── scripts/            │    │           │
-│   │  │  │   .yaml          │    │  │   └── *.lua           │    │           │
-│   │  │  └── (外观/快捷键)    │    │  └── skins/             │    │           │
-│   │  │                     │    │      └── *.jsonnet        │    │           │
-│   │  │  gins-rime-cli      │    │                          │    │           │
-│   │  │  (Swift CLI)        │    │  iCloud / Git 同步        │    │           │
+│   │  │  │   .yaml          │    │  │   └── *.js            │    │           │
+│   │  │  └── default.custom │    │  └── skins/             │    │           │
+│   │  │      .yaml          │    │      └── *.jsonnet        │    │           │
+│   │  │                     │    │                          │    │           │
+│   │  │  gins-rime CLI      │    │  iCloud / Git 同步        │    │           │
+│   │  │  (Swift CLI)        │    │                          │    │           │
 │   │  │  ├── deploy         │    │                          │    │           │
 │   │  │  ├── update         │    │                          │    │           │
 │   │  │  ├── sync           │    │                          │    │           │
-│   │  │  └── customize      │    │                          │    │           │
+│   │  │  └── status         │    │                          │    │           │
 │   │  └─────────────────────┘    └──────────────────────────┘    │           │
 │   │                                                              │           │
 │   └──────────────────────────────────────────────────────────────┘           │
@@ -92,23 +90,25 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
 │   │                                                                  │       │
 │   │  GitHub Actions                    Cloudflare                    │       │
 │   │  ┌─────────────────────┐          ┌─────────────────────────┐   │       │
-│   │  │ build-zhwiki.yml    │          │  Workers (API)           │   │       │
-│   │  │  cron: weekly       │          │  • /api/version          │   │       │
-│   │  │  → Rust build       │          │  • /api/dicts/{name}     │   │       │
-│   │  │  → artifact upload  │          │  • /api/scheme/latest    │   │       │
-│   │  │                     │          │                          │   │       │
-│   │  │ release.yml         │          │  Workflows               │   │       │
-│   │  │  → scheme packaging │          │  • dict build pipeline   │   │       │
-│   │  │  → CF Workers deploy│          │  • diff & notify         │   │       │
-│   │  │                     │          │                          │   │       │
-│   │  │ sync-upstream.yml   │          │  Queues                  │   │       │
-│   │  │  → pull upstream    │          │  • update-notifications  │   │       │
-│   │  │  → diff & PR        │          │  • build-triggers        │   │       │
-│   │  └─────────────────────┘          │                          │   │       │
-│   │                                    │  R2 (Storage)            │   │       │
-│   │                                    │  • dict artifacts        │   │       │
-│   │                                    │  • release packages      │   │       │
-│   │                                    └─────────────────────────┘   │       │
+│   │  │ build-zhwiki.yml    │          │  workers/gins-rime       │   │       │
+│   │  │  cron: 每月2号       │          │  • GET /version          │   │       │
+│   │  │  → Rust build       │          │  • GET /api/status       │   │       │
+│   │  │  → R2 upload        │          │  • GET /dicts/{name}     │   │       │
+│   │  │                     │          │  • POST /workflow/...    │   │       │
+│   │  │ build-shici.yml     │          │  • GET  /* (static site) │   │       │
+│   │  │  → poetry dedup     │          │                          │   │       │
+│   │  │  → R2 upload        │          │  Workflows               │   │       │
+│   │  │                     │          │  • DictUpdateWorkflow    │   │       │
+│   │  │ release.yml         │          │                          │   │       │
+│   │  │  → scheme packaging │          │  Queues                  │   │       │
+│   │  │  → Swift CLI build  │          │  • gins-rime-builds      │   │       │
+│   │  │  → R2 + GH Release  │          │                          │   │       │
+│   │  │                     │          │  R2: gins-rime            │   │       │
+│   │  │ sync-upstream.yml   │          │  • dicts/                │   │       │
+│   │  │  → wanxiang/rime-ice│          │  • releases/             │   │       │
+│   │  │  → moetype → R2     │          │  • cli/                  │   │       │
+│   │  │  → chinese-poetry   │          └─────────────────────────┘   │       │
+│   │  └─────────────────────┘                                         │       │
 │   │                                                                  │       │
 │   └──────────────────────────────────────────────────────────────────┘       │
 │                                                                             │
@@ -125,64 +125,44 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
               ┌────────────────┼────────────────┐
               ▼                ▼                ▼
     ┌─────────────────┐ ┌───────────┐  ┌──────────────┐
-    │ zhwiki dump      │ │ moetype   │  │ rime-ice     │
-    │ (Rust builder)   │ │ (git pull)│  │ (git pull)   │
+    │  zhwiki titles   │ │ moetype   │  │  rime-ice    │
+    │  (Rust builder)  │ │ (release) │  │  (git clone) │
     └────────┬────────┘ └─────┬─────┘  └──────┬───────┘
              │                │               │
              ▼                ▼               ▼
     ┌─────────────────────────────────────────────────┐
-    │          GitHub Release / R2 Storage              │
-    │     (zhwiki.dict.yaml, moegirl.dict.yaml, ...)   │
+    │              R2: gins-rime bucket                │
+    │         dicts/ · releases/ · cli/                │
     └────────────────────┬────────────────────────────┘
                          │
           ┌──────────────┼──────────────┐
           ▼                             ▼
     ┌───────────────┐          ┌──────────────────┐
-    │ gins-rime-cli │          │ 元书 Hamster v3  │
+    │ gins-rime CLI │          │ 元书 Hamster v3  │
     │ (Swift · macOS)│          │ iCloud/Git sync  │
     │               │          │                  │
-    │ → 下载词库      │          │ → 导入方案         │
-    │ → patch 方案    │          │ → 加载皮肤/脚本    │
-    │ → 部署鼠须管     │          │ → RIME 部署       │
+    │ → update 词库  │          │ → 导入方案         │
+    │ → deploy 方案  │          │ → 加载皮肤/脚本    │
+    │ → sync 上游    │          │ → RIME 部署       │
     └───────────────┘          └──────────────────┘
 ```
 
 ## Component Details
 
 ### 1. Scheme Core (`scheme/shared/`)
-万象拼音基础方案 + 自定义 patch，双平台共享。
+`gins.schema.yaml` 通过 `__include` + `__patch` 继承万象，避免直接修改上游文件。`gins.dict.yaml` 聚合所有词库，`gins.custom.yaml` 添加英文及中英混输翻译器。
 
-### 2. zhwiki-builder (`tools/zhwiki-builder/`)
-Rust CLI，从维基百科 dump 生成简体中文词库。
-- `quick-xml` 流式解析 XML
-- `rust-pinyin` 标注声调拼音
-- OpenCC `s2sg.json` 过滤 CN/SG 简体
-- 输出万象格式 dict.yaml
+### 2. Build Tools (`tools/`)
+- **zhwiki-builder** — Rust CLI，从 Wikipedia titles-only `.gz` 文件生成简体中文词库（OpenCC T2S+S2SG + rayon 并行拼音）
+- **shici-builder** — Rust CLI，从 chinese-poetry JSON 生成古诗词词库，与万象 shici 去重
+- **gins-rime-cli** — Swift CLI，macOS 鼠须管专用：`deploy` / `update` / `sync` / `status`
 
-### 3. gins-rime-cli (`tools/gins-rime-cli/`)
-Swift CLI，macOS 鼠须管专用管理工具。
-- `deploy` — 一键部署方案到 `~/Library/Rime`
-- `update` — 拉取最新词库/方案更新
-- `sync` — 同步用户词典 & 配置
-- `customize` — 交互式自定义（主题、词库开关等）
+### 3. Cloudflare Workers (`workers/gins-rime/`)
+单一 Worker 同时托管 API 和静态文档站：
+- `src/index.ts` — 处理所有 API 路由，其余请求回落到 Workers Assets 静态资产
+- `site/` — Astro Starlight 静态文档站（`output: 'static'`，构建产物由 Workers Assets 分发）
+- **Bindings**: R2（词库存储）、Queue（构建通知）、Workflow（词库更新管道）
 
-### 4. Cloudflare Workers (`workers/api/`)
-- **Workers**: API 服务（版本查询、词库下载、方案分发）
-- **Workflows**: 词库构建管道、差异检测与通知
-- **Queues**: 构建触发、更新推送
-- **R2**: 词库产物 & release 包存储
-
-### 5. Platform Configs
-- **Squirrel** (`scheme/squirrel/`): macOS 外观、快捷键
-- **元书 Hamster v3** (`scheme/hamster/`): iOS 皮肤 (jsonnet)、脚本 (JS)
-
-## Suggested Additional Schemes
-
-| 方案 | 用途 | 来源 |
-|------|------|------|
-| 符号输入 | Emoji + 特殊符号快捷输入 | 万象/雾凇内置 |
-| 日期时间 | `/date` `/time` 快捷输入 | Lua 脚本 |
-| 计算器 | `/calc 1+1` 行内计算 | Lua 脚本 |
-| Unicode | `/uni` 码点查询输入 | Lua 脚本 |
-| 粤语混输 | 粤拼辅助输入（可选） | rime-cantonese |
-| 日语混输 | 平假名/片假名快捷输入（可选） | 自定义 table |
+### 4. Platform Configs
+- **Squirrel** (`scheme/squirrel/`) — macOS 外观（Gins Purple 主题）、快捷键
+- **元书 Hamster v3** (`scheme/hamster/`) — iOS 皮肤（jsonnet）、JS 动作脚本

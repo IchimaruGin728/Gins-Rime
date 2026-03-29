@@ -15,7 +15,7 @@ export default function DownloadBtn() {
       .catch(() => {})
   }, [])
 
-  const href = 'https://gins-rime-api.ichimarugin728.workers.dev/cli/gins-rime-latest'
+  const href = 'https://rime.ichimarugin728.dev/releases/latest/gins-rime'
 
   return (
     <div class="download-block">

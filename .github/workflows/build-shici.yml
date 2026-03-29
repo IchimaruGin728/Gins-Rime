@@ -1,0 +1,90 @@
+name: Build shici Dictionary
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.upstream/chinese-poetry.sha'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: sudo apt-get install -y libopencc-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            tools/shici-builder/target
+          key: ${{ runner.os }}-cargo-shici-${{ hashFiles('tools/shici-builder/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-shici-
+
+      - name: Build shici-builder
+        working-directory: tools/shici-builder
+        run: cargo build --release
+
+      - name: Clone chinese-poetry
+        run: git clone --depth 1 https://github.com/chinese-poetry/chinese-poetry.git /tmp/chinese-poetry
+
+      - name: Clone wanxiang for dedup reference
+        run: |
+          git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/wanxiang
+          SHICI=$(find /tmp/wanxiang -name "*shici*.yaml" ! -name "*.schema.*" | head -1)
+          echo "WANXIANG_SHICI=$SHICI" >> $GITHUB_ENV
+
+      - name: Build dictionary
+        run: |
+          ./tools/shici-builder/target/release/shici-builder \
+            --poetry-dir /tmp/chinese-poetry \
+            --wanxiang-shici "$WANXIANG_SHICI" \
+            --output gins-shici.dict.yaml \
+            --min-len 3 --max-len 20
+          LINES=$(wc -l < gins-shici.dict.yaml)
+          echo "DICT_LINES=$LINES" >> $GITHUB_ENV
+
+      - name: Validate
+        run: |
+          grep -q "^name: gins-shici" gins-shici.dict.yaml || (echo "Missing header" && exit 1)
+          [ "$DICT_LINES" -gt 10000 ] || (echo "Too few entries: $DICT_LINES" && exit 1)
+
+      - name: Upload to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          npm install -g wrangler
+          DATE=$(date +%Y%m%d)
+          wrangler r2 object put gins-rime/dicts/gins-shici.dict.yaml \
+            --file gins-shici.dict.yaml \
+            --content-type "text/yaml"
+          echo "Uploaded to R2: dicts/gins-shici.dict.yaml ($DICT_LINES entries)"
+
+      - name: Trigger DictUpdateWorkflow
+        run: |
+          DATE=$(date +%Y%m%d)
+          RESPONSE=$(curl -s -X POST \
+            "https://rime.ichimarugin728.dev/workflow/dict-update" \
+            -H "Authorization: Bearer ${{ secrets.WORKER_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"dict\": \"gins-shici\",
+              \"r2Key\": \"dicts/gins-shici.dict.yaml\",
+              \"date\": \"${DATE}\",
+              \"lines\": ${DICT_LINES},
+              \"triggeredBy\": \"github-actions\"
+            }")
+          echo "Workflow response: $RESPONSE"
+          echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); exit(0 if d.get('instanceId') else 1)"

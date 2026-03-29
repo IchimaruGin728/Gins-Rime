@@ -1,24 +1,26 @@
 # dicts/
 
-此目录存放外挂词库文件。Git 仅跟踪 `zhwiki.dict.yaml`（由 CI 构建），其余文件需手动从上游获取。
+外挂词库目录。所有词库文件均不纳入 git 跟踪，分两类来源：
 
-## 需要手动获取的文件
+## 由 CI 自动构建（上传至 R2，`gins-rime update` 下载）
 
-### tone_moe.dict.yaml
-来源：https://github.com/suiginko/moetype/releases
-下载"带声调-无辅助码"版本，放到此目录。
+| 文件 | 触发时机 |
+|------|---------|
+| `zhwiki.dict.yaml` | 每月 2 号（`build-zhwiki.yml`） |
+| `gins-shici.dict.yaml` | chinese-poetry 上游更新时（`build-shici.yml`） |
 
-### en_dicts/（整个目录）
-来源：https://github.com/iDvel/rime-ice
-需要的文件：
-- `en_dicts/en.dict.yaml`
-- `en_dicts/en_ext.dict.yaml`
+## 由上游同步（`sync-upstream.yml` 自动 PR）
 
-### melt_eng.schema.yaml
-来源：https://github.com/iDvel/rime-ice
-复制根目录的 `melt_eng.schema.yaml` 到 `scheme/shared/`。
+| 文件 | 来源 |
+|------|------|
+| `tone_moe.dict.yaml` | [suiginko/moetype](https://github.com/suiginko/moetype) 发布时自动下载 |
 
-## CI 自动构建
+## 由 Sync 命令同步（`scheme/shared/upstream/`）
 
-### zhwiki.dict.yaml
-由 `.github/workflows/build-zhwiki.yml` 每周自动构建，从 GitHub Release 下载。
+`gins-rime sync` 将 `scheme/shared/upstream/` 下的上游文件复制到 `~/Library/Rime/`：
+
+| 文件 | 来源 |
+|------|------|
+| `upstream/wanxiang.schema.yaml` 等 | amzxyz/rime_wanxiang |
+| `upstream/melt_eng.schema.yaml` | iDvel/rime-ice |
+| `upstream/en_dicts/` | iDvel/rime-ice |

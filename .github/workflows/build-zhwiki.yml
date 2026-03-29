@@ -9,12 +9,12 @@ permissions:
   contents: write
 
 env:
-  DUMP_URL: https://dumps.wikimedia.org/zhwiki/latest/zhwiki-latest-pages-articles.xml.bz2
+  TITLES_URL: https://dumps.wikimedia.org/zhwiki/latest/zhwiki-latest-all-titles-in-ns0.gz
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
@@ -37,15 +37,15 @@ jobs:
         working-directory: tools/zhwiki-builder
         run: cargo build --release
 
-      - name: Download zhwiki dump
+      - name: Download zhwiki titles
         run: |
-          curl -L --retry 3 --retry-delay 10 -o zhwiki-dump.xml.bz2 "$DUMP_URL"
-          ls -lh zhwiki-dump.xml.bz2
+          curl -L --retry 3 --retry-delay 10 -o zhwiki-titles.gz "$TITLES_URL"
+          ls -lh zhwiki-titles.gz
 
       - name: Build dictionary
         run: |
           ./tools/zhwiki-builder/target/release/zhwiki-builder \
-            --input zhwiki-dump.xml.bz2 \
+            --input zhwiki-titles.gz \
             --output zhwiki.dict.yaml \
             --min-len 2 --max-len 20
           LINES=$(wc -l < zhwiki.dict.yaml)
@@ -77,7 +77,7 @@ jobs:
         run: |
           DATE=$(date +%Y%m%d)
           RESPONSE=$(curl -s -X POST \
-            "https://gins-rime.ichimarugin728.workers.dev/workflow/dict-update" \
+            "https://rime.ichimarugin728.dev/workflow/dict-update" \
             -H "Authorization: Bearer ${{ secrets.WORKER_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "{

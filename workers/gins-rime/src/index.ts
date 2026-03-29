@@ -10,6 +10,7 @@ interface Env {
   BUCKET: R2Bucket;
   BUILD_QUEUE: Queue;
   DICT_UPDATE_WORKFLOW: Workflow;
+  ASSETS: Fetcher;
   GITHUB_REPO: string;
 }
 
@@ -122,6 +123,17 @@ export default {
         });
       }
 
+      // GET /api/status  —  version info + CLI meta for the site
+      if (path === "/api/status") {
+        const [versionObj, cliObj] = await Promise.all([
+          env.BUCKET.get("releases/latest.json"),
+          env.BUCKET.get("cli/meta.json"),
+        ]);
+        const version = versionObj ? JSON.parse(await versionObj.text()) : {};
+        const cli = cliObj ? JSON.parse(await cliObj.text()) : {};
+        return json({ ...version, cli }, CORS);
+      }
+
       // GET /dicts/:name
       if (path.startsWith("/dicts/")) {
         return serveR2(env.BUCKET, `dicts/${path.slice(7)}`, CORS);
@@ -133,7 +145,6 @@ export default {
       }
 
       // POST /workflow/dict-update  —  trigger DictUpdateWorkflow
-      // Called by GitHub Actions after uploading to R2
       if (path === "/workflow/dict-update" && request.method === "POST") {
         const auth = request.headers.get("Authorization");
         if (!auth?.startsWith("Bearer ")) {
@@ -146,7 +157,7 @@ export default {
         }
 
         const instance = await env.DICT_UPDATE_WORKFLOW.create({
-          id: `dict-update-${body.dict}-${body.date}`,
+          id: `dict-update-${body.dict}-${body.date}-${Date.now()}`,
           params: body,
         });
 
@@ -161,19 +172,8 @@ export default {
         return json({ id, status }, CORS);
       }
 
-      return json(
-        {
-          endpoints: [
-            "GET  /health",
-            "GET  /version",
-            "GET  /dicts/{name}",
-            "GET  /releases/{version}/{file}",
-            "POST /workflow/dict-update",
-            "GET  /workflow/{id}",
-          ],
-        },
-        { ...CORS, status: 404 }
-      );
+      // Fall through to static assets (Astro site)
+      return env.ASSETS.fetch(request);
     } catch (e) {
       return json({ error: "internal error" }, { ...CORS, status: 500 });
     }
@@ -184,7 +184,6 @@ export default {
     for (const msg of batch.messages) {
       const body = msg.body as Record<string, unknown>;
       console.log(`[queue] ${body.type}: ${body.dict} @ ${body.date}`);
-      // TODO: Push notification / webhook to user
       msg.ack();
     }
   },

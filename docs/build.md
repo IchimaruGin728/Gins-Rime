@@ -30,17 +30,23 @@ GitHub Actions (构建词库) → Cloudflare R2 (存储) → Worker API (分发)
 
 构建耗时 < 2 分钟。
 
-## Worker API
+## Worker
 
-部署在 `gins-rime.ichimarugin728.workers.dev`。
+`workers/api/` 和 `workers/site/` 已合并为 `workers/gins-rime/`，部署在 `rime.ichimarugin728.dev`。
+
+- `src/index.ts` — Worker 入口，处理所有 API 路由
+- `site/` — Astro Starlight 文档站（静态构建，通过 Workers Assets 分发）
 
 | 路由 | 说明 |
 |------|------|
+| `GET /health` | 健康检查 |
 | `GET /version` | 最新版本信息 |
+| `GET /api/status` | 文档站词库状态（供 Preact island 调用） |
 | `GET /dicts/:name` | 下载词库文件 |
 | `GET /releases/:version/:file` | 下载发布产物 |
 | `POST /workflow/dict-update` | 触发 DictUpdateWorkflow |
 | `GET /workflow/:id` | 查询 Workflow 状态 |
+| `*` | 静态资产（Astro site） |
 
 ## DictUpdateWorkflow
 

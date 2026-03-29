@@ -10,10 +10,11 @@ dicts/tone_moe.dict.yaml
 dicts/gins-shici.dict.yaml
 
 # Node / pnpm
-workers/api/node_modules/
-workers/site/node_modules/
-workers/site/.wrangler/
-workers/api/.wrangler/
+workers/gins-rime/node_modules/
+workers/gins-rime/.wrangler/
+workers/gins-rime/site/node_modules/
+workers/gins-rime/site/dist/
+workers/gins-rime/site/.astro/
 
 # RIME user data
 *.userdb/

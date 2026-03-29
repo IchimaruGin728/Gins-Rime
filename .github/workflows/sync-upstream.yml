@@ -2,8 +2,8 @@ name: Sync Upstream Sources
 
 on:
   schedule:
-    - cron: '28 23 * * *'   # 07:28 CST
-    - cron: '16 9 * * *'    # 17:16 CST
+    - cron: '28 23 * * *'   # 07:28 SGT
+    - cron: '16 9 * * *'    # 17:16 SGT
   workflow_dispatch:
 
 permissions:
@@ -103,7 +103,7 @@ jobs:
           DATE=$(date +%Y%m%d)
           LINES=$(wc -l < dicts/tone_moe.dict.yaml)
           curl -s -X POST \
-            "https://gins-rime.ichimarugin728.workers.dev/workflow/dict-update" \
+            "https://rime.ichimarugin728.dev/workflow/dict-update" \
             -H "Authorization: Bearer ${{ secrets.WORKER_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "{\"dict\":\"tone_moe\",\"r2Key\":\"dicts/tone_moe.dict.yaml\",\"date\":\"${DATE}\",\"lines\":${LINES},\"triggeredBy\":\"sync-upstream\"}"

@@ -5,6 +5,18 @@
   "compatibility_date": "2026-03-27",
   "account_id": "cd4ce461acea5097153abf9e2deb26ec",
 
+  "assets": {
+    "directory": "./site/dist",
+    "binding": "ASSETS"
+  },
+
+  "routes": [
+    {
+      "pattern": "rime.ichimarugin728.dev",
+      "custom_domain": true
+    }
+  ],
+
   "vars": {
     "GITHUB_REPO": "ichimarugin728/Gins-Rime"
   },
