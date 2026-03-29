@@ -11,7 +11,7 @@ permissions:
 jobs:
   # ── 1. 打包 scheme ──────────────────────────────────────────
   package:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -20,10 +20,6 @@ jobs:
       - name: Get version
         id: version
         run: echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
-
-      - name: Build Swift CLI
-        working-directory: tools/gins-rime-cli
-        run: swift build -c release
 
       - name: Fetch generated dicts from Worker
         run: |
@@ -50,10 +46,8 @@ jobs:
             dicts/tone_moe.dict.yaml \
             dicts/gins-shici.dict.yaml
 
-      - name: Copy CLI binary
-        run: |
-          cp tools/gins-rime-cli/.build/release/GinsRime dist/gins-rime
-          chmod +x dist/gins-rime
+      - name: Copy CLI script
+        run: cp tools/gins-rime dist/gins-rime
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

@@ -1,0 +1,164 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+WORKER="https://rime.ichimarugin728.dev"
+RIME="$HOME/Library/Rime"
+SQUIRREL="/Library/Input Methods/Squirrel.app/Contents/MacOS/Squirrel"
+VERSIONS="$RIME/.gins-versions"
+DICTS=(zhwiki tone_moe gins-shici)
+
+# ── helpers ────────────────────────────────────────────────────
+
+_root() {
+  local d=$PWD
+  while [[ $d != / ]]; do
+    [[ -f $d/README.md && -d $d/scheme ]] && { print $d; return }
+    d=${d:h}
+  done
+  print -u2 "error: run from inside the Gins-Rime project"; exit 1
+}
+
+_squirrel_reload() {
+  [[ -x $SQUIRREL ]] || { print "  鼠须管未安装，跳过重新部署"; return }
+  $SQUIRREL --reload
+}
+
+# ── commands ───────────────────────────────────────────────────
+
+cmd_deploy() {
+  local root=$(_root)
+  mkdir -p $RIME
+
+  print "部署 scheme/shared/ ..."
+  for f in $root/scheme/shared/*.yaml; do
+    cp $f $RIME/${f:t}
+    print "  ${f:t}"
+  done
+
+  print "部署 scheme/squirrel/ ..."
+  for f in $root/scheme/squirrel/*.yaml; do
+    cp $f $RIME/${f:t}
+    print "  ${f:t}"
+  done
+
+  print "重新部署鼠须管..."
+  _squirrel_reload
+  print "完成"
+}
+
+cmd_update() {
+  mkdir -p $RIME/dicts
+  [[ -f $VERSIONS ]] || print '{}' > $VERSIONS
+
+  print "检查词库更新..."
+  local tmp=$(mktemp)
+  curl -fsSL $WORKER/version -o $tmp || { print -u2 "无法连接 Worker"; exit 1 }
+
+  python3 - $tmp $VERSIONS $RIME/dicts $WORKER <<'EOF'
+import sys, json, urllib.request, os
+
+latest   = json.load(open(sys.argv[1]))
+versions_path = sys.argv[2]
+dicts_dir = sys.argv[3]
+worker   = sys.argv[4]
+
+try:
+    local = json.load(open(versions_path))
+except Exception:
+    local = {}
+
+updated = 0
+for name in ('zhwiki', 'tone_moe', 'gins-shici'):
+    info = latest.get(name)
+    if not isinstance(info, dict):
+        print(f"  {name}: 远程无版本信息")
+        continue
+    new_date  = info.get('date', '')
+    cur_date  = local.get(name, '')
+    if cur_date == new_date:
+        print(f"  {name}: 已是最新 ({new_date})")
+        continue
+    label = '未安装' if not cur_date else cur_date
+    print(f"  {name}: {label} → {new_date}，下载中...")
+    dest = f"{dicts_dir}/{name}.dict.yaml"
+    urllib.request.urlretrieve(f"{worker}/dicts/{name}.dict.yaml", dest)
+    local[name] = new_date
+    updated += 1
+
+json.dump(local, open(versions_path, 'w'), indent=2)
+print(f"\n{updated} 个词库已更新" if updated else "\n所有词库已是最新")
+EOF
+
+  rm -f $tmp
+}
+
+cmd_sync() {
+  local root=$(_root) dry=0
+  [[ ${1:-} == --dry-run ]] && dry=1
+
+  local src=$root/scheme/shared/upstream
+  [[ -d $src ]] || { print -u2 "upstream 目录不存在，请先合并 sync PR"; exit 1 }
+
+  print "${dry:+[dry-run] }同步上游文件..."
+  while IFS= read -r -d '' f; do
+    local rel=${f#$src/}
+    if (( dry )); then
+      print "  [dry] $rel"
+    else
+      mkdir -p $RIME/${${rel:h}//./}
+      cp $f $RIME/$rel
+      print "  $rel"
+    fi
+  done < <(find $src -type f -print0)
+
+  (( dry )) || print "完成"
+}
+
+cmd_status() {
+  print "── 鼠须管"
+  [[ -x $SQUIRREL ]] && print "  已安装" || print "  未安装"
+
+  print "── 方案"
+  [[ -f $RIME/gins.schema.yaml ]] \
+    && print "  gins.schema.yaml ✓" \
+    || print "  未部署（运行 gins-rime deploy）"
+
+  print "── 外挂词库"
+  local versions={}
+  [[ -f $VERSIONS ]] && versions=$(cat $VERSIONS)
+  python3 - "$versions" $RIME/dicts <<'EOF'
+import sys, json, os
+
+v     = json.loads(sys.argv[1])
+ddir  = sys.argv[2]
+names = {'zhwiki': '维基百科标题', 'tone_moe': '萌娘百科', 'gins-shici': '古诗词补充'}
+for key, label in names.items():
+    exists = os.path.exists(f"{ddir}/{key}.dict.yaml")
+    date   = v.get(key, '')
+    mark   = '✓' if exists else '✗'
+    print(f"  {mark} {key:<12} {label}  {date}")
+EOF
+
+  local root; root=$(_root 2>/dev/null) || return 0
+  print "── 上游版本"
+  local -A labels=(
+    wanxiang.tag       "万象拼音"
+    moetype.tag        "萌娘百科"
+    rime-ice-melt.sha  "雾凇 melt_eng"
+    chinese-poetry.sha "古诗词"
+  )
+  for key val in ${(kv)labels}; do
+    local f=$root/.upstream/$key
+    [[ -f $f ]] && print "  $val: $(< $f)" || print "  $val: —"
+  done
+}
+
+# ── main ───────────────────────────────────────────────────────
+
+case ${1:-status} in
+  deploy) cmd_deploy ;;
+  update) cmd_update ;;
+  sync)   shift; cmd_sync "$@" ;;
+  status) cmd_status ;;
+  *) print "usage: gins-rime [deploy|update|sync [--dry-run]|status]"; exit 1 ;;
+esac

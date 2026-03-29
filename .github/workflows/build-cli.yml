@@ -4,24 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'tools/gins-rime-cli/**'
+      - 'tools/gins-rime'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  build:
-    runs-on: macos-latest
+  upload:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Build release binary
-        working-directory: tools/gins-rime-cli
-        run: |
-          swift build -c release
-          cp .build/release/GinsRime /tmp/gins-rime
-          chmod +x /tmp/gins-rime
 
       - name: Upload to R2
         env:
@@ -30,8 +23,8 @@ jobs:
         run: |
           npm install -g wrangler
           wrangler r2 object put gins-rime/cli/gins-rime-latest \
-            --file /tmp/gins-rime \
-            --content-type "application/octet-stream"
+            --file tools/gins-rime \
+            --content-type "application/x-sh"
           SHA=$(git rev-parse --short HEAD)
           DATE=$(date +%Y%m%d)
           echo "{\"sha\":\"${SHA}\",\"date\":\"${DATE}\"}" > /tmp/cli-meta.json
