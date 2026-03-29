@@ -3,12 +3,17 @@ tools/zhwiki-builder/target/
 tools/gins-rime-cli/.build/
 tools/gins-rime-cli/.swiftpm/
 
-# Node
-workers/api/node_modules/
-workers/api/.wrangler/
 
-# Generated dicts (built by CI)
+# Generated dicts (built by CI, not tracked)
 dicts/zhwiki.dict.yaml
+dicts/tone_moe.dict.yaml
+dicts/gins-shici.dict.yaml
+
+# Node / pnpm
+workers/api/node_modules/
+workers/site/node_modules/
+workers/site/.wrangler/
+workers/api/.wrangler/
 
 # RIME user data
 *.userdb/
