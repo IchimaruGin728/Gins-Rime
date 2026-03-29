@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gins-rime-site",
+  "main": "dist/_worker.js",
+  "compatibility_date": "2026-03-27",
+  "account_id": "cd4ce461acea5097153abf9e2deb26ec",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "API_BASE": "https://gins-rime-api.ichimarugin728.workers.dev"
+  }
+}

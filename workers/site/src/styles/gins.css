@@ -1,0 +1,121 @@
+/* Gins-Rime — Starlight 主题覆盖 */
+
+:root {
+  --sl-color-accent-low:    #1E1B4B;
+  --sl-color-accent:        #7C3AED;
+  --sl-color-accent-high:   #A78BFA;
+  --sl-color-white:         #F5F3FF;
+
+  --sl-border-radius:       12px;
+  --sl-border-radius-sm:    8px;
+}
+
+:root[data-theme='dark'] {
+  --sl-color-bg:            #0F0D2A;
+  --sl-color-bg-nav:        #1E1B4B;
+  --sl-color-bg-sidebar:    #161330;
+  --sl-color-hairline:      #3D3580;
+  --sl-color-text:          #E2DEFF;
+  --sl-color-text-accent:   #A78BFA;
+}
+
+:root[data-theme='light'] {
+  --sl-color-bg:            #FAFAFF;
+  --sl-color-bg-nav:        #F0EDFF;
+  --sl-color-bg-sidebar:    #F5F3FF;
+  --sl-color-hairline:      #DDD8FF;
+  --sl-color-text:          #1E1B4B;
+  --sl-color-text-accent:   #6D28D9;
+}
+
+/* 圆角卡片 */
+.sl-card,
+starlight-file-tree,
+.expressive-code pre {
+  border-radius: var(--sl-border-radius) !important;
+}
+
+/* 侧边栏激活项 */
+.sidebar-content a[aria-current='page'] {
+  border-radius: var(--sl-border-radius-sm);
+  background-color: color-mix(in srgb, var(--sl-color-accent) 15%, transparent);
+}
+
+/* 代码块 */
+.expressive-code {
+  border-radius: var(--sl-border-radius);
+  overflow: hidden;
+}
+
+/* 词库状态卡片 */
+.dict-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.dict-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--sl-border-radius);
+  border: 1px solid var(--sl-color-hairline);
+  background: color-mix(in srgb, var(--sl-color-accent) 6%, var(--sl-color-bg));
+}
+
+.dict-card.skeleton {
+  height: 80px;
+  animation: pulse 1.5s ease-in-out infinite;
+  background: var(--sl-color-hairline);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1 }
+  50% { opacity: 0.4 }
+}
+
+.dict-name { font-weight: 600; font-size: 0.9rem; }
+.dict-date { font-size: 0.8rem; color: var(--sl-color-text-accent); font-variant-numeric: tabular-nums; }
+.dict-lines { font-size: 0.75rem; color: var(--sl-color-gray-3); }
+
+/* 下载区域 */
+.download-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--sl-border-radius-sm);
+  background: var(--sl-color-accent);
+  color: #fff !important;
+  font-weight: 600;
+  text-decoration: none;
+  width: fit-content;
+  transition: opacity 0.15s;
+}
+
+.download-btn:hover { opacity: 0.85; }
+.download-meta { font-size: 0.8rem; color: var(--sl-color-gray-3); font-variant-numeric: tabular-nums; }
+.install-cmd {
+  padding: 0.75rem 1rem;
+  border-radius: var(--sl-border-radius-sm);
+  background: var(--sl-color-bg-nav);
+  font-size: 0.85rem;
+  overflow-x: auto;
+  border: 1px solid var(--sl-color-hairline);
+}
+
+/* 导航栏 */
+header.header {
+  border-bottom: 1px solid var(--sl-color-hairline);
+  backdrop-filter: blur(12px);
+  background-color: color-mix(in srgb, var(--sl-color-bg-nav) 85%, transparent);
+}

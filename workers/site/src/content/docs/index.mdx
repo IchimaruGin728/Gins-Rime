@@ -1,0 +1,26 @@
+---
+title: Gins-Rime
+description: 万象拼音 + 萌娘百科 + 雾凇中英混输，macOS / iOS 双平台
+template: splash
+hero:
+  tagline: 基于万象拼音的个人输入法方案，macOS 鼠须管 + iOS 元书 Hamster v3
+  actions:
+    - text: 方案设计
+      link: /scheme
+      icon: right-arrow
+      variant: primary
+    - text: GitHub
+      link: https://github.com/IchimaruGin728/Gins-Rime
+      icon: external
+---
+
+import DictStatus from '../../components/DictStatus.tsx'
+import DownloadBtn from '../../components/DownloadBtn.tsx'
+
+## 词库状态
+
+<DictStatus client:load />
+
+## 安装 CLI
+
+<DownloadBtn client:load />
