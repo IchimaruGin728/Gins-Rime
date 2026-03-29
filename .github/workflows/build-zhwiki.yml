@@ -66,11 +66,13 @@ jobs:
           # 覆盖最新版
           wrangler r2 object put gins-rime/dicts/zhwiki.dict.yaml \
             --file zhwiki.dict.yaml \
-            --content-type "text/yaml"
+            --content-type "text/yaml" \
+            --remote
           # 保留带日期的历史版本
           wrangler r2 object put "gins-rime/dicts/history/zhwiki-${DATE}.dict.yaml" \
             --file zhwiki.dict.yaml \
-            --content-type "text/yaml"
+            --content-type "text/yaml" \
+            --remote
           echo "Uploaded to R2: dicts/zhwiki.dict.yaml ($DICT_LINES entries)"
 
       - name: Trigger DictUpdateWorkflow

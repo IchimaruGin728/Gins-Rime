@@ -69,7 +69,8 @@ jobs:
           DATE=$(date +%Y%m%d)
           wrangler r2 object put gins-rime/dicts/gins-shici.dict.yaml \
             --file gins-shici.dict.yaml \
-            --content-type "text/yaml"
+            --content-type "text/yaml" \
+            --remote
           echo "Uploaded to R2: dicts/gins-shici.dict.yaml ($DICT_LINES entries)"
 
       - name: Trigger DictUpdateWorkflow

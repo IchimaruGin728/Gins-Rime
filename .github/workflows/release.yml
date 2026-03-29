@@ -100,22 +100,22 @@ jobs:
         run: |
           wrangler r2 object put "gins-rime/releases/${VERSION}/squirrel.tar.gz" \
             --file dist/gins-rime-squirrel.tar.gz \
-            --content-type "application/gzip"
+            --content-type "application/gzip" --remote
           wrangler r2 object put "gins-rime/releases/${VERSION}/hamster.tar.gz" \
             --file dist/gins-rime-hamster.tar.gz \
-            --content-type "application/gzip"
+            --content-type "application/gzip" --remote
           wrangler r2 object put "gins-rime/releases/${VERSION}/gins-rime" \
             --file dist/gins-rime \
-            --content-type "application/x-sh"
+            --content-type "application/x-sh" --remote
           wrangler r2 object put "gins-rime/releases/${VERSION}/gins-rime-native" \
             --file dist/gins-rime-native \
-            --content-type "application/octet-stream"
+            --content-type "application/octet-stream" --remote
 
       - name: Update latest.json
         run: |
           DATE=$(date +%Y%m%d)
           wrangler r2 object get gins-rime/releases/latest.json \
-            --file /tmp/latest.json 2>/dev/null || echo '{}' > /tmp/latest.json
+            --file /tmp/latest.json --remote 2>/dev/null || echo '{}' > /tmp/latest.json
           python3 - <<EOF
           import json
           with open('/tmp/latest.json') as f:
@@ -130,7 +130,7 @@ jobs:
           EOF
           wrangler r2 object put gins-rime/releases/latest.json \
             --file /tmp/latest.json \
-            --content-type "application/json"
+            --content-type "application/json" --remote
 
   # ── 3. 部署 Worker ──────────────────────────────────────────
   deploy-worker:

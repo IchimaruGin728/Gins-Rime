@@ -24,10 +24,12 @@ jobs:
           npm install -g wrangler
           wrangler r2 object put gins-rime/cli/gins-rime-latest \
             --file tools/gins-rime \
-            --content-type "application/x-sh"
+            --content-type "application/x-sh" \
+            --remote
           SHA=$(git rev-parse --short HEAD)
           DATE=$(date +%Y%m%d)
           echo "{\"sha\":\"${SHA}\",\"date\":\"${DATE}\"}" > /tmp/cli-meta.json
           wrangler r2 object put gins-rime/cli/meta.json \
             --file /tmp/cli-meta.json \
-            --content-type "application/json"
+            --content-type "application/json" \
+            --remote
