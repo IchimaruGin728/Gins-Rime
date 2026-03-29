@@ -32,7 +32,7 @@ GitHub Actions (构建词库) → Cloudflare R2 (存储) → Worker API (分发)
 
 ## Worker API
 
-部署在 `gins-rime-api.ichimarugin728.workers.dev`。
+部署在 `gins-rime.ichimarugin728.workers.dev`。
 
 | 路由 | 说明 |
 |------|------|

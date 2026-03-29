@@ -28,9 +28,9 @@ jobs:
       - name: Fetch generated dicts from Worker
         run: |
           mkdir -p dicts
-          curl -fsSL "https://gins-rime-api.ichimarugin728.workers.dev/dicts/tone_moe" \
+          curl -fsSL "https://gins-rime.ichimarugin728.workers.dev/dicts/tone_moe" \
             -o dicts/tone_moe.dict.yaml
-          curl -fsSL "https://gins-rime-api.ichimarugin728.workers.dev/dicts/gins-shici" \
+          curl -fsSL "https://gins-rime.ichimarugin728.workers.dev/dicts/gins-shici" \
             -o dicts/gins-shici.dict.yaml
 
       - name: Package scheme — Squirrel

@@ -1,7 +1,7 @@
 import ArgumentParser
 import Foundation
 
-private let workerBase = "https://gins-rime-api.ichimarugin728.workers.dev"
+private let workerBase = "https://gins-rime.ichimarugin728.workers.dev"
 
 struct Update: AsyncParsableCommand {
     static let configuration = CommandConfiguration(

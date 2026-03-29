@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "gins-rime-site",
+  "name": "gins-rime-web",
   "main": "dist/_worker.js",
   "compatibility_date": "2026-03-27",
   "account_id": "cd4ce461acea5097153abf9e2deb26ec",
@@ -9,6 +9,6 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "API_BASE": "https://gins-rime-api.ichimarugin728.workers.dev"
+    "API_BASE": "https://gins-rime.ichimarugin728.workers.dev"
   }
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "gins-rime-api",
+  "name": "gins-rime",
   "main": "src/index.ts",
   "compatibility_date": "2026-03-27",
   "account_id": "cd4ce461acea5097153abf9e2deb26ec",

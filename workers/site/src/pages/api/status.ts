@@ -4,7 +4,7 @@ export const prerender = false
 
 export const GET: APIRoute = async ({ locals }) => {
   const env = locals.runtime?.env as { API_BASE?: string } | undefined
-  const apiBase = env?.API_BASE ?? 'https://gins-rime-api.ichimarugin728.workers.dev'
+  const apiBase = env?.API_BASE ?? 'https://gins-rime.ichimarugin728.workers.dev'
 
   const [versionRes, cliRes] = await Promise.allSettled([
     fetch(`${apiBase}/version`),
