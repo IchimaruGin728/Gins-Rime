@@ -114,26 +114,6 @@ starlight-search button kbd {
   background-clip: text;
 }
 
-/* ── 内容区域 glass panel ── */
-.content-panel {
-  background: rgba(255, 255, 255, 0.04) !important;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 1.5rem !important;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
-  position: relative;
-  z-index: 1;
-}
-
-/* ── 侧边栏 ── */
-.sidebar-pane {
-  background: rgba(5, 5, 5, 0.6) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
 .sidebar-content a[aria-current='page'] {
   border-radius: var(--sl-border-radius-sm);
   background: rgba(139, 92, 246, 0.2);
@@ -168,10 +148,6 @@ starlight-file-tree {
   flex-direction: column;
   gap: 0.25rem;
   padding: 1rem 1.25rem;
-  border-radius: var(--sl-border-radius);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(139, 92, 246, 0.06);
-  backdrop-filter: blur(8px);
 }
 
 .dict-card.skeleton {

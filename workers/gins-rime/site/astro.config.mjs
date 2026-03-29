@@ -11,7 +11,7 @@ export default defineConfig({
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/IchimaruGin728/Gins-Rime' },
       ],
-      customCss: ['./src/styles/gins.css'],
+      customCss: ['./src/styles/gins.css', './src/styles/glass.css'],
       sidebar: [
         {
           label: '快速开始',

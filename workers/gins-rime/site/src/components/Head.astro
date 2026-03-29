@@ -7,4 +7,60 @@ import '@fontsource-variable/outfit'
 <Default {...Astro.props}>
   <meta name="theme-color" content="#581c87" />
   <meta property="og:image" content="/og.png" />
+  <script is:inline>
+    // ── Liquid Glass: SVG filter injection ──────────────────────────
+    (function injectGlassFilter() {
+      if (document.getElementById('lg-filter')) return;
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.style.cssText = 'position:fixed;width:0;height:0;overflow:hidden;pointer-events:none';
+      svg.innerHTML = [
+        '<defs>',
+        '<filter id="lg-filter" color-interpolation-filters="sRGB"',
+        '  x="-8%" y="-8%" width="116%" height="116%">',
+        '  <feTurbulence type="fractalNoise"',
+        '    baseFrequency="0.012 0.008"',
+        '    numOctaves="3" seed="8" result="noise">',
+        '    <animate attributeName="baseFrequency"',
+        '      values="0.012 0.008;0.009 0.013;0.015 0.007;0.011 0.010;0.012 0.008"',
+        '      dur="14s" repeatCount="indefinite"',
+        '      calcMode="spline"',
+        '      keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/>',
+        '  </feTurbulence>',
+        '  <feGaussianBlur in="noise" stdDeviation="0.6" result="smooth"/>',
+        '  <feDisplacementMap in="SourceGraphic" in2="smooth"',
+        '    scale="22" xChannelSelector="R" yChannelSelector="G"/>',
+        '</filter>',
+        '</defs>'
+      ].join('');
+      // Prepend to body so it's available to all CSS references
+      var inject = function() {
+        if (!document.getElementById('lg-filter')) {
+          document.body.prepend(svg);
+        }
+      };
+      document.body ? inject() : document.addEventListener('DOMContentLoaded', inject);
+    })();
+
+    // ── Mouse-tracked specular highlight ────────────────────────────
+    (function trackHighlight() {
+      var raf;
+      document.addEventListener('pointermove', function(e) {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(function() {
+          var x = (e.clientX / innerWidth  * 100).toFixed(1) + '%';
+          var y = (e.clientY / innerHeight * 100).toFixed(1) + '%';
+          document.documentElement.style.setProperty('--hl-x', x);
+          document.documentElement.style.setProperty('--hl-y', y);
+        });
+      }, { passive: true });
+    })();
+
+    // Re-run on Astro page transitions
+    document.addEventListener('astro:page-load', function() {
+      if (!document.getElementById('lg-filter')) {
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+      }
+    });
+  </script>
 </Default>
