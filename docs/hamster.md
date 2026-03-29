@@ -1,7 +1,3 @@
-# 元书输入法配置（iOS）
-
-使用元书 Hamster v3（不是仓输入法），需要 Pro 订阅以使用 JS 脚本功能。
-
 ## 部署方式
 
 1. 打包 `scheme/shared/` + `scheme/hamster/` + `dicts/` 为 `.zip`

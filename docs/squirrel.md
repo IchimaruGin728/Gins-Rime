@@ -1,8 +1,6 @@
-# 鼠须管配置（macOS）
-
 ## 主题：Gins Purple
 
-横排候选，深紫背景，亮紫高亮。颜色格式为 Squirrel 的 `0xAARRGGBB`（注意不是 `#RRGGBBAA`）。
+横排候选，深紫背景，亮紫高亮。颜色格式为 Squirrel 的 `0xAARRGGBB`。
 
 | 元素 | 颜色 | Hex |
 |------|------|-----|
