@@ -58,8 +58,8 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let t2s = OpenCC::new(DefaultConfig::T2S).context("Failed to init OpenCC T2S")?;
-    let s2sg = OpenCC::new(DefaultConfig::S2SG).context("Failed to init OpenCC S2SG")?;
+    let t2s = OpenCC::new(DefaultConfig::T2S)
+        .map_err(|e| anyhow::anyhow!("Failed to init OpenCC T2S: {}", e))?;
 
     // Load 万象 shici for deduplication
     info!("Loading 万象 shici for dedup...");
@@ -67,7 +67,8 @@ fn main() -> Result<()> {
     info!("万象 shici has {} entries", wanxiang_set.len());
 
     // Punctuation to strip from poem lines
-    let punct_re = Regex::new(r"[，。？！、；：「」『』【】《》〈〉""''…—～\s]").unwrap();
+    // r#"..."# avoids raw-string truncation caused by the curly-quote chars " " inside
+    let punct_re = Regex::new(r#"[，。？！、；：「」『』【】《》〈〉""''…—～\s]"#).unwrap();
     let cjk_re = Regex::new(r"[\u4e00-\u9fff\u3400-\u4dbf]").unwrap();
 
     let pb = ProgressBar::new_spinner();
@@ -110,9 +111,7 @@ fn main() -> Result<()> {
                     continue;
                 }
 
-                // T2S → S2SG
-                let simplified = t2s.convert(&cleaned);
-                let normalized = s2sg.convert(&simplified);
+                let normalized = t2s.convert(&cleaned);
                 let char_count = normalized.chars().count();
 
                 if char_count >= cli.min_len && char_count <= cli.max_len {

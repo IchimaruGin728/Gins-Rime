@@ -42,8 +42,8 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let t2s = OpenCC::new(DefaultConfig::T2S).context("Failed to init OpenCC T2S")?;
-    let s2sg = OpenCC::new(DefaultConfig::S2SG).context("Failed to init OpenCC S2SG")?;
+    let t2s = OpenCC::new(DefaultConfig::T2S)
+        .map_err(|e| anyhow::anyhow!("Failed to init OpenCC T2S: {}", e))?;
 
     info!("Reading titles: {}", cli.input.display());
 
@@ -79,8 +79,7 @@ fn main() -> Result<()> {
             continue;
         }
 
-        let simplified = t2s.convert(text);
-        let normalized = s2sg.convert(&simplified);
+        let normalized = t2s.convert(text);
         let char_count = normalized.chars().count();
 
         if char_count >= cli.min_len
@@ -118,7 +117,7 @@ fn main() -> Result<()> {
     let mut writer = BufWriter::with_capacity(1024 * 1024, out);
 
     writeln!(writer, "# Gins-Rime zhwiki dictionary")?;
-    writeln!(writer, "# Simplified Chinese (CN/SG) — OpenCC T2S + S2SG")?;
+    writeln!(writer, "# Simplified Chinese — OpenCC T2S")?;
     writeln!(writer, "---")?;
     writeln!(writer, "name: zhwiki")?;
     writeln!(writer, "version: \"0.1\"")?;
