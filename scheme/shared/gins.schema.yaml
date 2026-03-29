@@ -2,7 +2,7 @@ __include: wanxiang.schema:/
 
 __patch:
   schema/schema_id: gins
-  schema/name: Gins拼音
+  schema/name: Gins-Pinying
   schema/version: "1.0"
   schema/author:
     - IchimaruGin728
