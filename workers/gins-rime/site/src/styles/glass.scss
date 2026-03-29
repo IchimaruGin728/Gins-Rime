@@ -61,13 +61,14 @@
 }
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
+// Use theme-aware CSS custom properties (defined in gins.scss per [data-theme])
+// so the sidebar stays readable in both light and dark mode.
 
 .sidebar-pane {
-  background: rgba(5, 5, 5, 0.55) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+  background: var(--sl-color-bg-sidebar) !important;
+  border-right: 1px solid var(--sl-color-hairline) !important;
   contain: layout style;
-  // Promote sidebar to its own compositor layer — prevents backdrop-filter
-  // from re-painting on every main-thread scroll event
+  // Promote to compositor layer — prevents backdrop-filter repaint on scroll
   will-change: backdrop-filter;
 
   @include glass-base(14px, 160%, 1.0);

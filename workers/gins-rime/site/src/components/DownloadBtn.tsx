@@ -18,16 +18,18 @@ export default function DownloadBtn() {
   const href = 'https://rime.ichimarugin728.dev/releases/latest/gins-rime'
 
   return (
-    <div class="download-block">
+    <div class="flex flex-col gap-3 my-6">
       <a class="download-btn" href={href} download="gins-rime">
         下载 gins-rime CLI
       </a>
       {meta?.date && (
-        <span class="download-meta">
+        <span class="text-[0.8rem] tabular-nums text-[color-mix(in_srgb,var(--sl-color-text)_55%,transparent)]">
           {meta.date}{meta.sha ? ` · ${meta.sha}` : ''}
         </span>
       )}
-      <pre class="install-cmd">{'curl -fsSL ' + href + ' -o gins-rime && chmod +x gins-rime'}</pre>
+      <pre class="text-[0.85rem] overflow-x-auto px-4 py-3 rounded-[var(--sl-border-radius-sm)] bg-white/5 border border-white/8 font-mono">
+        {'curl -fsSL ' + href + ' -o gins-rime && chmod +x gins-rime'}
+      </pre>
     </div>
   )
 }
