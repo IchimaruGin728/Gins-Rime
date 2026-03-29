@@ -46,7 +46,7 @@
   isolation: isolate;
   background: rgba(255, 255, 255, 0.045) !important;
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
-  border-radius: 1.5rem !important;
+  border-radius: 0 !important;
 
   @include glass-base(20px, 190%, 1.03);
   @include glass-shadow(1);
