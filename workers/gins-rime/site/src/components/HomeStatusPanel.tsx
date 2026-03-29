@@ -25,6 +25,7 @@ const CARD_BASE = [
   'border-radius:var(--sl-border-radius-sm,8px)',
   'border:1px solid var(--sl-color-hairline)',
   'background:color-mix(in srgb,var(--sl-color-accent) 4%,transparent)',
+  'contain:layout style',
 ].join(';')
 
 export default function HomeStatusPanel({ dictVersions }: Props) {
@@ -40,21 +41,20 @@ export default function HomeStatusPanel({ dictVersions }: Props) {
   const loading = status === null
 
   return (
-    <div style="display:flex;flex-direction:column;gap:0.6rem">
+    <div class="flex flex-col gap-[0.6rem]">
 
-      {/* ── Dict cards — own grid, align-items:stretch so all same height ── */}
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;align-items:stretch">
+      {/* ── Dict cards — UnoCSS grid + .dict-card SCSS (.dict-card height:100% = 等高) ── */}
+      <div class="grid grid-cols-3 gap-[0.6rem]">
         {DICTS.map(({ key, name, sub }) => {
           const info = status?.[key as keyof ApiStatus] as DictInfo | undefined
           const ver = dictVersions[key] !== '—' ? dictVersions[key] : (info?.date ?? '—')
+          const hasLines = !loading && info?.lines != null
           return (
-            <div key={key} style={`display:flex;flex-direction:column;gap:0.18rem;padding:0.85rem 1rem;${CARD_BASE}`}>
-              <span style="font-weight:600;font-size:0.875rem;color:var(--sl-color-text)">{name}</span>
-              <span style="font-size:0.68rem;color:color-mix(in srgb,var(--sl-color-text) 42%,transparent)">{sub}</span>
-              <span style="font-size:0.78rem;font-family:var(--sl-font-mono);font-variant-numeric:tabular-nums;color:var(--sl-color-text-accent);margin-top:auto;padding-top:0.4rem">
-                {loading ? '…' : ver}
-              </span>
-              <span style={`font-size:0.68rem;color:color-mix(in srgb,var(--sl-color-text) 38%,transparent);font-variant-numeric:tabular-nums;visibility:${!loading && info?.lines != null ? 'visible' : 'hidden'}`}>
+            <div key={key} class="dict-card">
+              <span class="dict-card__name">{name}</span>
+              <span class="dict-card__sub">{sub}</span>
+              <span class="dict-card__ver">{loading ? '…' : ver}</span>
+              <span class={`dict-card__lines${hasLines ? '' : ' dict-card__lines--hidden'}`}>
                 {info?.lines != null ? `${info.lines.toLocaleString()} 条` : '0 条'}
               </span>
             </div>
