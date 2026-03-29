@@ -7,7 +7,7 @@
 | 元素 | 颜色 |
 |------|------|
 | 背景 | `0xD9FFFFFF` 磨砂白，85% 不透明 |
-| 高亮背景 | `0xFF007AFF` 系统蓝 |
+| 高亮背景 | `0xFFB915D8` 系统紫 |
 | 候选文字 | `0xFF3C3C43` iOS primary label |
 | 拼音注释 | `0xFF8E8E93` iOS secondary label |
 
@@ -16,7 +16,7 @@
 | 元素 | 颜色 |
 |------|------|
 | 背景 | `0xD91C1C1E` 磨砂黑，85% 不透明 |
-| 高亮背景 | `0xFF0A84FF` 系统蓝（深色模式） |
+| 高亮背景 | `0xFFB915D8` 系统紫 |
 | 候选文字 | `0xFFEBEBF5` iOS primary label dark |
 | 拼音注释 | `0xFF8E8E93` iOS secondary label |
 

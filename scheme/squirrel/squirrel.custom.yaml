@@ -39,7 +39,7 @@ patch:
     hilited_back_color: 0x14007AFF
     candidate_text_color: 0xFF3C3C43
     hilited_candidate_text_color: 0xFFFFFFFF
-    hilited_candidate_back_color: 0xFF007AFF
+    hilited_candidate_back_color: 0xFFB915D8
     comment_text_color: 0xFF8E8E93
     hilited_comment_text_color: 0xFFFFFFFF
     label_color: 0xFFC7C7CC
@@ -63,10 +63,10 @@ patch:
     border_color: 0x33FFFFFF
     text_color: 0xFFEBEBF5
     hilited_text_color: 0xFFFFFFFF
-    hilited_back_color: 0x1A0A84FF
+    hilited_back_color: 0x1AB915D8
     candidate_text_color: 0xFFEBEBF5
     hilited_candidate_text_color: 0xFFFFFFFF
-    hilited_candidate_back_color: 0xFF0A84FF
+    hilited_candidate_back_color: 0xFFB915D8
     comment_text_color: 0xFF8E8E93
     hilited_comment_text_color: 0xFFFFFFFF
     label_color: 0xFF636366
