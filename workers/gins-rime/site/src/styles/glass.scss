@@ -66,6 +66,9 @@
   background: rgba(5, 5, 5, 0.55) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
   contain: layout style;
+  // Promote sidebar to its own compositor layer — prevents backdrop-filter
+  // from re-painting on every main-thread scroll event
+  will-change: backdrop-filter;
 
   @include glass-base(14px, 160%, 1.0);
 }

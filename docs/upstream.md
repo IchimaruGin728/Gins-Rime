@@ -35,11 +35,28 @@
 同步内容：
 - `tone_moe.dict.yaml` — 直接写入 `dicts/`，同时上传 R2
 
+### 古诗词（chinese-poetry/chinese-poetry）
+
+检测方式：`main` 分支最新 commit sha
+
+同步内容：
+- 仅记录 SHA，不直接同步文件到仓库
+
+合并 PR 后自动触发 `build-shici.yml`，用 shici-builder 从源数据重新生成 `gins-shici.dict.yaml` 并上传 R2。
+
 ## 存放位置
 
-同步到仓库的上游文件放在 `scheme/shared/upstream/`，不直接覆盖我们的配置，由 CLI 的 `gins-rime sync` 命令负责将 upstream/ 内容复制到 `~/Library/Rime/`。
+同步到仓库的上游文件放在 `scheme/shared/upstream/`，不直接覆盖我们的配置，由 CLI 的 `gins-rime sync` 命令负责将 upstream/ 内容复制到 `~/Library/Rime/`。合并上游 PR 之前该目录为空，`gins-rime sync` 会提示 "0 个文件"，属正常现象。
 
-版本记录在 `.upstream/`（`wanxiang.tag` / `moetype.tag` / `rime-ice-melt.sha` / `zhwiki.month`），由 CI 自动更新。
+版本记录在 `.upstream/`，由 CI 自动更新：
+
+| 文件 | 来源 |
+|------|------|
+| `wanxiang.tag` | 万象拼音 Release tag |
+| `moetype.tag` | 萌娘百科 Release tag |
+| `rime-ice-melt.sha` | 雾凇 melt_eng commit SHA |
+| `chinese-poetry.sha` | 古诗词 main commit SHA |
+| `zhwiki.month` | Wikimedia dump 年月（`YYYY-MM`） |
 
 ## 手动触发
 

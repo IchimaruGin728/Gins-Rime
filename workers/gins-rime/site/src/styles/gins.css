@@ -61,19 +61,22 @@ body::after {
 body::before {
   top: -20%;
   right: -10%;
-  width: 600px;
-  height: 600px;
-  background: var(--orb-primary, rgba(124, 58, 237, 0.18));
-  filter: blur(90px);
+  width: 700px;
+  height: 700px;
+  /* radial-gradient achieves the same soft glow as blur(90px) at zero GPU cost */
+  background: radial-gradient(ellipse at center,
+    var(--orb-primary, rgba(124, 58, 237, 0.18)) 0%,
+    transparent 68%);
 }
 
 body::after {
   bottom: -20%;
   left: -10%;
-  width: 600px;
-  height: 600px;
-  background: var(--orb-accent, rgba(167, 139, 250, 0.12));
-  filter: blur(90px);
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(ellipse at center,
+    var(--orb-accent, rgba(167, 139, 250, 0.12)) 0%,
+    transparent 68%);
 }
 
 /* 自定义滚动条 */
