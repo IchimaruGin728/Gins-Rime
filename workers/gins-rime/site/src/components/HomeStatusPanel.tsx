@@ -25,7 +25,6 @@ const CARD_BASE = [
   'border-radius:var(--sl-border-radius-sm,8px)',
   'border:1px solid var(--sl-color-hairline)',
   'background:color-mix(in srgb,var(--sl-color-accent) 4%,transparent)',
-  'contain:layout style',
 ].join(';')
 
 export default function HomeStatusPanel({ dictVersions }: Props) {
