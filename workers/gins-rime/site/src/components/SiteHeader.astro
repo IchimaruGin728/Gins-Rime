@@ -1,0 +1,24 @@
+---
+import type { Props } from '@astrojs/starlight/props'
+import SiteTitle from '@astrojs/starlight/components/SiteTitle.astro'
+import Search from '@astrojs/starlight/components/Search.astro'
+import ThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro'
+import SocialIcons from '@astrojs/starlight/components/SocialIcons.astro'
+import MobileMenuToggle from '@astrojs/starlight/components/MobileMenuToggle.astro'
+---
+
+<div class="gins-nav-pill">
+  <div class="gins-nav-start">
+    <SiteTitle {...Astro.props} />
+  </div>
+  <div class="gins-nav-mid">
+    <Search {...Astro.props} />
+  </div>
+  <div class="gins-nav-end">
+    <SocialIcons {...Astro.props} />
+    <ThemeSelect {...Astro.props} />
+    <div class="md:hidden">
+      <MobileMenuToggle {...Astro.props} />
+    </div>
+  </div>
+</div>

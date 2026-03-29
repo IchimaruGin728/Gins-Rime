@@ -1,53 +1,166 @@
-/* Gins-Rime — Starlight 主题覆盖 */
+/* Gins-Rime — Starlight 主题覆盖（Blog 风格） */
 
+/* ── 字体 ── */
 :root {
-  --sl-color-accent-low:    #1E1B4B;
-  --sl-color-accent:        #7C3AED;
-  --sl-color-accent-high:   #A78BFA;
-  --sl-color-white:         #F5F3FF;
+  --sl-font: 'Inter Variable', system-ui, sans-serif;
+  --sl-font-mono: 'JetBrains Mono Variable', monospace;
 
-  --sl-border-radius:       12px;
-  --sl-border-radius-sm:    8px;
+  --sl-color-accent-low:  #2e1065;
+  --sl-color-accent:      #8b5cf6;
+  --sl-color-accent-high: #c084fc;
+  --sl-color-white:       #f5f3ff;
+
+  --sl-border-radius:    12px;
+  --sl-border-radius-sm: 8px;
 }
 
+/* ── 深色主题 ── */
 :root[data-theme='dark'] {
-  --sl-color-bg:            #0F0D2A;
-  --sl-color-bg-nav:        #1E1B4B;
-  --sl-color-bg-sidebar:    #161330;
-  --sl-color-hairline:      #3D3580;
-  --sl-color-text:          #E2DEFF;
-  --sl-color-text-accent:   #A78BFA;
+  --sl-color-bg:         #050505;
+  --sl-color-bg-nav:     transparent;
+  --sl-color-bg-sidebar: rgba(5, 5, 5, 0.9);
+  --sl-color-hairline:   rgba(255, 255, 255, 0.08);
+  --sl-color-text:       #e2deff;
+  --sl-color-text-accent: #c084fc;
 }
 
+/* ── 浅色主题 ── */
 :root[data-theme='light'] {
-  --sl-color-bg:            #FAFAFF;
-  --sl-color-bg-nav:        #F0EDFF;
-  --sl-color-bg-sidebar:    #F5F3FF;
-  --sl-color-hairline:      #DDD8FF;
-  --sl-color-text:          #1E1B4B;
-  --sl-color-text-accent:   #6D28D9;
+  --sl-color-bg:         #fafaff;
+  --sl-color-bg-nav:     transparent;
+  --sl-color-bg-sidebar: rgba(250, 250, 255, 0.9);
+  --sl-color-hairline:   #ddd8ff;
+  --sl-color-text:       #1e1b4b;
+  --sl-color-text-accent: #6d28d9;
 }
 
-/* 圆角卡片 */
-.sl-card,
-starlight-file-tree,
-.expressive-code pre {
-  border-radius: var(--sl-border-radius) !important;
+/* ── 全局背景 ── */
+html {
+  background-color: var(--sl-color-bg);
 }
 
-/* 侧边栏激活项 */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 背景光晕 */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::before {
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: rgba(88, 28, 135, 0.12);
+  filter: blur(80px);
+}
+
+body::after {
+  bottom: -20%;
+  left: -10%;
+  width: 600px;
+  height: 600px;
+  background: rgba(192, 132, 252, 0.06);
+  filter: blur(80px);
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #050505; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+::selection { background-color: #581c87; color: #fff; }
+
+/* ── 导航栏 pill ── */
+header.header {
+  padding: 1rem 1.5rem !important;
+  background: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+.gins-nav-pill {
+  max-width: 80rem;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 9999px;
+  padding: 0.4rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.gins-nav-start { flex: 0 0 auto; }
+.gins-nav-mid   { flex: 1; display: flex; justify-content: flex-end; }
+.gins-nav-end   { flex: 0 0 auto; display: flex; align-items: center; gap: 0.5rem; }
+
+/* 站点标题渐变 */
+.site-title {
+  font-family: 'Outfit Variable', 'Inter Variable', sans-serif !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #c084fc 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── 内容区域 glass panel ── */
+.content-panel {
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── 侧边栏 ── */
+.sidebar-pane {
+  background: rgba(5, 5, 5, 0.6) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 .sidebar-content a[aria-current='page'] {
   border-radius: var(--sl-border-radius-sm);
-  background-color: color-mix(in srgb, var(--sl-color-accent) 15%, transparent);
+  background: rgba(139, 92, 246, 0.2);
 }
 
-/* 代码块 */
+/* ── 代码块 ── */
 .expressive-code {
   border-radius: var(--sl-border-radius);
   overflow: hidden;
 }
 
-/* 词库状态卡片 */
+.expressive-code pre {
+  border-radius: var(--sl-border-radius) !important;
+}
+
+/* ── 卡片 ── */
+.sl-card,
+starlight-file-tree {
+  border-radius: var(--sl-border-radius) !important;
+}
+
+/* ── 词库状态卡片 ── */
 .dict-status-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -61,26 +174,27 @@ starlight-file-tree,
   gap: 0.25rem;
   padding: 1rem 1.25rem;
   border-radius: var(--sl-border-radius);
-  border: 1px solid var(--sl-color-hairline);
-  background: color-mix(in srgb, var(--sl-color-accent) 6%, var(--sl-color-bg));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(139, 92, 246, 0.06);
+  backdrop-filter: blur(8px);
 }
 
 .dict-card.skeleton {
   height: 80px;
   animation: pulse 1.5s ease-in-out infinite;
-  background: var(--sl-color-hairline);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1 }
-  50% { opacity: 0.4 }
+  50%       { opacity: 0.4 }
 }
 
-.dict-name { font-weight: 600; font-size: 0.9rem; }
-.dict-date { font-size: 0.8rem; color: var(--sl-color-text-accent); font-variant-numeric: tabular-nums; }
+.dict-name  { font-weight: 600; font-size: 0.9rem; }
+.dict-date  { font-size: 0.8rem; color: var(--sl-color-text-accent); font-variant-numeric: tabular-nums; }
 .dict-lines { font-size: 0.75rem; color: color-mix(in srgb, var(--sl-color-text) 55%, transparent); }
 
-/* 下载区域 */
+/* ── 下载区域 ── */
 .download-block {
   display: flex;
   flex-direction: column;
@@ -93,29 +207,29 @@ starlight-file-tree,
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.25rem;
-  border-radius: var(--sl-border-radius-sm);
-  background: var(--sl-color-accent);
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #581c87, #7c3aed);
   color: #fff !important;
   font-weight: 600;
   text-decoration: none;
   width: fit-content;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, transform 0.15s;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
 }
 
-.download-btn:hover { opacity: 0.85; }
-.download-meta { font-size: 0.8rem; color: color-mix(in srgb, var(--sl-color-text) 55%, transparent); font-variant-numeric: tabular-nums; }
+.download-btn:hover { opacity: 0.85; transform: scale(1.02); }
+
+.download-meta {
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--sl-color-text) 55%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
 .install-cmd {
   padding: 0.75rem 1rem;
   border-radius: var(--sl-border-radius-sm);
-  background: var(--sl-color-bg-nav);
+  background: rgba(255, 255, 255, 0.05);
   font-size: 0.85rem;
   overflow-x: auto;
-  border: 1px solid var(--sl-color-hairline);
-}
-
-/* 导航栏 */
-header.header {
-  border-bottom: 1px solid var(--sl-color-hairline);
-  backdrop-filter: blur(12px);
-  background-color: color-mix(in srgb, var(--sl-color-bg-nav) 85%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }

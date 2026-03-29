@@ -8,11 +8,6 @@ export default defineConfig({
     starlight({
       title: 'Gins-Rime',
       description: '万象拼音 + 萌娘百科 + 雾凇中英混输，macOS / iOS 双平台',
-      logo: {
-        light: './src/assets/logo-light.svg',
-        dark: './src/assets/logo-dark.svg',
-        replacesTitle: false,
-      },
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/IchimaruGin728/Gins-Rime' },
       ],
@@ -46,6 +41,7 @@ export default defineConfig({
       ],
       components: {
         Head: './src/components/Head.astro',
+        Header: './src/components/SiteHeader.astro',
       },
     }),
     preact({ compat: true }),
