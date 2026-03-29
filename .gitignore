@@ -1,6 +1,8 @@
 # Build artifacts
 tools/zhwiki-builder/target/
 tools/shici-builder/target/
+tools/gins-rime-cli/.build/
+tools/gins-rime-cli/.swiftpm/
 
 
 # Generated dicts (built by CI, not tracked)
