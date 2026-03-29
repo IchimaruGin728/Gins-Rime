@@ -1,26 +1,64 @@
 import ArgumentParser
 import Foundation
 
-struct Sync: ParsableCommand {
+struct Sync: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        abstract: "同步用户词典和配置"
+        abstract: "将上游文件同步到 ~/Library/Rime"
     )
 
-    @Option(name: .long, help: "同步方向 (push/pull/both)")
-    var direction: String = "both"
+    @Flag(name: .shortAndLong, help: "仅显示将要同步的文件，不实际复制")
+    var dryRun: Bool = false
 
-    func run() throws {
-        let rimeDir = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Rime")
+    func run() async throws {
+        let upstreamDir = try ProjectPaths.upstreamDir()
+        let rimeDir = RimePaths.user
 
-        print("🔄 同步用户数据...")
-        print("  RIME 目录: \(rimeDir.path)")
-        print("  方向: \(direction)")
+        guard FileManager.default.fileExists(atPath: upstreamDir.path) else {
+            print("upstream 目录不存在：\(upstreamDir.path)")
+            print("请先合并上游同步 PR，或运行 git pull")
+            return
+        }
 
-        // TODO: Implement user dict sync (user.db)
-        // TODO: Implement custom phrase sync
-        // TODO: iCloud / Git sync for cross-device
+        print("同步上游文件到 \(rimeDir.path)\(dryRun ? "（dry-run）" : "")")
 
-        print("⚠️  同步功能开发中")
+        let files = try collectFiles(in: upstreamDir)
+        var count = 0
+
+        for src in files {
+            let relative = src.path.dropFirst(upstreamDir.path.count + 1)
+            let dest = rimeDir.appendingPathComponent(String(relative))
+
+            let destDir = dest.deletingLastPathComponent()
+            if !dryRun {
+                try FileManager.default.createDirectory(at: destDir, withIntermediateDirectories: true)
+                try? FileManager.default.removeItem(at: dest)
+                try FileManager.default.copyItem(at: src, to: dest)
+            }
+
+            print("  \(dryRun ? "~" : "+") \(relative)")
+            count += 1
+        }
+
+        print("\n\(count) 个文件\(dryRun ? "待同步" : "已同步")")
+
+        if !dryRun {
+            print("建议执行 gins-rime deploy --copy-only 后重新部署")
+        }
+    }
+
+    private func collectFiles(in dir: URL) throws -> [URL] {
+        var result: [URL] = []
+        let contents = try FileManager.default.contentsOfDirectory(
+            at: dir, includingPropertiesForKeys: [.isDirectoryKey]
+        )
+        for item in contents.sorted(by: { $0.path < $1.path }) {
+            let isDir = (try? item.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
+            if isDir {
+                result += try collectFiles(in: item)
+            } else {
+                result.append(item)
+            }
+        }
+        return result
     }
 }

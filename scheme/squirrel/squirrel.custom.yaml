@@ -7,7 +7,7 @@ patch:
     inline_preedit: true
     inline_candidate: false
     memorize_size: true
-    translucency: false           # 先关掉，translucency 会让桌面底色影响观感
+    translucency: false
     mutual_exclusive: false
     show_paging: false
     corner_radius: 12
@@ -32,20 +32,14 @@ patch:
     hilited_corner_radius: 8
     border_height: 0
     border_width: 0
-    # 格式: 0xAARRGGBB
-    # 深紫背景 #1E1B4B
     back_color: 0xFF1E1B4B
     border_color: 0xFF3D3580
-    # 输入码文字（浅紫白）
     text_color: 0xFFE2DEFF
     hilited_text_color: 0xFFFFFFFF
     hilited_back_color: 0xFF312B7A
-    # 候选词
     candidate_text_color: 0xFFD8D0FF
     hilited_candidate_text_color: 0xFFFFFFFF
-    # 高亮用亮紫 #7C3AED
     hilited_candidate_back_color: 0xFF7C3AED
-    # 注释（拼音提示）
     comment_text_color: 0xFF7B6FA8
     hilited_comment_text_color: 0xFFD4BBFF
     label_color: 0xFF5A5280

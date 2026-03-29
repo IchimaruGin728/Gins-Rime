@@ -2,7 +2,8 @@ name: Sync Upstream Sources
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '28 23 * * *'   # 07:28 CST
+    - cron: '16 9 * * *'    # 17:16 CST
   workflow_dispatch:
 
 permissions:
@@ -10,7 +11,54 @@ permissions:
   pull-requests: write
 
 jobs:
-  # ── moetype ─────────────────────────────────────────────────
+  # ── 万象拼音 ────────────────────────────────────────────────
+  sync-wanxiang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest tag
+        id: meta
+        run: |
+          TAG=$(curl -s https://api.github.com/repos/amzxyz/rime_wanxiang/releases/latest \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'])")
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Check tag
+        id: check
+        run: |
+          CURRENT=$(cat .upstream/wanxiang.tag 2>/dev/null || echo "none")
+          echo "stale=$( [ '$CURRENT' != '${{ steps.meta.outputs.tag }}' ] && echo true || echo false )" >> $GITHUB_OUTPUT
+
+      - name: Clone and copy
+        if: steps.check.outputs.stale == 'true'
+        run: |
+          git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/wanxiang
+          mkdir -p scheme/shared/upstream
+          cp /tmp/wanxiang/wanxiang.schema.yaml scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang_algebra.yaml scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang_symbols.yaml scheme/shared/upstream/
+          mkdir -p .upstream && echo "${{ steps.meta.outputs.tag }}" > .upstream/wanxiang.tag
+
+      - name: Open PR
+        if: steps.check.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="sync/wanxiang-${{ steps.meta.outputs.tag }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add scheme/shared/upstream/ .upstream/wanxiang.tag
+          git diff --cached --quiet && exit 0
+          git commit -m "sync: wanxiang ${{ steps.meta.outputs.tag }}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "sync: wanxiang ${{ steps.meta.outputs.tag }}" \
+            --body "Auto-synced from [rime_wanxiang](https://github.com/amzxyz/rime_wanxiang/releases/tag/${{ steps.meta.outputs.tag }})." \
+            --base main --head "$BRANCH"
+
+  # ── 萌娘百科 ────────────────────────────────────────────────
   sync-moetype:
     runs-on: ubuntu-latest
     steps:
@@ -77,54 +125,7 @@ jobs:
             --body "Auto-synced from [moetype](https://github.com/suiginko/moetype/releases/tag/${{ steps.meta.outputs.tag }})." \
             --base main --head "$BRANCH"
 
-  # ── wanxiang schema ─────────────────────────────────────────
-  sync-wanxiang:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Get latest tag
-        id: meta
-        run: |
-          TAG=$(curl -s https://api.github.com/repos/amzxyz/rime_wanxiang/releases/latest \
-            | python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'])")
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-
-      - name: Check tag
-        id: check
-        run: |
-          CURRENT=$(cat .upstream/wanxiang.tag 2>/dev/null || echo "none")
-          echo "stale=$( [ '$CURRENT' != '${{ steps.meta.outputs.tag }}' ] && echo true || echo false )" >> $GITHUB_OUTPUT
-
-      - name: Clone and copy
-        if: steps.check.outputs.stale == 'true'
-        run: |
-          git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/wanxiang
-          mkdir -p scheme/shared/upstream
-          cp /tmp/wanxiang/wanxiang.schema.yaml scheme/shared/upstream/
-          cp /tmp/wanxiang/wanxiang_algebra.yaml scheme/shared/upstream/
-          cp /tmp/wanxiang/wanxiang_symbols.yaml scheme/shared/upstream/
-          mkdir -p .upstream && echo "${{ steps.meta.outputs.tag }}" > .upstream/wanxiang.tag
-
-      - name: Open PR
-        if: steps.check.outputs.stale == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH="sync/wanxiang-${{ steps.meta.outputs.tag }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
-          git add scheme/shared/upstream/ .upstream/wanxiang.tag
-          git diff --cached --quiet && exit 0
-          git commit -m "sync: wanxiang ${{ steps.meta.outputs.tag }}"
-          git push origin "$BRANCH"
-          gh pr create \
-            --title "sync: wanxiang ${{ steps.meta.outputs.tag }}" \
-            --body "Auto-synced from [rime_wanxiang](https://github.com/amzxyz/rime_wanxiang/releases/tag/${{ steps.meta.outputs.tag }})." \
-            --base main --head "$BRANCH"
-
-  # ── rime-ice melt_eng ───────────────────────────────────────
+  # ── 雾凇 melt_eng ───────────────────────────────────────────
   sync-melt-eng:
     runs-on: ubuntu-latest
     steps:
@@ -168,4 +169,45 @@ jobs:
           gh pr create \
             --title "sync: rime-ice melt_eng ${{ steps.meta.outputs.sha }}" \
             --body "Auto-synced melt_eng + en_dicts from [rime-ice](https://github.com/iDvel/rime-ice)." \
+            --base main --head "$BRANCH"
+
+  # ── 古诗词 ──────────────────────────────────────────────────
+  sync-chinese-poetry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest commit sha
+        id: meta
+        run: |
+          SHA=$(curl -s "https://api.github.com/repos/chinese-poetry/chinese-poetry/commits?per_page=1" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin)[0]['sha'][:7])")
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+
+      - name: Check sha
+        id: check
+        run: |
+          CURRENT=$(cat .upstream/chinese-poetry.sha 2>/dev/null || echo "none")
+          echo "stale=$( [ '$CURRENT' != '${{ steps.meta.outputs.sha }}' ] && echo true || echo false )" >> $GITHUB_OUTPUT
+
+      - name: Record sha
+        if: steps.check.outputs.stale == 'true'
+        run: |
+          mkdir -p .upstream && echo "${{ steps.meta.outputs.sha }}" > .upstream/chinese-poetry.sha
+
+      - name: Open PR
+        if: steps.check.outputs.stale == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="sync/chinese-poetry-${{ steps.meta.outputs.sha }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add .upstream/chinese-poetry.sha
+          git commit -m "sync: chinese-poetry ${{ steps.meta.outputs.sha }}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "sync: chinese-poetry ${{ steps.meta.outputs.sha }}" \
+            --body "Upstream [chinese-poetry](https://github.com/chinese-poetry/chinese-poetry) updated. Merge to trigger shici rebuild." \
             --base main --head "$BRANCH"

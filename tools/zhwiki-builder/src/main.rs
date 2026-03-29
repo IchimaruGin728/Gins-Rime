@@ -1,22 +1,21 @@
 use anyhow::{Context, Result};
-use bzip2::read::BzDecoder;
 use clap::Parser;
+use flate2::read::GzDecoder;
 use indicatif::{ProgressBar, ProgressStyle};
+use opencc_rust::{DefaultConfig, OpenCC};
 use pinyin::ToPinyin;
-use quick_xml::events::Event;
-use quick_xml::reader::Reader;
+use rayon::prelude::*;
 use regex::Regex;
-use std::collections::HashSet;
 use std::fs::File;
-use std::io::{BufReader, BufWriter, Write};
+use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::PathBuf;
-use tracing::{debug, info, warn};
+use tracing::info;
 
 #[derive(Parser)]
 #[command(name = "zhwiki-builder")]
-#[command(about = "Build zhwiki pinyin dictionary for RIME from Wikipedia dump")]
+#[command(about = "Build zhwiki pinyin dictionary for RIME from Wikipedia titles file")]
 struct Cli {
-    /// Path to zhwiki-latest-pages-articles.xml.bz2
+    /// Path to zhwiki-latest-all-titles-in-ns0.gz
     #[arg(short, long)]
     input: PathBuf,
 
@@ -43,23 +42,19 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    info!("Reading dump: {}", cli.input.display());
+    let t2s = OpenCC::new(DefaultConfig::T2S).context("Failed to init OpenCC T2S")?;
+    let s2sg = OpenCC::new(DefaultConfig::S2SG).context("Failed to init OpenCC S2SG")?;
+
+    info!("Reading titles: {}", cli.input.display());
 
     let file = File::open(&cli.input).context("Failed to open input file")?;
-    let decompressor = BzDecoder::new(file);
-    let buf_reader = BufReader::with_capacity(8 * 1024 * 1024, decompressor);
-    let mut reader = Reader::from_reader(buf_reader);
-    reader.config_mut().trim_text(true);
+    let reader = BufReader::with_capacity(4 * 1024 * 1024, GzDecoder::new(file));
 
-    let mut titles: Vec<String> = Vec::new();
-    let mut buf = Vec::new();
-    let mut in_title = false;
-    let mut current_ns: Option<String> = None;
-    let mut in_ns = false;
-
-    // Regex to filter out non-article titles
-    let skip_re = Regex::new(r"^(Wikipedia|Template|Category|File|Help|Portal|Draft|Module|MediaWiki|User|Talk|Special):").unwrap();
-    let cjk_re = Regex::new(r"[\u4e00-\u9fff]").unwrap();
+    // Skip known non-article prefixes
+    let skip_re = Regex::new(
+        r"^(Wikipedia|Template|Category|File|Help|Portal|Draft|Module|MediaWiki|User|Talk|Special)[\s:]"
+    ).unwrap();
+    let cjk_re = Regex::new(r"[\u4e00-\u9fff\u3400-\u4dbf]").unwrap();
 
     let pb = ProgressBar::new_spinner();
     pb.set_style(
@@ -68,69 +63,62 @@ fn main() -> Result<()> {
             .unwrap(),
     );
 
-    info!("Parsing XML dump...");
+    // Phase 1: Read lines, filter, convert
+    let mut titles: Vec<String> = Vec::with_capacity(200_000);
 
-    loop {
-        match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(e)) => match e.name().as_ref() {
-                b"title" => in_title = true,
-                b"ns" => in_ns = true,
-                _ => {}
-            },
-            Ok(Event::Text(e)) => {
-                if in_title {
-                    let title = e.unescape().unwrap_or_default().to_string();
-                    // Only process article namespace (ns=0) titles
-                    if !skip_re.is_match(&title)
-                        && cjk_re.is_match(&title)
-                        && title.chars().count() >= cli.min_len
-                        && title.chars().count() <= cli.max_len
-                        && !title.contains('/')
-                        && !title.contains('(')
-                    {
-                        titles.push(title);
-                    }
-                    in_title = false;
-                } else if in_ns {
-                    current_ns = Some(e.unescape().unwrap_or_default().to_string());
-                    in_ns = false;
-                }
-            }
-            Ok(Event::End(e)) => match e.name().as_ref() {
-                b"title" => in_title = false,
-                b"ns" => in_ns = false,
-                _ => {}
-            },
-            Ok(Event::Eof) => break,
-            Err(e) => {
-                warn!("XML parse error: {e}, skipping");
-            }
-            _ => {}
+    for line in reader.lines() {
+        let line = line.context("Failed to read line")?;
+        let text = line.trim();
+
+        if text.is_empty()
+            || skip_re.is_match(text)
+            || !cjk_re.is_match(text)
+            || text.contains('/')
+            || text.contains('(')
+        {
+            continue;
         }
-        buf.clear();
 
-        if titles.len() % 10000 == 0 && titles.len() > 0 {
-            pb.set_message(format!("Extracted {} titles", titles.len()));
+        let simplified = t2s.convert(text);
+        let normalized = s2sg.convert(&simplified);
+        let char_count = normalized.chars().count();
+
+        if char_count >= cli.min_len
+            && char_count <= cli.max_len
+            && cjk_re.is_match(&normalized)
+        {
+            titles.push(normalized);
+        }
+
+        if titles.len() % 50_000 == 0 && !titles.is_empty() {
+            pb.set_message(format!("Processed {} titles", titles.len()));
         }
     }
 
-    pb.finish_with_message(format!("Total titles extracted: {}", titles.len()));
+    pb.finish_with_message(format!("Total titles: {}", titles.len()));
 
-    // Deduplicate
-    let mut seen = HashSet::new();
-    titles.retain(|t| seen.insert(t.clone()));
-    info!("Unique titles after dedup: {}", titles.len());
+    // Phase 2: Sort + dedup
+    titles.sort_unstable();
+    titles.dedup();
+    info!("Unique: {}", titles.len());
 
-    // Generate pinyin and write dict.yaml
-    info!("Generating pinyin and writing to {}", cli.output.display());
+    // Phase 3: Parallel pinyin generation
+    info!("Generating pinyin...");
+    let mut entries: Vec<(String, String)> = titles
+        .par_iter()
+        .filter_map(|t| to_pinyin_toned(t).map(|py| (t.clone(), py)))
+        .collect();
 
-    let out_file = File::create(&cli.output).context("Failed to create output file")?;
-    let mut writer = BufWriter::new(out_file);
+    entries.sort_unstable_by(|a, b| a.0.cmp(&b.0));
+    info!("Entries with pinyin: {}", entries.len());
 
-    // Write RIME dict header
+    // Phase 4: Write dict.yaml
+    info!("Writing to {}", cli.output.display());
+    let out = File::create(&cli.output).context("Failed to create output")?;
+    let mut writer = BufWriter::with_capacity(1024 * 1024, out);
+
     writeln!(writer, "# Gins-Rime zhwiki dictionary")?;
-    writeln!(writer, "# Auto-generated from Chinese Wikipedia dump")?;
-    writeln!(writer, "# Source: zhwiki-latest-pages-articles.xml.bz2")?;
+    writeln!(writer, "# Simplified Chinese (CN/SG) — OpenCC T2S + S2SG")?;
     writeln!(writer, "---")?;
     writeln!(writer, "name: zhwiki")?;
     writeln!(writer, "version: \"0.1\"")?;
@@ -138,41 +126,26 @@ fn main() -> Result<()> {
     writeln!(writer, "...")?;
     writeln!(writer)?;
 
-    let mut count = 0u64;
-    for title in &titles {
-        if let Some(pinyin_str) = to_pinyin_with_tone(title) {
-            writeln!(writer, "{}\t{}", title, pinyin_str)?;
-            count += 1;
-        }
+    for (title, py) in &entries {
+        writeln!(writer, "{}\t{}", title, py)?;
     }
 
-    info!("Written {} entries to dict", count);
+    info!("Done: {} entries", entries.len());
     Ok(())
 }
 
-/// Convert a Chinese string to pinyin with tone marks (万象 format).
-/// Returns None if the string contains characters that can't be converted.
-fn to_pinyin_with_tone(s: &str) -> Option<String> {
-    let mut parts = Vec::new();
+fn to_pinyin_toned(s: &str) -> Option<String> {
+    let mut parts = Vec::with_capacity(s.len());
     for ch in s.chars() {
-        if let Some(pinyin) = ch.to_pinyin() {
-            parts.push(pinyin.with_tone().to_string());
+        if let Some(py) = ch.to_pinyin() {
+            parts.push(py.with_tone().to_string());
         } else if ch.is_ascii_alphanumeric() || ch == '·' || ch == '-' {
-            // Keep ASCII chars and interpuncts as-is
             parts.push(ch.to_string());
         } else if ch.is_ascii_whitespace() {
-            // Skip whitespace in encoding
             continue;
         } else {
-            // Non-CJK, non-ASCII char — skip this title
-            debug!("Skipping title with unmappable char '{}': {}", ch, s);
             return None;
         }
     }
-
-    if parts.is_empty() {
-        return None;
-    }
-
-    Some(parts.join(" "))
+    if parts.is_empty() { None } else { Some(parts.join(" ")) }
 }

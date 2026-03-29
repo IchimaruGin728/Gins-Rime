@@ -1,0 +1,40 @@
+name: Build CLI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/gins-rime-cli/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build release binary
+        working-directory: tools/gins-rime-cli
+        run: |
+          swift build -c release
+          cp .build/release/GinsRime /tmp/gins-rime
+          chmod +x /tmp/gins-rime
+
+      - name: Upload to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          npm install -g wrangler
+          wrangler r2 object put gins-rime/cli/gins-rime-latest \
+            --file /tmp/gins-rime \
+            --content-type "application/octet-stream"
+          SHA=$(git rev-parse --short HEAD)
+          DATE=$(date +%Y%m%d)
+          echo "{\"sha\":\"${SHA}\",\"date\":\"${DATE}\"}" > /tmp/cli-meta.json
+          wrangler r2 object put gins-rime/cli/meta.json \
+            --file /tmp/cli-meta.json \
+            --content-type "application/json"

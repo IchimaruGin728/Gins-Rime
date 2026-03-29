@@ -2,7 +2,7 @@ name: Build zhwiki Dictionary
 
 on:
   schedule:
-    - cron: '0 3 * * 1'   # 每周一 03:00 UTC
+    - cron: '0 2 2 * *'   # 每月 2 号 02:00 UTC（dump 1 号 UTC 开始生成）
   workflow_dispatch:
 
 permissions:
@@ -18,6 +18,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: sudo apt-get install -y libopencc-dev
 
       - uses: dtolnay/rust-toolchain@stable
 

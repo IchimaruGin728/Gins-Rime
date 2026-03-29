@@ -1,0 +1,10 @@
+__include: wanxiang.schema:/
+
+__patch:
+  schema/schema_id: gins
+  schema/name: Gins拼音
+  schema/version: "1.0"
+  schema/author:
+    - ichimarugin728
+  schema/description: Gins-Rime：万象拼音 + 萌娘百科 + 雾凇中英混输
+  translator/dictionary: gins

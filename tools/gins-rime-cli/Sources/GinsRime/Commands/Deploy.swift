@@ -1,84 +1,63 @@
 import ArgumentParser
 import Foundation
 
-struct Deploy: ParsableCommand {
+struct Deploy: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        abstract: "部署方案到鼠须管 (~/Library/Rime)"
+        abstract: "部署方案到鼠须管 ~/Library/Rime"
     )
 
-    @Flag(name: .shortAndLong, help: "强制重新部署，忽略缓存")
+    @Flag(name: .shortAndLong, help: "强制覆盖已有文件")
     var force: Bool = false
 
-    @Flag(name: .long, help: "仅复制文件，不触发鼠须管重新部署")
+    @Flag(name: .long, help: "仅复制文件，不触发重新部署")
     var copyOnly: Bool = false
 
-    func run() throws {
-        let rimeDir = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Rime")
+    func run() async throws {
+        let rimeDir = RimePaths.user
+        print("部署 Gins-Rime 到 \(rimeDir.path)")
 
-        print("📦 部署 Gins-Rime 方案到 \(rimeDir.path)")
+        try FileManager.default.createDirectory(at: rimeDir, withIntermediateDirectories: true)
 
-        // Ensure target directory exists
-        try FileManager.default.createDirectory(
-            at: rimeDir,
-            withIntermediateDirectories: true
-        )
+        var copied = 0
 
-        // Copy shared scheme files
-        let schemeFiles = try collectSchemeFiles()
-        for file in schemeFiles {
+        // scheme/shared — gins.*.yaml + gins_eng.dict.yaml
+        let sharedDir = try ProjectPaths.sharedSchemeDir()
+        for file in try yamlFiles(in: sharedDir) {
             let dest = rimeDir.appendingPathComponent(file.lastPathComponent)
             if force || !FileManager.default.fileExists(atPath: dest.path) {
                 try? FileManager.default.removeItem(at: dest)
                 try FileManager.default.copyItem(at: file, to: dest)
-                print("  ✓ \(file.lastPathComponent)")
-            } else {
-                print("  ⏭ \(file.lastPathComponent) (unchanged)")
+                print("  + \(file.lastPathComponent)")
+                copied += 1
             }
         }
 
-        // Copy squirrel-specific files
-        let squirrelFiles = try collectSquirrelFiles()
-        for file in squirrelFiles {
+        // scheme/squirrel — squirrel.custom.yaml, default.custom.yaml
+        let squirrelDir = try ProjectPaths.squirrelDir()
+        for file in try yamlFiles(in: squirrelDir) {
             let dest = rimeDir.appendingPathComponent(file.lastPathComponent)
             try? FileManager.default.removeItem(at: dest)
             try FileManager.default.copyItem(at: file, to: dest)
-            print("  ✓ \(file.lastPathComponent)")
+            print("  + \(file.lastPathComponent)")
+            copied += 1
         }
 
-        if !copyOnly {
-            // Trigger Squirrel redeploy
-            print("\n🔄 触发鼠须管重新部署...")
-            let task = Process()
-            task.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-            task.arguments = [
-                "/Library/Input Methods/Squirrel.app/Contents/MacOS/Squirrel",
-                "--reload"
-            ]
-            try? task.run()
-            task.waitUntilExit()
-            print("✅ 部署完成")
-        } else {
-            print("\n✅ 文件复制完成（未触发重新部署）")
+        print("\(copied) 个文件已复制")
+
+        guard !copyOnly else { return }
+
+        guard Squirrel.isInstalled else {
+            print("鼠须管未安装，跳过重新部署")
+            return
         }
+        print("触发鼠须管重新部署...")
+        Squirrel.reload()
+        print("完成")
     }
 
-    private func collectSchemeFiles() throws -> [URL] {
-        let schemeDir = try ProjectPaths.sharedSchemeDir()
-        return try FileManager.default.contentsOfDirectory(
-            at: schemeDir,
-            includingPropertiesForKeys: nil
-        ).filter { $0.pathExtension == "yaml" || $0.pathExtension == "lua" }
-    }
-
-    private func collectSquirrelFiles() throws -> [URL] {
-        let squirrelDir = try ProjectPaths.squirrelDir()
-        guard FileManager.default.fileExists(atPath: squirrelDir.path) else {
-            return []
-        }
-        return try FileManager.default.contentsOfDirectory(
-            at: squirrelDir,
-            includingPropertiesForKeys: nil
-        )
+    private func yamlFiles(in dir: URL) throws -> [URL] {
+        try FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)
+            .filter { $0.pathExtension == "yaml" }
+            .sorted { $0.lastPathComponent < $1.lastPathComponent }
     }
 }

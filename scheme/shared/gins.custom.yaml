@@ -1,0 +1,28 @@
+patch:
+  schema/dependencies/+:
+    - melt_eng
+
+  engine/translators/+:
+    - table_translator@gins_eng
+    - table_translator@gins_cn_en
+
+  gins_eng:
+    dictionary: gins_eng
+    enable_sentence: false
+    enable_completion: true
+    enable_user_dict: false
+    initial_quality: 1.1
+    comment_format:
+      - xform/.*//
+
+  gins_cn_en:
+    dictionary: ""
+    user_dict: en_dicts/cn_en
+    db_class: tabledb
+    enable_completion: false
+    enable_sentence: false
+    initial_quality: 0.5
+
+  key_binder/bindings/+:
+    - { when: always, accept: "Control+Shift+4", toggle: zh_simp_s2t }
+    - { when: always, accept: "Control+Shift+e", toggle: ascii_mode }
