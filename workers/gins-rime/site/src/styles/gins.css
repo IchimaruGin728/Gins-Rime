@@ -24,23 +24,14 @@
   --sl-color-text-accent: #c084fc;
 }
 
-/* ── 浅色主题强制深色（统一外观） ── */
+/* ── 浅色主题 ── */
 :root[data-theme='light'] {
-  --sl-color-bg:         #050505;
-  --sl-color-bg-nav:     transparent;
-  --sl-color-bg-sidebar: rgba(5, 5, 5, 0.9);
-  --sl-color-hairline:   rgba(255, 255, 255, 0.08);
-  --sl-color-text:       #e2deff;
-  --sl-color-text-accent: #c084fc;
-  --sl-color-white:      #f5f3ff;
-  --sl-color-black:      #050505;
-  --sl-color-gray-1:     #e2deff;
-  --sl-color-gray-2:     #c4b9ff;
-  --sl-color-gray-3:     #9b8ec4;
-  --sl-color-gray-4:     #6e6494;
-  --sl-color-gray-5:     #3d3580;
-  --sl-color-gray-6:     #1e1b4b;
-  --sl-color-gray-7:     #0d0b24;
+  --sl-color-bg:         #fafaff;
+  --sl-color-bg-nav:     rgba(250, 250, 255, 0.85);
+  --sl-color-bg-sidebar: rgba(250, 250, 255, 0.9);
+  --sl-color-hairline:   #ddd8ff;
+  --sl-color-text:       #1e1b4b;
+  --sl-color-text-accent: #6d28d9;
 }
 
 /* ── 全局背景 ── */
@@ -91,10 +82,10 @@ body::after {
 
 /* ── 导航栏 ── */
 header.header {
-  background: rgba(5, 5, 5, 0.85) !important;
+  background: color-mix(in srgb, var(--sl-color-bg-nav) 85%, transparent) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: 1px solid var(--sl-color-hairline) !important;
 }
 
 /* search 按钮去掉白底和圆角，融入深色 header */
