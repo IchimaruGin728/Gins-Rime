@@ -25,4 +25,3 @@ patch:
 
   key_binder/bindings/+:
     - { when: always, accept: "Control+Shift+4", toggle: zh_simp_s2t }
-    - { when: always, accept: "Control+Shift+e", toggle: ascii_mode }
