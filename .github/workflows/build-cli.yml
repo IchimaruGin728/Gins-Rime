@@ -1,18 +1,17 @@
-name: Build CLI
+name: Build CLI Script
 
 on:
   push:
     branches: [main]
     paths:
       - 'tools/gins-rime'
-      - 'tools/gins-rime-cli/**'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  upload-script:
+  upload:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,25 +31,3 @@ jobs:
           wrangler r2 object put gins-rime/cli/meta.json \
             --file /tmp/cli-meta.json \
             --content-type "application/json"
-
-  build-swift:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build Swift binary
-        working-directory: tools/gins-rime-cli
-        run: |
-          swift build -c release
-          cp .build/release/GinsRime /tmp/gins-rime-native
-          chmod +x /tmp/gins-rime-native
-
-      - name: Upload Swift binary to R2
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-        run: |
-          npm install -g wrangler
-          wrangler r2 object put gins-rime/cli/gins-rime-native \
-            --file /tmp/gins-rime-native \
-            --content-type "application/octet-stream"
