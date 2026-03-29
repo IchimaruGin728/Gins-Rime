@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import preact from '@astrojs/preact'
+import UnoCSS from '@unocss/astro'
 
 export default defineConfig({
   output: 'static',
@@ -11,7 +12,7 @@ export default defineConfig({
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/IchimaruGin728/Gins-Rime' },
       ],
-      customCss: ['./src/styles/gins.css', './src/styles/glass.css'],
+      customCss: ['./src/styles/gins.css', './src/styles/glass.scss'],
       sidebar: [
         {
           label: '快速开始',
@@ -45,5 +46,6 @@ export default defineConfig({
       },
     }),
     preact({ compat: true }),
+    UnoCSS({ injectReset: false }),
   ],
 })

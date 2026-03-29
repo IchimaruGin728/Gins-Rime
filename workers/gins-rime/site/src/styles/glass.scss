@@ -1,0 +1,134 @@
+// ═══════════════════════════════════════════════
+// Gins-Rime — Liquid Glass System
+// ═══════════════════════════════════════════════
+
+// ── Mixins ──────────────────────────────────────
+
+@mixin glass-base($blur: 20px, $saturate: 190%, $brightness: 1.03) {
+  backdrop-filter: blur($blur) saturate($saturate) brightness($brightness);
+  -webkit-backdrop-filter: blur($blur) saturate($saturate) brightness($brightness);
+
+  @supports (backdrop-filter: url('#x')) {
+    backdrop-filter: url('#lg-filter') blur(calc($blur * 0.8)) saturate($saturate) brightness($brightness);
+  }
+}
+
+@mixin glass-shadow($depth: 1) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, calc(0.18 * $depth)),
+    inset 0 -1px 0 rgba(0, 0, 0, calc(0.08 * $depth)),
+    0 calc(12px * $depth) calc(48px * $depth) rgba(0, 0, 0, calc(0.45 * $depth)),
+    0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+// ── CSS custom properties (animatable) ──────────
+
+@property --hl-x {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 50%;
+}
+@property --hl-y {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 30%;
+}
+@property --rim-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+// ── Content panel ────────────────────────────────
+
+.content-panel {
+  position: relative !important;
+  isolation: isolate;
+  background: rgba(255, 255, 255, 0.045) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 1.5rem !important;
+
+  @include glass-base(20px, 190%, 1.03);
+  @include glass-shadow(1);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(
+      ellipse 55% 38% at var(--hl-x) var(--hl-y),
+      rgba(255, 255, 255, 0.11) 0%,
+      rgba(255, 255, 255, 0.04) 45%,
+      transparent 70%
+    );
+    transition: background 0.08s linear;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    pointer-events: none;
+    z-index: 2;
+    background: conic-gradient(
+      from var(--rim-angle),
+      rgba(255, 255, 255, 0.00)  0deg,
+      rgba(255, 255, 255, 0.50) 50deg,
+      rgba(255, 255, 255, 0.00) 100deg,
+      rgba(255, 255, 255, 0.00) 190deg,
+      rgba(255, 255, 255, 0.14) 235deg,
+      rgba(255, 255, 255, 0.00) 275deg,
+      rgba(255, 255, 255, 0.00) 360deg
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask:         linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: rim-spin 9s linear infinite;
+  }
+}
+
+@keyframes rim-spin {
+  to { --rim-angle: 360deg; }
+}
+
+// ── Sidebar ──────────────────────────────────────
+
+.sidebar-pane {
+  background: rgba(5, 5, 5, 0.55) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+
+  @include glass-base(14px, 160%, 1.0);
+}
+
+// ── Dict status cards ────────────────────────────
+
+.dict-card {
+  position: relative;
+  isolation: isolate;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: var(--sl-border-radius) !important;
+
+  @include glass-base(12px, 160%, 1.0);
+  @include glass-shadow(0.6);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    @include glass-shadow(0.9);
+  }
+}
+
+// ── Reduced motion ───────────────────────────────
+
+@media (prefers-reduced-motion: reduce) {
+  .content-panel::after { animation: none; }
+  .dict-card            { transition: none; }
+}
