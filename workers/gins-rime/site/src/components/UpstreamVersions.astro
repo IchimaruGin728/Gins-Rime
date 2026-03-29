@@ -1,0 +1,98 @@
+---
+import { readFileSync } from 'fs'
+import { join } from 'path'
+
+// process.cwd() = workers/gins-rime/site 构建时
+const REPO_ROOT = join(process.cwd(), '../../..')
+
+function read(file: string): string {
+  try {
+    return readFileSync(join(REPO_ROOT, '.upstream', file), 'utf8').trim()
+  } catch {
+    return '—'
+  }
+}
+
+const sources = [
+  {
+    name: '万象拼音',
+    repo: 'amzxyz/rime_wanxiang',
+    version: read('wanxiang.tag'),
+    href: 'https://github.com/amzxyz/rime_wanxiang/releases',
+  },
+  {
+    name: '萌娘百科',
+    repo: 'suiginko/moetype',
+    version: read('moetype.tag'),
+    href: 'https://github.com/suiginko/moetype/releases',
+  },
+  {
+    name: '雾凇 melt_eng',
+    repo: 'iDvel/rime-ice',
+    version: read('rime-ice-melt.sha'),
+    href: 'https://github.com/iDvel/rime-ice/commits/dev/melt_eng.schema.yaml',
+  },
+  {
+    name: 'zhwiki',
+    repo: 'Wikimedia dump',
+    version: read('zhwiki.month'),
+    href: 'https://dumps.wikimedia.org/zhwiki/',
+  },
+]
+---
+
+<div class="upstream-grid">
+  {sources.map(s => (
+    <a href={s.href} target="_blank" rel="noopener" class="upstream-card">
+      <span class="upstream-name">{s.name}</span>
+      <span class="upstream-repo">{s.repo}</span>
+      <span class="upstream-version">{s.version}</span>
+    </a>
+  ))}
+</div>
+
+<style>
+  .upstream-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+
+  .upstream-card {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    gap: 0.2rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: var(--sl-border-radius, 8px);
+    border: 1px solid var(--sl-color-hairline);
+    background: color-mix(in srgb, var(--sl-color-accent) 5%, transparent);
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .upstream-card:hover {
+    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+    border-color: var(--sl-color-accent);
+  }
+
+  .upstream-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--sl-color-text);
+  }
+
+  .upstream-repo {
+    font-size: 0.72rem;
+    color: color-mix(in srgb, var(--sl-color-text) 50%, transparent);
+    font-family: var(--sl-font-mono);
+  }
+
+  .upstream-version {
+    font-size: 0.82rem;
+    font-family: var(--sl-font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--sl-color-text-accent);
+    margin-top: 0.3rem;
+  }
+</style>

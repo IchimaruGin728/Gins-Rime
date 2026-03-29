@@ -39,14 +39,7 @@
 
 同步到仓库的上游文件放在 `scheme/shared/upstream/`，不直接覆盖我们的配置，由 CLI 的 `gins-rime sync` 命令负责将 upstream/ 内容复制到 `~/Library/Rime/`。
 
-版本记录在 `.upstream/` 目录：
-
-```
-.upstream/
-  wanxiang.tag        # 万象最新 tag
-  moetype.tag         # moetype 最新 tag
-  rime-ice-melt.sha   # rime-ice melt_eng 最新 commit sha
-```
+版本记录在 `.upstream/`（`wanxiang.tag` / `moetype.tag` / `rime-ice-melt.sha` / `zhwiki.month`），由 CI 自动更新。
 
 ## 手动触发
 
