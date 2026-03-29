@@ -63,7 +63,14 @@ const upstream = [
   </div>
 
   <p class="panel-label">词库 & 安装</p>
-  <HomeStatusPanel client:load />
+  <HomeStatusPanel
+    dictVersions={{
+      zhwiki:      read('zhwiki.month'),
+      tone_moe:    read('moetype.tag'),
+      'gins-shici': read('chinese-poetry.sha'),
+    }}
+    client:load
+  />
 
 </div>
 
