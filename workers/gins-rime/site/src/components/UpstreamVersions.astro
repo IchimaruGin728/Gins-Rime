@@ -15,37 +15,55 @@ function read(file: string): string {
 
 const sources = [
   {
-    name: '万象拼音',
+    name: '万象词库',
     repo: 'amzxyz/rime_wanxiang',
     version: read('wanxiang.tag'),
     href: 'https://github.com/amzxyz/rime_wanxiang/releases',
+    label: '词典数据版本',
+  },
+  {
+    name: '万象模型',
+    repo: 'amzxyz/rime_wanxiang',
+    version: read('wanxiang.tag'),
+    href: 'https://github.com/amzxyz/rime_wanxiang/blob/main/wanxiang_algebra.yaml',
+    label: '拼音变换模型',
   },
   {
     name: '萌娘百科',
     repo: 'suiginko/moetype',
     version: read('moetype.tag'),
     href: 'https://github.com/suiginko/moetype/releases',
+    label: '萌系词库',
   },
   {
-    name: '雾凇 melt_eng',
+    name: '英文混输',
     repo: 'iDvel/rime-ice',
     version: read('rime-ice-melt.sha'),
     href: 'https://github.com/iDvel/rime-ice/commits/dev/melt_eng.schema.yaml',
+    label: 'melt_eng 方案',
   },
   {
-    name: 'zhwiki',
+    name: "Gin's zhwiki",
     repo: 'Wikimedia dump',
     version: read('zhwiki.month'),
     href: 'https://dumps.wikimedia.org/zhwiki/',
+    label: '中文维基词库',
   },
 ]
 ---
 
-<div class="upstream-grid">
+<div class="upstream-grid" role="list">
   {sources.map(s => (
-    <a href={s.href} target="_blank" rel="noopener" class="upstream-card">
+    <a
+      href={s.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="upstream-card"
+      role="listitem"
+      aria-label={`${s.name} — ${s.version}`}
+    >
       <span class="upstream-name">{s.name}</span>
-      <span class="upstream-repo">{s.repo}</span>
+      <span class="upstream-label">{s.label}</span>
       <span class="upstream-version">{s.version}</span>
     </a>
   ))}
@@ -54,45 +72,106 @@ const sources = [
 <style>
   .upstream-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.65rem;
     margin: 1.5rem 0;
+  }
+
+  @media (max-width: 780px) {
+    .upstream-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .upstream-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   .upstream-card {
     display: grid;
-    grid-template-rows: auto auto auto;
-    gap: 0.2rem;
-    padding: 0.9rem 1.1rem;
-    border-radius: var(--sl-border-radius, 8px);
+    grid-template-rows: auto auto 1fr;
+    gap: 0.18rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--sl-border-radius-sm, 8px);
     border: 1px solid var(--sl-color-hairline);
-    background: color-mix(in srgb, var(--sl-color-accent) 5%, transparent);
+    background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
     text-decoration: none;
-    transition: background 0.15s, border-color 0.15s;
+    /* GPU-composited props only — no layout thrash */
+    transition:
+      background 0.14s ease,
+      border-color 0.14s ease,
+      transform 0.12s ease,
+      box-shadow 0.12s ease;
+    will-change: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    contain: layout style;
   }
 
   .upstream-card:hover {
-    background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+    background: color-mix(in srgb, var(--sl-color-accent) 11%, transparent);
+    border-color: color-mix(in srgb, var(--sl-color-accent) 60%, transparent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--sl-color-accent) 18%, transparent);
+    will-change: transform;
+  }
+
+  .upstream-card:active {
+    transform: scale(0.96) translateY(0);
+    box-shadow: none;
+    background: color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
+    transition-duration: 0.06s;
+  }
+
+  .upstream-card:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
     border-color: var(--sl-color-accent);
+  }
+
+  /* Reset will-change after transition to free compositor resources */
+  .upstream-card:not(:hover):not(:active) {
+    will-change: auto;
   }
 
   .upstream-name {
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     color: var(--sl-color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .upstream-repo {
-    font-size: 0.72rem;
-    color: color-mix(in srgb, var(--sl-color-text) 50%, transparent);
-    font-family: var(--sl-font-mono);
+  .upstream-label {
+    font-size: 0.68rem;
+    color: color-mix(in srgb, var(--sl-color-text) 45%, transparent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .upstream-version {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-family: var(--sl-font-mono);
     font-variant-numeric: tabular-nums;
     color: var(--sl-color-text-accent);
-    margin-top: 0.3rem;
+    margin-top: 0.4rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .upstream-card {
+      transition: background 0.1s, border-color 0.1s;
+    }
+    .upstream-card:hover,
+    .upstream-card:active {
+      transform: none;
+      box-shadow: none;
+    }
   }
 </style>
