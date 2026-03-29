@@ -7,4 +7,7 @@ import '@fontsource-variable/outfit'
 <Default {...Astro.props}>
   <meta name="theme-color" content="#581c87" />
   <meta property="og:image" content="/og.png" />
+  <script is:inline>
+    document.documentElement.setAttribute('data-theme', 'dark')
+  </script>
 </Default>

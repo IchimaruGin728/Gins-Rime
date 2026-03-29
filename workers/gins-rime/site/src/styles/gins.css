@@ -88,10 +88,6 @@ header.header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-.gins-nav-pill {
-  display: contents;
-}
-
 /* 站点标题渐变 */
 .site-title {
   font-family: 'Outfit Variable', 'Inter Variable', sans-serif !important;
