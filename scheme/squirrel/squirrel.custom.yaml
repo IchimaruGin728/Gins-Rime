@@ -20,27 +20,27 @@ patch:
 
   preset_color_schemes/gins_purple:
     name: "Gins Purple"
-    author: "Gins-Rime"
-    font_face: ""
+    author: "IchimaruGin728"
+    font_face: "SF Pro Text"
     font_point: 17
-    label_font_face: "Helvetica"
+    label_font_face: "SF Pro Text"
     label_font_point: 12
-    comment_font_face: "Helvetica"
+    comment_font_face: "SF Mono"
     comment_font_point: 14
     inline_preedit: true
     corner_radius: 12
     hilited_corner_radius: 8
     border_height: 0
     border_width: 0
-    back_color: 0xFF1E1B4B
-    border_color: 0xFF3D3580
-    text_color: 0xFFE2DEFF
+    back_color: 0xFF1B0035
+    border_color: 0xFF6B21A8
+    text_color: 0xFFE9D5FF
     hilited_text_color: 0xFFFFFFFF
-    hilited_back_color: 0xFF312B7A
-    candidate_text_color: 0xFFD8D0FF
+    hilited_back_color: 0xFF2D0060
+    candidate_text_color: 0xFFE9D5FF
     hilited_candidate_text_color: 0xFFFFFFFF
-    hilited_candidate_back_color: 0xFF7C3AED
-    comment_text_color: 0xFF7B6FA8
-    hilited_comment_text_color: 0xFFD4BBFF
-    label_color: 0xFF5A5280
-    hilited_label_color: 0xFFD4BBFF
+    hilited_candidate_back_color: 0xFF9333EA
+    comment_text_color: 0xFFC084FC
+    hilited_comment_text_color: 0xFFE9D5FF
+    label_color: 0xFF7C3AED
+    hilited_label_color: 0xFFFFFFFF
