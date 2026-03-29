@@ -172,6 +172,21 @@ starlight-file-tree {
   &:active { opacity: 0.7;  transform: scale(0.98); transition-duration: 0.06s; }
 }
 
+// ── 首页面板 — Preact island 的响应式网格 ──────────
+// HomeDashboard.astro 的 .panel-grid scoped 样式覆盖不到 Preact island，
+// 所以 HomeStatusPanel.tsx 的外层 grid 响应式断点放在这里全局生效。
+
+.panel-grid {
+  @media (max-width: 780px) {
+    grid-template-columns: repeat(3, 1fr) !important;
+    [style*="grid-column:span 2"] { grid-column: span 3 !important; }
+  }
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr) !important;
+    [style*="grid-column:span 2"] { grid-column: span 2 !important; }
+  }
+}
+
 // ── 词库卡片 skeleton ─────────────────────────────
 // 只保留动画状态，布局已移到 UnoCSS utility
 
