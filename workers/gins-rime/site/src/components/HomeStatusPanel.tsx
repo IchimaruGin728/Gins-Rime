@@ -50,11 +50,11 @@ export default function HomeStatusPanel({ dictVersions }: Props) {
           const ver = dictVersions[key] !== '—' ? dictVersions[key] : (info?.date ?? '—')
           const hasLines = !loading && info?.lines != null
           return (
-            <div key={key} class="dict-card">
-              <span class="dict-card__name">{name}</span>
-              <span class="dict-card__sub">{sub}</span>
-              <span class="dict-card__ver">{loading ? '…' : ver}</span>
-              <span class={`dict-card__lines${hasLines ? '' : ' dict-card__lines--hidden'}`}>
+            <div key={key} class="hp-card">
+              <span class="hp-name">{name}</span>
+              <span class="hp-sub">{sub}</span>
+              <span class="hp-ver">{loading ? '…' : ver}</span>
+              <span class={`hp-lines${hasLines ? '' : ' hp-lines--hidden'}`}>
                 {info?.lines != null ? `${info.lines.toLocaleString()} 条` : '0 条'}
               </span>
             </div>
