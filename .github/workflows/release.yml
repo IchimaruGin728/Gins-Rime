@@ -107,7 +107,13 @@ jobs:
           wrangler r2 object put "gins-rime/releases/${VERSION}/gins-rime" \
             --file dist/gins-rime \
             --content-type "application/x-sh" --remote
+          wrangler r2 object put "gins-rime/releases/latest/gins-rime" \
+            --file dist/gins-rime \
+            --content-type "application/x-sh" --remote
           wrangler r2 object put "gins-rime/releases/${VERSION}/gins-rime-native" \
+            --file dist/gins-rime-native \
+            --content-type "application/octet-stream" --remote
+          wrangler r2 object put "gins-rime/releases/latest/gins-rime-native" \
             --file dist/gins-rime-native \
             --content-type "application/octet-stream" --remote
 
