@@ -12,6 +12,7 @@ dicts/gins-shici.dict.yaml
 
 # Node / pnpm
 workers/gins-rime/node_modules/
+.wrangler/
 workers/gins-rime/.wrangler/
 workers/gins-rime/site/node_modules/
 workers/gins-rime/site/dist/
