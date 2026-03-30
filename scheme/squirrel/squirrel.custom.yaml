@@ -10,13 +10,13 @@ patch:
     translucency: true
     mutual_exclusive: false
     show_paging: false
-    corner_radius: 10
-    hilited_corner_radius: 7
-    border_height: 3
-    border_width: 3
-    spacing: 8
-    shadow_size: 3
-    candidate_format: "[label]. [candidate] [comment]"
+    corner_radius: 18
+    hilited_corner_radius: 14
+    border_height: 6
+    border_width: 6
+    spacing: 10
+    shadow_size: 6
+    candidate_format: " [label] [candidate]  [comment]"
 
   # ── 浅色：磨砂白玻璃 + 系统蓝 ──────────────────────────────────
   preset_color_schemes/gins_liquid_light:
@@ -28,10 +28,10 @@ patch:
     label_font_point: 10
     comment_font_face: "SF Mono"
     comment_font_point: 12
-    corner_radius: 10
-    hilited_corner_radius: 7
-    border_height: 3
-    border_width: 3
+    corner_radius: 18
+    hilited_corner_radius: 14
+    border_height: 6
+    border_width: 6
     back_color: 0xD9FFFFFF
     border_color: 0x19000000
     text_color: 0xFF3C3C43
@@ -55,10 +55,10 @@ patch:
     label_font_point: 10
     comment_font_face: "SF Mono"
     comment_font_point: 12
-    corner_radius: 10
-    hilited_corner_radius: 7
-    border_height: 3
-    border_width: 3
+    corner_radius: 18
+    hilited_corner_radius: 14
+    border_height: 6
+    border_width: 6
     back_color: 0xD91C1C1E
     border_color: 0x33FFFFFF
     text_color: 0xFFEBEBF5
