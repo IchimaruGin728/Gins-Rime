@@ -11,9 +11,9 @@ patch:
     mutual_exclusive: false
     show_paging: false
     corner_radius: 12
-    hilited_corner_radius: 9
-    border_height: 1
-    border_width: 2
+    hilited_corner_radius: 10
+    border_height: 0
+    border_width: 1
     spacing: 5
     shadow_size: 3
     candidate_format: " [label] [candidate]  [comment]"
@@ -23,16 +23,16 @@ patch:
     name: "Gins Liquid Light"
     author: "IchimaruGin728"
     font_face: "SF Pro Text"
-    font_point: 14
+    font_point: 16
     label_font_face: "SF Pro Text"
-    label_font_point: 10
+    label_font_point: 12
     comment_font_face: "SF Mono"
-    comment_font_point: 12
+    comment_font_point: 13
     corner_radius: 12
-    hilited_corner_radius: 9
-    border_height: 1
-    border_width: 2
-    back_color: 0x66FFFFFF
+    hilited_corner_radius: 10
+    border_height: 0
+    border_width: 1
+    back_color: 0x99FFFFFF
     border_color: 0x19000000
     text_color: 0xFF3C3C43
     hilited_text_color: 0xFF3C3C43
@@ -42,7 +42,7 @@ patch:
     hilited_candidate_back_color: 0xFFB915D8
     comment_text_color: 0xFF8E8E93
     hilited_comment_text_color: 0xFFFFFFFF
-    label_color: 0xFFC7C7CC
+    label_color: 0xFF3C3C43
     hilited_label_color: 0xFFFFFFFF
 
   # ── 深色：磨砂黑玻璃 + 紫色高亮 ──────────────────────────────────
@@ -50,16 +50,16 @@ patch:
     name: "Gins Liquid Dark"
     author: "IchimaruGin728"
     font_face: "SF Pro Text"
-    font_point: 14
+    font_point: 16
     label_font_face: "SF Pro Text"
-    label_font_point: 10
+    label_font_point: 12
     comment_font_face: "SF Mono"
-    comment_font_point: 12
+    comment_font_point: 13
     corner_radius: 12
-    hilited_corner_radius: 9
-    border_height: 1
-    border_width: 2
-    back_color: 0x801C1C1E
+    hilited_corner_radius: 10
+    border_height: 0
+    border_width: 1
+    back_color: 0xAA1C1C1E
     border_color: 0x33FFFFFF
     text_color: 0xFFEBEBF5
     hilited_text_color: 0xFFFFFFFF
@@ -69,5 +69,5 @@ patch:
     hilited_candidate_back_color: 0xFFB915D8
     comment_text_color: 0xFF8E8E93
     hilited_comment_text_color: 0xFFFFFFFF
-    label_color: 0xFF636366
+    label_color: 0xFFEBEBF5
     hilited_label_color: 0xFFFFFFFF
