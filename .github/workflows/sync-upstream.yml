@@ -38,9 +38,12 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/wanxiang
           mkdir -p scheme/shared/upstream
-          cp /tmp/wanxiang/wanxiang.schema.yaml scheme/shared/upstream/
-          cp /tmp/wanxiang/wanxiang_algebra.yaml scheme/shared/upstream/
-          cp /tmp/wanxiang/wanxiang_symbols.yaml scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang.schema.yaml         scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang_algebra.yaml        scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang_symbols.yaml        scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang_english.dict.yaml   scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang_mixedcode.dict.yaml scheme/shared/upstream/
+          cp /tmp/wanxiang/wanxiang_reverse.dict.yaml   scheme/shared/upstream/
           mkdir -p .upstream && echo "${{ steps.meta.outputs.tag }}" > .upstream/wanxiang.tag
 
       - name: Open PR

@@ -34,14 +34,8 @@ cmd_deploy() {
   curl -fsSL $WORKER/releases/latest/squirrel.tar.gz | tar -xz -C $tmp \
     || { print -u2 "下载失败，请检查网络"; exit 1 }
 
-  print "部署 scheme/shared/ ..."
-  for f in $tmp/scheme/shared/*.yaml; do
-    cp $f $RIME/${f:t}
-    print "  ${f:t}"
-  done
-
-  print "部署 scheme/squirrel/ ..."
-  for f in $tmp/scheme/squirrel/*.yaml; do
+  print "部署方案文件..."
+  for f in $tmp/scheme/shared/*.yaml $tmp/scheme/shared/upstream/*.yaml(N) $tmp/scheme/squirrel/*.yaml; do
     cp $f $RIME/${f:t}
     print "  ${f:t}"
   done
