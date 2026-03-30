@@ -42,7 +42,7 @@ patch:
     hilited_candidate_back_color: 0xFFB915D8
     comment_text_color: 0xFF8E8E93
     hilited_comment_text_color: 0xFFFFFFFF
-    label_color: 0xFF3C3C43
+    label_color: 0xFF000000
     hilited_label_color: 0xFFFFFFFF
 
   # ── 深色：磨砂黑玻璃 + 紫色高亮 ──────────────────────────────────
@@ -69,5 +69,5 @@ patch:
     hilited_candidate_back_color: 0xFFB915D8
     comment_text_color: 0xFF8E8E93
     hilited_comment_text_color: 0xFFFFFFFF
-    label_color: 0xFFEBEBF5
+    label_color: 0xFFFFFFFF
     hilited_label_color: 0xFFFFFFFF
