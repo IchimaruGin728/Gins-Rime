@@ -26,17 +26,22 @@ _squirrel_reload() {
 # ── commands ───────────────────────────────────────────────────
 
 cmd_deploy() {
-  local root=$(_root)
   mkdir -p $RIME
 
+  print "下载方案包..."
+  local tmp=$(mktemp -d)
+  trap "rm -rf $tmp" EXIT INT TERM
+  curl -fsSL $WORKER/releases/latest/squirrel.tar.gz | tar -xz -C $tmp \
+    || { print -u2 "下载失败，请检查网络"; exit 1 }
+
   print "部署 scheme/shared/ ..."
-  for f in $root/scheme/shared/*.yaml; do
+  for f in $tmp/scheme/shared/*.yaml; do
     cp $f $RIME/${f:t}
     print "  ${f:t}"
   done
 
   print "部署 scheme/squirrel/ ..."
-  for f in $root/scheme/squirrel/*.yaml; do
+  for f in $tmp/scheme/squirrel/*.yaml; do
     cp $f $RIME/${f:t}
     print "  ${f:t}"
   done

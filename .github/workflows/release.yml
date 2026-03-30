@@ -101,7 +101,13 @@ jobs:
           wrangler r2 object put "gins-rime/releases/${VERSION}/squirrel.tar.gz" \
             --file dist/gins-rime-squirrel.tar.gz \
             --content-type "application/gzip" --remote
+          wrangler r2 object put "gins-rime/releases/latest/squirrel.tar.gz" \
+            --file dist/gins-rime-squirrel.tar.gz \
+            --content-type "application/gzip" --remote
           wrangler r2 object put "gins-rime/releases/${VERSION}/hamster.tar.gz" \
+            --file dist/gins-rime-hamster.tar.gz \
+            --content-type "application/gzip" --remote
+          wrangler r2 object put "gins-rime/releases/latest/hamster.tar.gz" \
             --file dist/gins-rime-hamster.tar.gz \
             --content-type "application/gzip" --remote
           wrangler r2 object put "gins-rime/releases/${VERSION}/gins-rime" \
