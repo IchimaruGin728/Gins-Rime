@@ -201,7 +201,6 @@ starlight-file-tree {
   border: 1px solid var(--sl-color-hairline);
   background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
   text-decoration: none;
-  contain: layout style;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   transition:
@@ -215,7 +214,6 @@ starlight-file-tree {
     border-color: color-mix(in srgb, var(--sl-color-accent) 55%, transparent);
     transform: translateY(-1px);
     box-shadow: 0 4px 18px color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
-    will-change: transform;
   }
 
   &:active {

@@ -5,16 +5,8 @@
 // ── Mixins ──────────────────────────────────────
 
 @mixin glass-base($blur: 20px, $saturate: 190%, $brightness: 1.03) {
-  // Baseline: Safari + Firefox — pure blur/saturate (no SVG filter)
   backdrop-filter: blur($blur) saturate($saturate) brightness($brightness);
   -webkit-backdrop-filter: blur($blur) saturate($saturate) brightness($brightness);
-
-  // Progressive enhancement: Chrome/Edge — SVG feTurbulence displacement
-  // Reduces blur slightly (SVG distortion does the heavy lifting)
-  @supports (backdrop-filter: url('#x')) {
-    backdrop-filter: url('#lg-filter') blur(calc($blur * 0.8)) saturate($saturate) brightness($brightness);
-    -webkit-backdrop-filter: url('#lg-filter') blur(calc($blur * 0.8)) saturate($saturate) brightness($brightness);
-  }
 }
 
 @mixin glass-shadow($depth: 1) {
@@ -74,39 +66,8 @@
   @include glass-base(14px, 160%, 1.0);
 }
 
-// ── Dict status cards ─────────────────────────────────────────────────────────
-// Promoted layer — transitions use compositor-only properties (transform, opacity).
-
-.dict-card {
-  position: relative;
-  isolation: isolate;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.10) !important;
-  border-radius: var(--sl-border-radius) !important;
-  contain: layout style;
-
-  @include glass-base(12px, 160%, 1.0);
-  @include glass-shadow(0.6);
-
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    will-change: transform;
-    @include glass-shadow(0.9);
-  }
-
-  &:not(:hover) {
-    will-change: auto;
-  }
-}
-
 // ── Reduced motion ────────────────────────────────────────────────────────────
 
 @media (prefers-reduced-motion: reduce) {
   .content-panel::after { animation: none; }
-  .dict-card {
-    transition: none;
-    &:hover { transform: none; }
-  }
 }
