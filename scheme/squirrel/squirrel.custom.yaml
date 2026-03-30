@@ -10,11 +10,11 @@ patch:
     translucency: true
     mutual_exclusive: false
     show_paging: false
-    corner_radius: 12
-    hilited_corner_radius: 10
+    corner_radius: 100
+    hilited_corner_radius: 100
     border_height: 0
-    border_width: 1
-    spacing: 5
+    border_width: 0
+    spacing: 4
     shadow_size: 3
     candidate_format: " [label] [candidate]  [comment]"
 
@@ -28,10 +28,10 @@ patch:
     label_font_point: 12
     comment_font_face: "SF Mono"
     comment_font_point: 13
-    corner_radius: 12
-    hilited_corner_radius: 10
+    corner_radius: 100
+    hilited_corner_radius: 100
     border_height: 0
-    border_width: 1
+    border_width: 0
     back_color: 0x99FFFFFF
     border_color: 0x19000000
     text_color: 0xFF3C3C43
@@ -55,10 +55,10 @@ patch:
     label_font_point: 12
     comment_font_face: "SF Mono"
     comment_font_point: 13
-    corner_radius: 12
-    hilited_corner_radius: 10
+    corner_radius: 100
+    hilited_corner_radius: 100
     border_height: 0
-    border_width: 1
+    border_width: 0
     back_color: 0xAA1C1C1E
     border_color: 0x33FFFFFF
     text_color: 0xFFEBEBF5
