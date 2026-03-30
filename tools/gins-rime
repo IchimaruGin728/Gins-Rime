@@ -80,7 +80,10 @@ for name in ('zhwiki', 'tone_moe', 'gins-shici'):
     label = '未安装' if not cur_date else cur_date
     print(f"  {name}: {label} → {new_date}，下载中...")
     dest = f"{dicts_dir}/{name}.dict.yaml"
-    urllib.request.urlretrieve(f"{worker}/dicts/{name}.dict.yaml", dest)
+    import subprocess
+    r = subprocess.run(['curl', '-fsSL', f"{worker}/dicts/{name}.dict.yaml", '-o', dest])
+    if r.returncode != 0:
+        print(f"  {name}: 下载失败"); continue
     local[name] = new_date
     updated += 1
 
