@@ -46,14 +46,14 @@ cmd_deploy() {
 }
 
 cmd_update() {
-  mkdir -p $RIME/dicts
+  mkdir -p $RIME
   [[ -f $VERSIONS ]] || print '{}' > $VERSIONS
 
   print "检查词库更新..."
   local tmp=$(mktemp)
   curl -fsSL $WORKER/version -o $tmp || { print -u2 "无法连接 Worker"; exit 1 }
 
-  python3 - $tmp $VERSIONS $RIME/dicts $WORKER <<'EOF'
+  python3 - $tmp $VERSIONS $RIME $WORKER <<'EOF'
 import sys, json, urllib.request, os
 
 latest   = json.load(open(sys.argv[1]))
@@ -128,7 +128,7 @@ cmd_status() {
   print "── 外挂词库"
   local versions={}
   [[ -f $VERSIONS ]] && versions=$(cat $VERSIONS)
-  python3 - "$versions" $RIME/dicts <<'EOF'
+  python3 - "$versions" $RIME <<'EOF'
 import sys, json, os
 
 v     = json.loads(sys.argv[1])

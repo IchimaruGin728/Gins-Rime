@@ -10,12 +10,12 @@ patch:
     translucency: true
     mutual_exclusive: false
     show_paging: false
-    corner_radius: 12
-    hilited_corner_radius: 8
-    border_height: 4
-    border_width: 4
-    spacing: 10
-    shadow_size: 4
+    corner_radius: 10
+    hilited_corner_radius: 7
+    border_height: 3
+    border_width: 3
+    spacing: 8
+    shadow_size: 3
     candidate_format: "[label]. [candidate] [comment]"
 
   # ── 浅色：磨砂白玻璃 + 系统蓝 ──────────────────────────────────
@@ -23,15 +23,15 @@ patch:
     name: "Gins Liquid Light"
     author: "IchimaruGin728"
     font_face: "SF Pro Text"
-    font_point: 17
+    font_point: 14
     label_font_face: "SF Pro Text"
-    label_font_point: 12
+    label_font_point: 10
     comment_font_face: "SF Mono"
-    comment_font_point: 14
-    corner_radius: 12
-    hilited_corner_radius: 8
-    border_height: 4
-    border_width: 4
+    comment_font_point: 12
+    corner_radius: 10
+    hilited_corner_radius: 7
+    border_height: 3
+    border_width: 3
     back_color: 0xD9FFFFFF
     border_color: 0x19000000
     text_color: 0xFF3C3C43
@@ -50,15 +50,15 @@ patch:
     name: "Gins Liquid Dark"
     author: "IchimaruGin728"
     font_face: "SF Pro Text"
-    font_point: 17
+    font_point: 14
     label_font_face: "SF Pro Text"
-    label_font_point: 12
+    label_font_point: 10
     comment_font_face: "SF Mono"
-    comment_font_point: 14
-    corner_radius: 12
-    hilited_corner_radius: 8
-    border_height: 4
-    border_width: 4
+    comment_font_point: 12
+    corner_radius: 10
+    hilited_corner_radius: 7
+    border_height: 3
+    border_width: 3
     back_color: 0xD91C1C1E
     border_color: 0x33FFFFFF
     text_color: 0xFFEBEBF5
