@@ -1,11 +1,6 @@
 name: Deploy Site
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'workers/gins-rime/**'
-      - 'docs/**'
   workflow_dispatch:
 
 permissions:

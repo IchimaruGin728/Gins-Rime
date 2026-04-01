@@ -1,10 +1,6 @@
 name: Build shici Dictionary
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.upstream/chinese-poetry.sha'
   workflow_dispatch:
 
 permissions:

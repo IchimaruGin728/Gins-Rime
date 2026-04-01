@@ -1,10 +1,6 @@
 name: Build CLI Swift
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'tools/gins-rime-cli/**'
   workflow_dispatch:
 
 permissions:

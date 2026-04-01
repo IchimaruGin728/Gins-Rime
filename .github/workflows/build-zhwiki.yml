@@ -1,8 +1,6 @@
 name: Build zhwiki Dictionary
 
 on:
-  schedule:
-    - cron: '0 2 2 * *'   # 每月 2 号 02:00 UTC（dump 1 号 UTC 开始生成）
   workflow_dispatch:
 
 permissions:
