@@ -5,6 +5,8 @@ on:
     branches: [ main ]
     paths:
       - 'scheme/**'
+      - 'lua/**'
+      - 'rime.lua'
   workflow_dispatch:
 
 permissions:
@@ -28,6 +30,10 @@ jobs:
           fi
           # Copy squirrel files
           cp scheme/squirrel/*.yaml dist/scheme/
+          
+          # Copy Lua engine (Crucial for functionality)
+          cp -r lua dist/scheme/
+          cp rime.lua dist/scheme/
           
           cd dist
           tar -czf scheme.tar.gz scheme/

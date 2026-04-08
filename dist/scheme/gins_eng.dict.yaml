@@ -1,0 +1,8 @@
+---
+name: gins_eng
+version: "2024.1"
+sort: by_weight
+import_tables:
+  - en_dicts/en_ext
+  - en_dicts/en
+...

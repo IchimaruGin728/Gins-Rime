@@ -7,7 +7,7 @@ schema:
     - IchimaruGin728
   description: Gins-Rime
 
-__include: core.schema:/
+__include: core/core.schema:/
 
 __patch:
   translator/dictionary: gins

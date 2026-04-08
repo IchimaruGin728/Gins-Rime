@@ -34,6 +34,8 @@ jobs:
         if: steps.check.outputs.stale == 'true'
         run: |
           git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/core
+          
+          # 1. Sync Scheme YAMLs
           mkdir -p scheme/shared/core
           cp /tmp/core/wanxiang.schema.yaml         scheme/shared/core/core.schema.yaml
           cp /tmp/core/wanxiang_algebra.yaml        scheme/shared/core/core_algebra.yaml
@@ -42,6 +44,26 @@ jobs:
           cp /tmp/core/wanxiang_mixedcode.dict.yaml scheme/shared/core/core_mixedcode.dict.yaml
           cp /tmp/core/wanxiang_reverse.dict.yaml   scheme/shared/core/core_reverse.dict.yaml
           cp /tmp/core/wanxiang_reverse.schema.yaml  scheme/shared/core/core_reverse.schema.yaml
+          
+          # 2. Sync Lua Logic & Purify
+          rm -rf lua/core lua/data
+          mkdir -p lua/core lua/data
+          cp -r /tmp/core/lua/wanxiang/. lua/core/
+          cp -r /tmp/core/lua/data/. lua/data/
+          mv lua/core/wanxiang.lua lua/core/core.lua
+          
+          # Apply branding purification to Lua
+          find lua/core -name "*.lua" -type f -exec sed -i 's/wanxiang/core/g' {} +
+          find lua/core -name "*.lua" -type f -exec sed -i 's/万象/核心/g' {} +
+          
+          # 3. Generate Purified rime.lua
+          cat <<EOF > rime.lua
+          core = require('core/core')
+          super_processor = require('core/super_processor')
+          super_tips = require('core/super_tips')
+          version_display = require('core/version_display')
+          EOF
+          
           mkdir -p .upstream && echo "${{ steps.meta.outputs.tag }}" > .upstream/core.tag
 
       - name: Open PR
@@ -53,7 +75,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add scheme/shared/core/ .upstream/core.tag
+          git add scheme/shared/core/ lua/ rime.lua .upstream/core.tag
           git diff --cached --quiet && exit 0
           git commit -m "sync: core engine ${{ steps.meta.outputs.tag }}"
           git push origin "$BRANCH"
