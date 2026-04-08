@@ -34,6 +34,16 @@ enum ProjectPaths {
         guard let root = projectRoot() else { throw GinsRimeError.projectRootNotFound }
         return root.appendingPathComponent("scheme/shared/core")
     }
+
+    static func luaDir() throws -> URL {
+        guard let root = projectRoot() else { throw GinsRimeError.projectRootNotFound }
+        return root.appendingPathComponent("lua")
+    }
+
+    static func rimeLuaFile() throws -> URL {
+        guard let root = projectRoot() else { throw GinsRimeError.projectRootNotFound }
+        return root.appendingPathComponent("rime.lua")
+    }
 }
 
 enum RimePaths {

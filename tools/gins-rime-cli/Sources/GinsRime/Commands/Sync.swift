@@ -9,37 +9,53 @@ struct Sync: AsyncParsableCommand {
     @Flag(name: .shortAndLong, help: "仅显示将要同步的文件，不实际复制")
     var dryRun: Bool = false
 
-    func run() async throws {
-        let coreDir = try ProjectPaths.coreDir()
-        let rimeDir = RimePaths.user
-
-        guard FileManager.default.fileExists(atPath: coreDir.path) else {
-            print("core 目录不存在：\(coreDir.path)")
-            print("请运行 git pull 确保本地仓库已更新")
-            return
-        }
-
         print("同步核心文件到 \(rimeDir.path)\(dryRun ? "（dry-run）" : "")")
 
-        let files = try collectFiles(in: coreDir)
+        // 1. 同步 YAML 配置文件 (Shared Core)
+        let coreDir = try ProjectPaths.coreDir()
+        let coreFiles = try collectFiles(in: coreDir)
         var count = 0
 
-        for src in files {
+        for src in coreFiles {
             let relative = src.path.dropFirst(coreDir.path.count + 1)
             let dest = rimeDir.appendingPathComponent(String(relative))
+            if try syncFile(src, to: dest, dryRun: dryRun) { count += 1 }
+        }
 
-            let destDir = dest.deletingLastPathComponent()
-            if !dryRun {
-                try FileManager.default.createDirectory(at: destDir, withIntermediateDirectories: true)
-                try? FileManager.default.removeItem(at: dest)
-                try FileManager.default.copyItem(at: src, to: dest)
+        // 2. 同步 Lua 引擎 (lua/)
+        let luaDir = try ProjectPaths.luaDir()
+        if FileManager.default.fileExists(atPath: luaDir.path) {
+            let luaFiles = try collectFiles(in: luaDir)
+            for src in luaFiles {
+                let relative = "lua/" + src.path.dropFirst(luaDir.path.count + 1)
+                let dest = rimeDir.appendingPathComponent(String(relative))
+                if try syncFile(src, to: dest, dryRun: dryRun) { count += 1 }
             }
+        }
 
-            print("  \(dryRun ? "~" : "+") \(relative)")
-            count += 1
+        // 3. 同步 rime.lua 入口
+        let rimeLua = try ProjectPaths.rimeLuaFile()
+        if FileManager.default.fileExists(atPath: rimeLua.path) {
+            let dest = rimeDir.appendingPathComponent("rime.lua")
+            if try syncFile(rimeLua, to: dest, dryRun: dryRun) { count += 1 }
         }
 
         print("\n\(count) 个文件\(dryRun ? "待同步" : "已同步")")
+    }
+
+    private func syncFile(_ src: URL, to dest: URL, dryRun: Bool) throws -> Bool {
+        let relative = src.path.components(separatedBy: "/").last ?? ""
+        
+        if !dryRun {
+            let destDir = dest.deletingLastPathComponent()
+            try FileManager.default.createDirectory(at: destDir, withIntermediateDirectories: true)
+            try? FileManager.default.removeItem(at: dest)
+            try FileManager.default.copyItem(at: src, to: dest)
+        }
+        
+        print("  \(dryRun ? "~" : "+") \(dest.path.replacingOccurrences(of: RimePaths.user.path + "/", with: ""))")
+        return true
+    }
 
         if !dryRun {
             print("建议执行 gins-rime deploy --copy-only 后重新部署")
