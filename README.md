@@ -21,7 +21,7 @@
 本方案“因巨人而强大”，核心组件源自以下优秀开源项目：
 
 1. **[amzxyz/rime_wanxiang](https://github.com/amzxyz/rime_wanxiang)** 
-   — 方案内核、Lua 脚本、基础词库（万象拼音）。
+   — 方案内核、Lua 脚本、基础词库（即本项目中的 `core` 部分）。
 2. **[iDvel/rime-ice](https://github.com/iDvel/rime-ice)** 
    — melt_eng 混输逻辑、高质量英文词库（雾凇拼音）。
 3. **[suiginko/moetype](https://github.com/suiginko/moetype)** 
