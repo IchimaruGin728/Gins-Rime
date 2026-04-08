@@ -20,15 +20,12 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          npm install -g wrangler
-          wrangler r2 object put gins-rime/cli/gins-rime-latest \
+          npx wrangler r2 object put gins-rime/cli/gins-rime-latest \
             --file tools/gins-rime \
-            --content-type "application/x-sh" \
-            --remote
+            --content-type "application/x-sh"
           SHA=$(git rev-parse --short HEAD)
           DATE=$(date +%Y%m%d)
           echo "{\"sha\":\"${SHA}\",\"date\":\"${DATE}\"}" > /tmp/cli-meta.json
-          wrangler r2 object put gins-rime/cli/meta.json \
+          npx wrangler r2 object put gins-rime/cli/meta.json \
             --file /tmp/cli-meta.json \
-            --content-type "application/json" \
-            --remote
+            --content-type "application/json"

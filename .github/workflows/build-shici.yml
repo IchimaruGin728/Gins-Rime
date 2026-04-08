@@ -64,12 +64,10 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          npm install -g wrangler
           DATE=$(date +%Y%m%d)
-          wrangler r2 object put gins-rime/dicts/gins-shici.dict.yaml \
+          npx wrangler r2 object put gins-rime/dicts/gins-shici.dict.yaml \
             --file gins-shici.dict.yaml \
-            --content-type "text/yaml" \
-            --remote
+            --content-type "text/yaml"
           echo "Uploaded to R2: dicts/gins-shici.dict.yaml ($DICT_LINES entries)"
 
       - name: Trigger DictUpdateWorkflow

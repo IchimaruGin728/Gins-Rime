@@ -1,6 +1,12 @@
 name: Deploy Site
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'workers/gins-rime/site/**'
+      - 'workers/gins-rime/src/**'
+      - 'workers/gins-rime/wrangler.jsonc'
   workflow_dispatch:
 
 permissions:

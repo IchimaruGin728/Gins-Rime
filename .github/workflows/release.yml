@@ -44,12 +44,10 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          npm install -g wrangler
           # Upload scheme bundle
-          wrangler r2 object put gins-rime/releases/scheme.tar.gz \
+          npx wrangler r2 object put gins-rime/releases/scheme.tar.gz \
             --file dist/scheme.tar.gz \
-            --content-type "application/gzip" \
-            --remote
+            --content-type "application/gzip"
 
       - name: Update Worker metadata
         run: |
