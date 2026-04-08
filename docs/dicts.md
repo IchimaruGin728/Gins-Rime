@@ -1,8 +1,8 @@
 # 词库系统
 
-## 万象核心词库
+## 核心核心词库
 
-万象的词库文件在 `~/Library/Rime/dicts/`，通过 `dicts/` 前缀引用。
+核心的词库文件在 `~/Library/Rime/dicts/`，通过 `dicts/` 前缀引用。
 
 | 词库 | 条目数 | 内容 |
 |------|--------|------|
@@ -24,7 +24,7 @@
 
 来源：[moetype/Moegirl-RIME](https://github.com/moetype/Moegirl-RIME)
 
-ACG 圈子词汇，涵盖动漫、游戏、VTuber、二次元梗等万象完全没有的领域。使用带调拼音编码，与万象格式兼容。
+ACG 圈子词汇，涵盖动漫、游戏、VTuber、二次元梗等核心完全没有的领域。使用带调拼音编码，与核心格式兼容。
 
 ### zhwiki（维基百科标题）
 
@@ -41,13 +41,13 @@ ACG 圈子词汇，涵盖动漫、游戏、VTuber、二次元梗等万象完全�
 
 来源：[chinese-poetry/chinese-poetry](https://github.com/chinese-poetry/chinese-poetry)
 
-唐诗、宋词、元曲的诗句和词牌名。**与万象 shici 去重后合并**，只收录万象没有的条目。经 T2S 转换确保简体输出。
+唐诗、宋词、元曲的诗句和词牌名。**与核心 shici 去重后合并**，只收录核心没有的条目。经 T2S 转换确保简体输出。
 
 ## 中英混输
 
 雾凇提供两套中英词库，挂载方式不同：
 
-**`dicts/cn&en`**（万象内置，1868 条）— 带调拼音格式，直接进 `import_tables`。收录 U盘、B站、WiFi 等高频中英混合词。
+**`dicts/cn&en`**（核心内置，1868 条）— 带调拼音格式，直接进 `import_tables`。收录 U盘、B站、WiFi 等高频中英混合词。
 
 **`en_dicts/cn_en.txt`**（雾凇，~1000 条）— tabledb 格式，编码是英文拼写拼接（如 `txu`、`xguang`），不兼容带调拼音，作为独立 `table_translator@cn_en` 挂载，`initial_quality: 0.5`。
 

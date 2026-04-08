@@ -11,8 +11,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  # ── 万象拼音 ────────────────────────────────────────────────
-  sync-wanxiang:
+  # ── Core Engine ─────────────────────────────────────────────
+  sync-core:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,38 +27,39 @@ jobs:
       - name: Check tag
         id: check
         run: |
-          CURRENT=$(cat .upstream/wanxiang.tag 2>/dev/null || echo "none")
+          CURRENT=$(cat .upstream/core.tag 2>/dev/null || echo "none")
           echo "stale=$( [ '$CURRENT' != '${{ steps.meta.outputs.tag }}' ] && echo true || echo false )" >> $GITHUB_OUTPUT
 
       - name: Clone and copy
         if: steps.check.outputs.stale == 'true'
         run: |
-          git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/wanxiang
-          mkdir -p scheme/shared/upstream
-          cp /tmp/wanxiang/wanxiang.schema.yaml         scheme/shared/upstream/
-          cp /tmp/wanxiang/wanxiang_algebra.yaml        scheme/shared/upstream/
-          cp /tmp/wanxiang/wanxiang_symbols.yaml        scheme/shared/upstream/
-          cp /tmp/wanxiang/wanxiang_english.dict.yaml   scheme/shared/upstream/
-          cp /tmp/wanxiang/wanxiang_mixedcode.dict.yaml scheme/shared/upstream/
-          cp /tmp/wanxiang/wanxiang_reverse.dict.yaml   scheme/shared/upstream/
-          mkdir -p .upstream && echo "${{ steps.meta.outputs.tag }}" > .upstream/wanxiang.tag
+          git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/core
+          mkdir -p scheme/shared/core
+          cp /tmp/core/wanxiang.schema.yaml         scheme/shared/core/core.schema.yaml
+          cp /tmp/core/wanxiang_algebra.yaml        scheme/shared/core/core_algebra.yaml
+          cp /tmp/core/wanxiang_symbols.yaml        scheme/shared/core/core_symbols.yaml
+          cp /tmp/core/wanxiang_english.dict.yaml   scheme/shared/core/core_english.dict.yaml
+          cp /tmp/core/wanxiang_mixedcode.dict.yaml scheme/shared/core/core_mixedcode.dict.yaml
+          cp /tmp/core/wanxiang_reverse.dict.yaml   scheme/shared/core/core_reverse.dict.yaml
+          cp /tmp/core/wanxiang_reverse.schema.yaml  scheme/shared/core/core_reverse.schema.yaml
+          mkdir -p .upstream && echo "${{ steps.meta.outputs.tag }}" > .upstream/core.tag
 
       - name: Open PR
         if: steps.check.outputs.stale == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BRANCH="sync/wanxiang-${{ steps.meta.outputs.tag }}"
+          BRANCH="sync/core-${{ steps.meta.outputs.tag }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add scheme/shared/upstream/ .upstream/wanxiang.tag
+          git add scheme/shared/core/ .upstream/core.tag
           git diff --cached --quiet && exit 0
-          git commit -m "sync: wanxiang ${{ steps.meta.outputs.tag }}"
+          git commit -m "sync: core engine ${{ steps.meta.outputs.tag }}"
           git push origin "$BRANCH"
           gh pr create \
-            --title "sync: wanxiang ${{ steps.meta.outputs.tag }}" \
-            --body "Auto-synced from [rime_wanxiang](https://github.com/amzxyz/rime_wanxiang/releases/tag/${{ steps.meta.outputs.tag }})." \
+            --title "sync: core engine ${{ steps.meta.outputs.tag }}" \
+            --body "Auto-synced core logic from upstream releases." \
             --base main --head "$BRANCH"
 
   # ── 萌娘百科 ────────────────────────────────────────────────

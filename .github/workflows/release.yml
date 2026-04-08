@@ -1,4 +1,61 @@
-name: Release
+name: Release Scheme
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'scheme/**'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-scheme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create scheme bundle
+        run: |
+          mkdir -p dist/scheme
+          # Copy shared files
+          cp scheme/shared/*.yaml dist/scheme/
+          # Copy upstream files and dictionaries
+          cp scheme/shared/upstream/*.yaml dist/scheme/
+          if [ -d "scheme/shared/upstream/en_dicts" ]; then
+            cp -r scheme/shared/upstream/en_dicts dist/scheme/
+          fi
+          # Copy squirrel files
+          cp scheme/squirrel/*.yaml dist/scheme/
+          
+          cd dist
+          tar -czf scheme.tar.gz scheme/
+          ls -lh scheme.tar.gz
+
+      - name: Upload to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+        run: |
+          npm install -g wrangler
+          # Upload scheme bundle
+          wrangler r2 object put gins-rime/releases/scheme.tar.gz \
+            --file dist/scheme.tar.gz \
+            --content-type "application/gzip" \
+            --remote
+
+      - name: Update Worker metadata
+        run: |
+          VERSION=$(date +%Y%m%d%H%M)
+          RESPONSE=$(curl -s -X POST \
+            "https://rime.ichimarugin728.dev/api/scheme-update" \
+            -H "Authorization: Bearer ${{ secrets.WORKER_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"version\": \"${VERSION}\",
+              \"r2Key\": \"releases/scheme.tar.gz\",
+              \"triggeredBy\": \"github-actions\"
+            }")
+          echo "Worker response: $RESPONSE"
+          echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); exit(0 if d.get('ok') else 1)"

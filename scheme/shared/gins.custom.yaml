@@ -2,7 +2,12 @@ patch:
   schema/dependencies/+:
     - melt_eng
 
+  switches/@3/reset: 1
+  switches/@5/reset: 1
+  switches/@11/reset: 1
+
   engine/translators/+:
+    - table_translator@melt_eng
     - table_translator@gins_eng
     - table_translator@gins_cn_en
 
@@ -11,7 +16,7 @@ patch:
     enable_sentence: false
     enable_completion: true
     enable_user_dict: false
-    initial_quality: 1.1
+    initial_quality: 0.4
     comment_format:
       - xform/.*//
 
@@ -21,7 +26,10 @@ patch:
     db_class: tabledb
     enable_completion: false
     enable_sentence: false
-    initial_quality: 0.5
+    initial_quality: 0.3
 
   key_binder/bindings/+:
-    - { when: always, accept: "Control+Shift+4", toggle: zh_simp_s2t }
+    - { when: always, accept: "Control+Shift+4", toggle: s2t }
+
+  translator/initial_quality: 1.0
+  melt_eng/initial_quality: 0.5

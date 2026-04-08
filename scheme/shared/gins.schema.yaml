@@ -1,12 +1,12 @@
 schema:
   schema_id: gins
-  name: Gins-Pinying
-  version: "1.0"
+  name: Gins-Pinyin
+  version: "2026.04.09"
   author:
     - IchimaruGin728
-  description: Gins-Rime：万象拼音 + 萌娘百科 + 雾凇中英混输
+  description: Gins-Rime
 
-__include: wanxiang.schema:/
+__include: core/core.schema:/
 
 __patch:
   translator/dictionary: gins

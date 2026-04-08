@@ -1,7 +1,7 @@
 # Rime schema
 # encoding: utf-8
 schema:
-  schema_id: wanxiang_english
+  schema_id: core_english
   name: 万象英文
   version: "lts"
   author: amzxyz
@@ -30,21 +30,21 @@ engine:
     - fallback_segmentor
   translators:
     - table_translator
-    - table_translator@wanxiang_english    #英文词汇表导入
+    - table_translator@core_english    #英文词汇表导入
     - punct_translator
   filters:
-    - lua_filter@*wanxiang.auto_phrase
-    - lua_filter@*wanxiang.super_english
+    - lua_filter@*core.auto_phrase
+    - lua_filter@*core.super_english
     - uniquifier
 
 speller:
   alphabet: zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA\
   delimiter: " '"
   algebra:
-    __include: wanxiang_algebra:/english/通用规则
-    __patch: wanxiang_algebra:/english/全拼   #可选的选项有（全拼, 自然码, 小鹤双拼, 微软双拼, 搜狗双拼, 智能ABC, 紫光双拼, 拼音加加）
+    __include: core_algebra:/english/通用规则
+    __patch: core_algebra:/english/全拼   #可选的选项有（全拼, 自然码, 小鹤双拼, 微软双拼, 搜狗双拼, 智能ABC, 紫光双拼, 拼音加加）
 translator:
-  dictionary: wanxiang_english
+  dictionary: core_english
   enable_user_dict: false
   initial_quality: 2
   comment_format:
@@ -52,14 +52,14 @@ translator:
 key_binder:
   import_preset: default
   bindings:
-    #- { when: always, accept: Shift+space, select: wanxiang }  #直接跳转指定方案
-    #- { when: always, accept: Shift+space, select: wanxiang_pro }  #直接跳转指定方案
+    #- { when: always, accept: Shift+space, select: core }  #直接跳转指定方案
+    #- { when: always, accept: Shift+space, select: core_pro }  #直接跳转指定方案
     - { when: always, accept: Shift+space, select: .next }  #下一个方案
 recognizer:
   import_preset: default
 
-wanxiang_english:
-  dictionary: wanxiang_english
+core_english:
+  dictionary: core_english
   user_dict: en
   enable_completion: true
   enable_sentence: true

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案，覆盖 macOS（鼠须管 Squirrel）和 iOS（元书 Hamster v3）双平台。
+Gins-Rime 是基于核心引擎（core）的个人定制 RIME 输入方案，覆盖 macOS（鼠须管 Squirrel）和 iOS（元书 Hamster v3）双平台。
 
 ## Architecture Diagram
 
@@ -14,8 +14,8 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
 │   ┌─────────────────────── Upstream Sources ───────────────────────┐        │
 │   │                                                                 │        │
 │   │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │        │
-│   │  │  万象拼音      │  │  雾凇拼音      │  │  萌娘百科词库        │  │        │
-│   │  │  (wanxiang)   │  │  (rime-ice)  │  │  (moetype)          │  │        │
+│   │  │  核心引擎      │  │  雾凇拼音      │  │  萌娘百科词库        │  │        │
+│   │  │  (core)   │  │  (rime-ice)  │  │  (moetype)          │  │        │
 │   │  │              │  │              │  │                      │  │        │
 │   │  │ • base schema │  │ • melt_eng   │  │ • tone_moe.dict.yaml │  │        │
 │   │  │ • 200M 语法模型 │  │   混输翻译器    │  │ • ACG 专有名词       │  │        │
@@ -41,7 +41,7 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
 │   │  │                  gins.dict.yaml                      │       │        │
 │   │  │                                                      │       │        │
 │   │  │  import_tables:                                      │       │        │
-│   │  │    - wanxiang dicts  (万象核心词库)                    │       │        │
+│   │  │    - core dicts  (核心核心词库)                    │       │        │
 │   │  │    - zhwiki          (维基百科词库 · Rust build)       │       │        │
 │   │  │    - tone_moe        (萌娘百科词库)                    │       │        │
 │   │  │    - gins-shici      (古诗词补充)                      │       │        │
@@ -50,7 +50,7 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
 │   │                           ▼                                     │        │
 │   │  ┌─────────────────────────────────────────────────────┐       │        │
 │   │  │              gins.schema.yaml (patch)                │       │        │
-│   │  │  __include: wanxiang.schema:/                        │       │        │
+│   │  │  __include: core.schema:/                        │       │        │
 │   │  │  __patch:                                            │       │        │
 │   │  │    schema_id: gins                                   │       │        │
 │   │  │    translator/dictionary: gins                       │       │        │
@@ -105,7 +105,7 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
 │   │  │  → R2 + GH Release  │          │                          │   │       │
 │   │  │                     │          │  R2: gins-rime            │   │       │
 │   │  │ sync-upstream.yml   │          │  • dicts/                │   │       │
-│   │  │  → wanxiang/rime-ice│          │  • releases/             │   │       │
+│   │  │  → core/rime-ice│          │  • releases/             │   │       │
 │   │  │  → moetype → R2     │          │  • cli/                  │   │       │
 │   │  │  → chinese-poetry   │          └─────────────────────────┘   │       │
 │   │  └─────────────────────┘                                         │       │
@@ -150,11 +150,11 @@ Gins-Rime 是基于万象拼音（wanxiang）的个人定制 RIME 输入方案�
 ## Component Details
 
 ### 1. Scheme Core (`scheme/shared/`)
-`gins.schema.yaml` 通过 `__include` + `__patch` 继承万象，避免直接修改上游文件。`gins.dict.yaml` 聚合所有词库，`gins.custom.yaml` 添加英文及中英混输翻译器。
+`gins.schema.yaml` 通过 `__include` + `__patch` 继承核心，避免直接修改上游文件。`gins.dict.yaml` 聚合所有词库，`gins.custom.yaml` 添加英文及中英混输翻译器。
 
 ### 2. Build Tools (`tools/`)
 - **zhwiki-builder** — Rust CLI，从 Wikipedia titles-only `.gz` 文件生成简体中文词库（OpenCC T2S+S2SG + rayon 并行拼音）
-- **shici-builder** — Rust CLI，从 chinese-poetry JSON 生成古诗词词库，与万象 shici 去重
+- **shici-builder** — Rust CLI，从 chinese-poetry JSON 生成古诗词词库，与核心 shici 去重
 - **gins-rime-cli** — Swift CLI，macOS 鼠须管专用：`deploy` / `update` / `sync` / `status`
 
 ### 3. Cloudflare Workers (`workers/gins-rime/`)

@@ -3,19 +3,19 @@
 上游更新通过 GitHub Actions 定时检测，有变化时自动开 PR，人工确认后合并。不自动合并，避免上游破坏性更新直接进主分支。
 
 检测频率：
-- 万象、萌娘百科、雾凇、古诗词：每天 **07:28** 和 **17:16**（CST）各检测一次
+- 核心、萌娘百科、雾凇、古诗词：每天 **07:28** 和 **17:16**（CST）各检测一次
 - zhwiki：每月 **2 号 02:00 UTC** 跑一次（Wikimedia dump 1 号 UTC 开始生成，titles 文件数小时内就绪）
 
 ## 同步来源
 
-### 万象拼音（amzxyz/rime_wanxiang）
+### 核心引擎（amzxyz/rime_core）
 
 检测方式：GitHub Releases latest tag
 
 同步内容：
-- `wanxiang.schema.yaml` — 主方案文件，我们的 `gins.schema.yaml` 通过 `__include` 继承它
-- `wanxiang_algebra.yaml` — 拼音变换规则
-- `wanxiang_symbols.yaml` — 符号定义
+- `core.schema.yaml` — 主方案文件，我们的 `gins.schema.yaml` 通过 `__include` 继承它
+- `core_algebra.yaml` — 拼音变换规则
+- `core_symbols.yaml` — 符号定义
 
 词库（`dicts/`）通过 `gins-rime deploy` 从鼠须管安装目录直接取，不进仓库。
 
@@ -52,7 +52,7 @@
 
 | 文件 | 来源 |
 |------|------|
-| `wanxiang.tag` | 万象拼音 Release tag |
+| `core.tag` | 核心引擎 Release tag |
 | `moetype.tag` | 萌娘百科 Release tag |
 | `rime-ice-melt.sha` | 雾凇 melt_eng commit SHA |
 | `chinese-poetry.sha` | 古诗词 main commit SHA |

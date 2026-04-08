@@ -6,19 +6,26 @@ struct Deploy: AsyncParsableCommand {
         abstract: "部署方案到鼠须管 ~/Library/Rime"
     )
 
-    @Flag(name: .shortAndLong, help: "强制覆盖已有文件")
-    var force: Bool = false
-
-    @Flag(name: .long, help: "仅复制文件，不触发重新部署")
-    var copyOnly: Bool = false
+    @Flag(name: .long, help: "从云端同步最新方案（不使用本地文件）")
+    var remote: Bool = false
 
     func run() async throws {
         let rimeDir = RimePaths.user
-        print("部署 Gins-Rime 到 \(rimeDir.path)")
+        
+        if !ProjectPaths.isProjectMode || remote {
+            print("进入远程同步模式...")
+            // Delegate to Update for remote sync
+            var update = Update()
+            update.deploy = !copyOnly
+            try await update.run()
+            return
+        }
 
+        print("部署本地 Gins-Rime 到 \(rimeDir.path)")
         try FileManager.default.createDirectory(at: rimeDir, withIntermediateDirectories: true)
-
+        
         var copied = 0
+        // ... (rest of the local copy logic from previous view_file)
 
         // scheme/shared — gins.*.yaml + gins_eng.dict.yaml
         let sharedDir = try ProjectPaths.sharedSchemeDir()

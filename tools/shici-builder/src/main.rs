@@ -10,102 +10,79 @@ use std::collections::HashSet;
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::PathBuf;
-use tracing::info;
+use tracing::{info, warn};
 
 #[derive(Parser)]
 #[command(name = "shici-builder")]
 #[command(about = "Build classical poetry dictionary for RIME, deduped against 万象 shici")]
 struct Cli {
-    /// Path to chinese-poetry repo root
     #[arg(short, long)]
     poetry_dir: PathBuf,
 
-    /// Path to 万象 shici.dict.yaml for deduplication
     #[arg(short, long)]
-    wanxiang_shici: PathBuf,
+    core_shici: PathBuf,
 
-    /// Output dict.yaml path
     #[arg(short, long, default_value = "gins-shici.dict.yaml")]
     output: PathBuf,
 
-    /// Minimum text length (characters)
     #[arg(long, default_value_t = 3)]
     min_len: usize,
 
-    /// Maximum text length (characters)
     #[arg(long, default_value_t = 20)]
     max_len: usize,
 }
 
-// Structs matching chinese-poetry JSON formats
 #[derive(Deserialize)]
 struct Poem {
     title: Option<String>,
     #[serde(default)]
     paragraphs: Vec<String>,
-    // 宋词 uses "rhythmic" for title and "paragraphs" for content
     rhythmic: Option<String>,
-    // 曲 uses "title" and "paragraphs"
 }
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::from_default_env()
-                .add_directive("shici_builder=info".parse().unwrap()),
-        )
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env().add_directive("shici_builder=info".parse().unwrap()))
         .init();
 
     let cli = Cli::parse();
+    let t2s = OpenCC::new(DefaultConfig::T2S).map_err(|e| anyhow::anyhow!("OpenCC init failed: {}", e))?;
 
-    let t2s = OpenCC::new(DefaultConfig::T2S)
-        .map_err(|e| anyhow::anyhow!("Failed to init OpenCC T2S: {}", e))?;
-
-    // Load 万象 shici for deduplication
-    info!("Loading 万象 shici for dedup...");
-    let wanxiang_set = load_wanxiang_shici(&cli.wanxiang_shici)?;
-    info!("万象 shici has {} entries", wanxiang_set.len());
-
-    // Punctuation to strip from poem lines
-    // r#"..."# avoids raw-string truncation caused by the curly-quote chars " " inside
+    info!("Loading core shici for dedup...");
+    let core_set = load_core_shici(&cli.core_shici)?;
+    
     let punct_re = Regex::new(r#"[，。？！、；：「」『』【】《》〈〉""''…—～\s]"#).unwrap();
     let cjk_re = Regex::new(r"[\u4e00-\u9fff\u3400-\u4dbf]").unwrap();
 
     let pb = ProgressBar::new_spinner();
-    pb.set_style(
-        ProgressStyle::default_spinner()
-            .template("{spinner:.green} [{elapsed_precise}] {msg}")
-            .unwrap(),
-    );
+    pb.set_style(ProgressStyle::default_spinner().template("{spinner:.green} [{elapsed_precise}] {msg}").unwrap());
 
-    let mut texts: Vec<String> = Vec::with_capacity(200_000);
-
-    // Scan all JSON files in the poetry repo
     let json_files = collect_json_files(&cli.poetry_dir);
     info!("Found {} JSON files", json_files.len());
 
-    for path in &json_files {
-        pb.set_message(format!("Reading {}", path.file_name().unwrap_or_default().to_string_lossy()));
+    let mut texts: Vec<String> = Vec::with_capacity(200_000);
 
-        let content = fs::read_to_string(path).unwrap_or_default();
-        let poems: Vec<Poem> = match serde_json::from_str(&content) {
+    for path in &json_files {
+        pb.set_message(format!("Processing {}", path.file_name().unwrap_or_default().to_string_lossy()));
+
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let poems: Vec<Poem> = match serde_json::from_reader(reader) {
             Ok(p) => p,
-            Err(_) => continue,
+            Err(e) => {
+                warn!("Skip malformed JSON {}: {}", path.display(), e);
+                continue;
+            }
         };
 
         for poem in &poems {
-            // Collect title + lines
-            let title = poem.title.as_deref()
-                .or(poem.rhythmic.as_deref())
-                .unwrap_or("");
-
+            let title = poem.title.as_deref().or(poem.rhythmic.as_deref()).unwrap_or("");
             let mut candidates: Vec<&str> = vec![title];
             for line in &poem.paragraphs {
                 candidates.push(line.as_str());
             }
 
             for raw in candidates {
-                // Strip punctuation
                 let cleaned = punct_re.replace_all(raw, "").to_string();
                 if cleaned.is_empty() || !cjk_re.is_match(&cleaned) {
                     continue;
@@ -114,11 +91,8 @@ fn main() -> Result<()> {
                 let normalized = t2s.convert(&cleaned);
                 let char_count = normalized.chars().count();
 
-                if char_count >= cli.min_len && char_count <= cli.max_len {
-                    // Skip if already in 万象 shici
-                    if !wanxiang_set.contains(&normalized) {
-                        texts.push(normalized);
-                    }
+                if char_count >= cli.min_len && char_count <= cli.max_len && !core_set.contains(&normalized) {
+                    texts.push(normalized);
                 }
             }
         }
@@ -126,12 +100,9 @@ fn main() -> Result<()> {
 
     pb.finish_with_message(format!("Collected {} texts", texts.len()));
 
-    // Sort + dedup
     texts.sort_unstable();
     texts.dedup();
-    info!("Unique after dedup: {}", texts.len());
 
-    // Parallel pinyin generation
     info!("Generating pinyin...");
     let mut entries: Vec<(String, String)> = texts
         .par_iter()
@@ -139,22 +110,12 @@ fn main() -> Result<()> {
         .collect();
 
     entries.sort_unstable_by(|a, b| a.0.cmp(&b.0));
-    info!("Entries with pinyin: {}", entries.len());
 
-    // Write dict.yaml
     info!("Writing to {}", cli.output.display());
-    let out = File::create(&cli.output).context("Failed to create output")?;
+    let out = File::create(&cli.output).context("Output creation failed")?;
     let mut writer = BufWriter::with_capacity(1024 * 1024, out);
 
-    writeln!(writer, "# Gins-Rime classical poetry dictionary")?;
-    writeln!(writer, "# Source: chinese-poetry/chinese-poetry, deduped against 万象 shici")?;
-    writeln!(writer, "---")?;
-    writeln!(writer, "name: gins-shici")?;
-    writeln!(writer, "version: \"0.1\"")?;
-    writeln!(writer, "sort: by_weight")?;
-    writeln!(writer, "...")?;
-    writeln!(writer)?;
-
+    writeln!(writer, "# Gins-Rime classical poetry dictionary\n---\nname: gins-shici\nversion: \"0.1\"\nsort: by_weight\n...\n")?;
     for (text, py) in &entries {
         writeln!(writer, "{}\t{}", text, py)?;
     }
@@ -163,22 +124,16 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-/// Load 万象 shici.dict.yaml into a HashSet of text fields (first tab column)
-fn load_wanxiang_shici(path: &PathBuf) -> Result<HashSet<String>> {
-    let file = File::open(path).context("Failed to open 万象 shici")?;
+fn load_core_shici(path: &PathBuf) -> Result<HashSet<String>> {
+    let file = File::open(path)?;
     let reader = BufReader::new(file);
     let mut set = HashSet::with_capacity(330_000);
-
     let mut in_body = false;
+
     for line in reader.lines() {
         let line = line?;
-        if line.starts_with("...") {
-            in_body = true;
-            continue;
-        }
-        if !in_body || line.starts_with('#') || line.is_empty() {
-            continue;
-        }
+        if line.starts_with("...") { in_body = true; continue; }
+        if !in_body || line.starts_with('#') || line.is_empty() { continue; }
         if let Some(text) = line.split('\t').next() {
             set.insert(text.to_string());
         }
@@ -186,7 +141,6 @@ fn load_wanxiang_shici(path: &PathBuf) -> Result<HashSet<String>> {
     Ok(set)
 }
 
-/// Recursively collect all .json files under dir
 fn collect_json_files(dir: &PathBuf) -> Vec<PathBuf> {
     let mut result = Vec::new();
     if let Ok(entries) = fs::read_dir(dir) {

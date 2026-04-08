@@ -25,7 +25,7 @@ GitHub Actions (构建词库) → Cloudflare R2 (存储) → Worker API (分发)
 触发：手动，或 chinese-poetry 仓库更新时
 
 1. Clone `chinese-poetry/chinese-poetry`
-2. Rust `shici-builder` 处理：解析 JSON → T2S 转换 → 与万象 shici 去重 → 生成带调拼音
+2. Rust `shici-builder` 处理：解析 JSON → T2S 转换 → 与核心 shici 去重 → 生成带调拼音
 3. 上传 `gins-shici.dict.yaml` 到 R2
 
 构建耗时 < 2 分钟。

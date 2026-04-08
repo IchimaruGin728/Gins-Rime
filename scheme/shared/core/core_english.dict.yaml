@@ -3,7 +3,7 @@
 
 # 英文输入方案的词库
 ---
-name: wanxiang_english
+name: core_english
 version: "lts"
 import_tables:
   - dicts/en     # 英文主词库

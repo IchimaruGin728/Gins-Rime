@@ -4,8 +4,6 @@ import {
   WorkflowStep,
 } from "cloudflare:workers";
 
-// ── Types ─────────────────────────────────────────────────────
-
 interface Env {
   BUCKET: R2Bucket;
   BUILD_QUEUE: Queue;
@@ -15,29 +13,32 @@ interface Env {
 }
 
 interface DictUpdateParams {
-  dict: string;          // e.g. "zhwiki" | "tone_moe"
-  r2Key: string;         // e.g. "dicts/zhwiki.dict.yaml"
-  date: string;          // e.g. "20260328"
+  dict: string;
+  r2Key: string;
+  date: string;
   lines?: number;
-  triggeredBy?: string;  // "github-actions" | "manual"
+  triggeredBy?: string;
 }
 
-// ── Workflow ──────────────────────────────────────────────────
-//
-// Triggered after GitHub Actions uploads a built dict to R2.
-// Steps:
-//   1. Validate the R2 object exists and has content
-//   2. Update releases/latest.json
-//   3. Enqueue notification to BUILD_QUEUE
+interface SchemeUpdateParams {
+  version: string;
+  r2Key: string;
+  triggeredBy?: string;
+}
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
 
 export class DictUpdateWorkflow extends WorkflowEntrypoint<Env, DictUpdateParams> {
   async run(event: WorkflowEvent<DictUpdateParams>, step: WorkflowStep) {
     const { dict, r2Key, date, lines, triggeredBy } = event.payload;
 
-    // Step 1: Validate R2 object
     const meta = await step.do(
       "validate-r2-object",
-      { retries: { limit: 5, delay: "10 seconds", backoff: "exponential" }, timeout: "2 minutes" },
+      { retries: { limit: 5, delay: "10 seconds", backoff: "exponential" } },
       async () => {
         const obj = await this.env.BUCKET.head(r2Key);
         if (!obj) throw new Error(`R2 object not found: ${r2Key}`);
@@ -45,37 +46,22 @@ export class DictUpdateWorkflow extends WorkflowEntrypoint<Env, DictUpdateParams
       }
     );
 
-    // Step 2: Update latest.json
     await step.do(
-      "update-latest-json",
-      { retries: { limit: 3, delay: "5 seconds" } },
+      "update-metadata",
       async () => {
-        const existing = await this.env.BUCKET.get("releases/latest.json");
-        const data: Record<string, unknown> = existing
-          ? JSON.parse(await existing.text())
-          : {};
-
-        data[dict] = {
+        await updateMetadata(this.env.BUCKET, dict, {
           date,
           url: `/${r2Key}`,
           ...(lines && { lines }),
           size: meta.size,
           etag: meta.etag,
-          updatedAt: new Date().toISOString(),
-        };
-
-        await this.env.BUCKET.put(
-          "releases/latest.json",
-          JSON.stringify(data, null, 2),
-          { httpMetadata: { contentType: "application/json" } }
-        );
+          triggeredBy: triggeredBy ?? "workflow",
+        });
       }
     );
 
-    // Step 3: Enqueue notification
     await step.do(
       "enqueue-notification",
-      { retries: { limit: 2, delay: "3 seconds" } },
       async () => {
         await this.env.BUILD_QUEUE.send({
           type: "dict-updated",
@@ -83,7 +69,7 @@ export class DictUpdateWorkflow extends WorkflowEntrypoint<Env, DictUpdateParams
           r2Key,
           date,
           lines,
-          triggeredBy: triggeredBy ?? "unknown",
+          triggeredBy: triggeredBy ?? "workflow",
         });
       }
     );
@@ -92,38 +78,26 @@ export class DictUpdateWorkflow extends WorkflowEntrypoint<Env, DictUpdateParams
   }
 }
 
-// ── Worker ────────────────────────────────────────────────────
-
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, HEAD, POST, OPTIONS",
-};
-
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers: CORS });
+      return new Response(null, { headers: CORS_HEADERS });
     }
 
     const url = new URL(request.url);
     const path = url.pathname;
 
     try {
-      // GET /health
-      if (path === "/health") {
-        return json({ ok: true }, CORS);
-      }
+      if (path === "/health") return json({ ok: true });
 
-      // GET /version  —  latest.json from R2
       if (path === "/version") {
         const obj = await env.BUCKET.get("releases/latest.json");
-        if (!obj) return json({ version: "0.1.0" }, CORS);
+        if (!obj) return json({ version: "0.1.0" });
         return new Response(obj.body, {
-          headers: { ...CORS, "Content-Type": "application/json", "Cache-Control": "public, max-age=300" },
+          headers: { ...CORS_HEADERS, "Content-Type": "application/json", "Cache-Control": "public, max-age=300" },
         });
       }
 
-      // GET /api/status  —  version info + CLI meta for the site
       if (path === "/api/status") {
         const [versionObj, cliObj] = await Promise.all([
           env.BUCKET.get("releases/latest.json"),
@@ -131,84 +105,89 @@ export default {
         ]);
         const version = versionObj ? JSON.parse(await versionObj.text()) : {};
         const cli = cliObj ? JSON.parse(await cliObj.text()) : {};
-        return json({ ...version, cli }, CORS);
+        return json({ ...version, cli });
       }
 
-      // GET /dicts/:name
       if (path.startsWith("/dicts/")) {
-        return serveR2(env.BUCKET, `dicts/${path.slice(7)}`, CORS);
+        return serveR2(env.BUCKET, `dicts/${path.slice(7)}`);
       }
 
-      // GET /releases/:version/:file
       if (path.startsWith("/releases/")) {
-        return serveR2(env.BUCKET, path.slice(1), CORS);
+        return serveR2(env.BUCKET, path.slice(1));
       }
 
-      // POST /workflow/dict-update  —  trigger DictUpdateWorkflow
       if (path === "/workflow/dict-update" && request.method === "POST") {
-        const auth = request.headers.get("Authorization");
-        if (!auth?.startsWith("Bearer ")) {
-          return json({ error: "unauthorized" }, { ...CORS, status: 401 });
-        }
+        if (!isAuthorized(request)) return json({ error: "unauthorized" }, 401);
 
         const body = await request.json<DictUpdateParams>();
-        if (!body.dict || !body.r2Key || !body.date) {
-          return json({ error: "missing fields: dict, r2Key, date" }, { ...CORS, status: 400 });
-        }
+        if (!body.dict || !body.r2Key || !body.date) return json({ error: "missing fields" }, 400);
 
         const instance = await env.DICT_UPDATE_WORKFLOW.create({
           id: `dict-update-${body.dict}-${body.date}-${Date.now()}`,
           params: body,
         });
-
-        return json({ instanceId: instance.id, status: "queued" }, CORS);
+        return json({ instanceId: instance.id, status: "queued" });
       }
 
-      // GET /workflow/:id  —  check workflow instance status
+      if (path === "/api/scheme-update" && request.method === "POST") {
+        if (!isAuthorized(request)) return json({ error: "unauthorized" }, 401);
+
+        const body = await request.json<SchemeUpdateParams>();
+        if (!body.version || !body.r2Key) return json({ error: "missing fields" }, 400);
+
+        await updateMetadata(env.BUCKET, "scheme", {
+          version: body.version,
+          url: `/${body.r2Key}`,
+          triggeredBy: body.triggeredBy ?? "api",
+        });
+
+        return json({ ok: true, version: body.version });
+      }
+
       if (path.startsWith("/workflow/") && request.method === "GET") {
-        const id = path.slice(10);
-        const instance = await env.DICT_UPDATE_WORKFLOW.get(id);
-        const status = await instance.status();
-        return json({ id, status }, CORS);
+        const instance = await env.DICT_UPDATE_WORKFLOW.get(path.slice(10));
+        return json({ id: instance.id, status: await instance.status() });
       }
 
-      // Fall through to static assets (Astro site)
       return env.ASSETS.fetch(request);
     } catch (e) {
-      return json({ error: "internal error" }, { ...CORS, status: 500 });
+      return json({ error: "internal_error", message: e instanceof Error ? e.message : String(e) }, 500);
     }
   },
 
-  // Queue consumer: process build notifications
   async queue(batch: MessageBatch, env: Env): Promise<void> {
     for (const msg of batch.messages) {
-      const body = msg.body as Record<string, unknown>;
+      const body = msg.body as any;
       console.log(`[queue] ${body.type}: ${body.dict} @ ${body.date}`);
       msg.ack();
     }
   },
 } satisfies ExportedHandler<Env>;
 
-// ── Helpers ───────────────────────────────────────────────────
+async function updateMetadata(bucket: R2Bucket, key: string, val: any) {
+  const existing = await bucket.get("releases/latest.json");
+  const data = existing ? JSON.parse(await existing.text()) : {};
+  data[key] = { ...val, updatedAt: new Date().toISOString() };
+  await bucket.put("releases/latest.json", JSON.stringify(data, null, 2), {
+    httpMetadata: { contentType: "application/json" }
+  });
+}
 
-async function serveR2(
-  bucket: R2Bucket,
-  key: string,
-  headers: Record<string, string>
-): Promise<Response> {
+function isAuthorized(req: Request): boolean {
+  const auth = req.headers.get("Authorization");
+  return !!auth?.startsWith("Bearer ");
+}
+
+async function serveR2(bucket: R2Bucket, key: string): Promise<Response> {
   const obj = await bucket.get(key);
-  if (!obj) return json({ error: "not found", key }, { ...headers, status: 404 });
+  if (!obj) return json({ error: "not found" }, 404);
 
   const ext = key.split(".").pop();
-  const contentType =
-    ext === "yaml" ? "text/yaml" :
-    ext === "json" ? "application/json" :
-    ext === "gz"   ? "application/gzip" :
-    "application/octet-stream";
+  const contentType = ext === "yaml" ? "text/yaml" : ext === "json" ? "application/json" : ext === "gz" ? "application/gzip" : "application/octet-stream";
 
   return new Response(obj.body, {
     headers: {
-      ...headers,
+      ...CORS_HEADERS,
       "Content-Type": contentType,
       "Content-Disposition": `attachment; filename="${key.split("/").pop()}"`,
       "ETag": obj.httpEtag,
@@ -217,10 +196,6 @@ async function serveR2(
   });
 }
 
-function json(
-  data: unknown,
-  headersOrOpts: Record<string, string | number> = {}
-): Response {
-  const { status = 200, ...headers } = headersOrOpts as Record<string, string | number>;
-  return Response.json(data, { status: status as number, headers: headers as Record<string, string> });
+function json(data: any, status: number = 200): Response {
+  return Response.json(data, { status, headers: CORS_HEADERS });
 }

@@ -1,7 +1,6 @@
-patch:
   style:
-    color_scheme: gins_liquid_light
-    color_scheme_dark: gins_liquid_dark
+    color_scheme: apple_purple_light
+    color_scheme_dark: apple_purple_dark
     candidate_list_layout: linear
     text_orientation: horizontal
     inline_preedit: true
@@ -9,14 +8,49 @@ patch:
     memorize_size: false
     translucency: true
     mutual_exclusive: false
-    show_paging: false
+    show_paging: true
     corner_radius: 100
-    hilited_corner_radius: 10
-    border_height: 2
-    border_width: 4
-    spacing: 6
-    shadow_size: 3
-    candidate_format: "[label] [candidate]  [comment]"
+    hilited_corner_radius: 100
+    border_height: 4
+    border_width: 6
+    spacing: 12
+    font_face: "SF Pro Text"
+    font_point: 14
+    label_font_point: 10
+    shadow_size: 4
+
+  # ── Apple Purple：100% 仿苹果官方 + 紫色高亮 ──────────────────────────
+  preset_color_schemes/apple_purple_light:
+    name: "Apple Purple Light"
+    author: "IchimaruGin728"
+    back_color: 0xCCF2F2F2
+    border_color: 0x19000000
+    text_color: 0xFF222222
+    hilited_text_color: 0xFFFFFFFF
+    hilited_back_color: 0x00FFFFFF  # 透明，靠 hilited_candidate_back_color
+    candidate_text_color: 0xFF222222
+    hilited_candidate_text_color: 0xFFFFFFFF
+    hilited_candidate_back_color: 0xFFB915D8
+    comment_text_color: 0xFF8E8E93
+    hilited_comment_text_color: 0xFFFFFFFF
+    label_color: 0xFF8E8E93
+    hilited_label_color: 0x99FFFFFF
+
+  preset_color_schemes/apple_purple_dark:
+    name: "Apple Purple Dark"
+    author: "IchimaruGin728"
+    back_color: 0xCC1C1C1E
+    border_color: 0x33FFFFFF
+    text_color: 0xFFEBEBF5
+    hilited_text_color: 0xFFFFFFFF
+    hilited_back_color: 0x00FFFFFF
+    candidate_text_color: 0xFFEBEBF5
+    hilited_candidate_text_color: 0xFFFFFFFF
+    hilited_candidate_back_color: 0xFFB915D8
+    comment_text_color: 0xFF8E8E93
+    hilited_comment_text_color: 0xFFFFFFFF
+    label_color: 0xFF8E8E93
+    hilited_label_color: 0x99FFFFFF
 
   # ── 浅色：磨砂白玻璃 + 紫色高亮 ──────────────────────────────────
   preset_color_schemes/gins_liquid_light:

@@ -24,7 +24,7 @@
 
 **`translucency: true`** — 启用 macOS vibrancy 磨砂背景，候选框跟随桌面内容变色。
 
-**`candidate_list_layout: linear`** — 横排候选词。万象默认 `page_size: 6`，7890 键位用于声调辅助筛选（按声调过滤候选），改成 9 会影响这个功能。
+**`candidate_list_layout: linear`** — 横排候选词。核心默认 `page_size: 6`，7890 键位用于声调辅助筛选（按声调过滤候选），改成 9 会影响这个功能。
 
 **`inline_preedit: true`** — 输入码显示在文档光标处，不在悬浮窗里重复显示。
 

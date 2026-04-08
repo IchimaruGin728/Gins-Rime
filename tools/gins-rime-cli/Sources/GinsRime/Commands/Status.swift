@@ -55,7 +55,7 @@ struct Status: AsyncParsableCommand {
         // 上游版本
         print("\n上游同步:")
         let upstreamFiles: [(String, String)] = [
-            (".upstream/wanxiang.tag",       "万象拼音"),
+            (".upstream/core.tag",       "核心引擎"),
             (".upstream/moetype.tag",        "萌娘百科"),
             (".upstream/rime-ice-melt.sha",  "雾凇 melt_eng"),
             (".upstream/chinese-poetry.sha", "古诗词"),

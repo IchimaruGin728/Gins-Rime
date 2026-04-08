@@ -1,92 +1,123 @@
 import ArgumentParser
 import Foundation
 
-private let workerBase = "https://rime.ichimarugin728.dev"
-
 struct Update: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        abstract: "从 Worker 检查并下载最新词库"
+        abstract: "从云端同步配置与词库 (\(GinsSettings.licenseNotice))"
     )
 
-    @Flag(name: .shortAndLong, help: "仅检查，不下载")
+    @Flag(name: .shortAndLong, help: "仅检查，不进行实际下载")
     var checkOnly: Bool = false
 
-    @Flag(name: .long, help: "下载后自动重新部署")
+    @Flag(name: .long, help: "下载后自动重新部署鼠须管")
     var deploy: Bool = false
 
+    @Flag(name: .long, help: "仅同步词库，不更新配置方案")
+    var noScheme: Bool = false
+
     func run() async throws {
-        print("检查词库更新...")
+        try preflightCheck()
+        print("正在检查更新...")
 
-        let remote = try await fetchRemoteVersions()
-        let local = loadLocalVersions()
+        let remote = try await fetchRemoteMetadata()
+        var local = loadLocalVersions()
+        var hasChanges = false
 
-        let dicts = ["zhwiki", "tone_moe", "gins-shici"]
-        var updated = 0
-
-        for dict in dicts {
-            let remoteDate = remote[dict] ?? ""
-            let localDate = local[dict] ?? ""
-
-            if remoteDate.isEmpty {
-                print("  \(dict): 远程无版本信息")
-                continue
-            }
-
-            if !checkOnly && (localDate.isEmpty || remoteDate > localDate) {
-                print("  \(dict): \(localDate.isEmpty ? "未安装" : localDate) → \(remoteDate)，下载中...")
-                try await downloadDict(dict)
-                updated += 1
-            } else if remoteDate > localDate {
-                print("  \(dict): 可更新 \(localDate.isEmpty ? "(未安装)" : localDate) → \(remoteDate)")
+        // 1. 处理方案更新 (Scheme)
+        if !noScheme, let remoteScheme = remote["scheme"] as? [String: Any],
+           let remoteVer = remoteScheme["version"] as? String {
+            let localVer = local["_scheme"] ?? ""
+            
+            if remoteVer > localVer {
+                if checkOnly {
+                    print("  [scheme]: 可更新 \(localVer.isEmpty ? "(未同步)" : localVer) → \(remoteVer)")
+                } else {
+                    print("  [scheme]: \(localVer.isEmpty ? "未同步" : localVer) → \(remoteVer)，正在下载...")
+                    try await updateScheme()
+                    local["_scheme"] = remoteVer
+                    hasChanges = true
+                }
             } else {
-                print("  \(dict): 已是最新 (\(localDate))")
+                print("  [scheme]: 已是最新 (\(localVer))")
             }
         }
 
-        if updated > 0 {
-            var versions = local
-            for dict in dicts {
-                if let d = remote[dict] { versions[dict] = d }
+        // 2. 处理词库更新 (Dicts)
+        for dict in GinsSettings.managedDicts {
+            guard let remoteInfo = remote[dict] as? [String: Any],
+                  let remoteDate = remoteInfo["date"] as? String else {
+                continue
             }
-            saveLocalVersions(versions)
-            print("\n\(updated) 个词库已更新")
+            let localDate = local[dict] ?? ""
 
+            if remoteDate > localDate {
+                if checkOnly {
+                    print("  [\(dict)]: 可更新 \(localDate.isEmpty ? "(未安装)" : localDate) → \(remoteDate)")
+                } else {
+                    print("  [\(dict)]: \(localDate.isEmpty ? "未安装" : localDate) → \(remoteDate)，正在下载...")
+                    try await downloadDict(dict)
+                    local[dict] = remoteDate
+                    hasChanges = true
+                }
+            } else {
+                print("  [\(dict)]: 已是最新 (\(localDate))")
+            }
+        }
+
+        if hasChanges {
+            saveLocalVersions(local)
             if deploy {
-                print("触发鼠须管重新部署...")
+                print("\n触发鼠须管重新部署...")
                 Squirrel.reload()
-                print("完成")
             }
         } else if !checkOnly {
-            print("\n所有词库已是最新")
+            print("\n所有内容已是最新")
         }
     }
 
-    // MARK: - Worker API
-
-    private func fetchRemoteVersions() async throws -> [String: String] {
-        let url = URL(string: "\(workerBase)/version")!
-        let (data, _) = try await URLSession.shared.data(from: url)
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            return [:]
+    private func preflightCheck() throws {
+        let tarPath = "/usr/bin/tar"
+        if !FileManager.default.fileExists(atPath: tarPath) {
+            throw GinsRimeError.commandNotFound("tar")
         }
-        var versions: [String: String] = [:]
-        for (key, value) in json {
-            if let info = value as? [String: Any], let date = info["date"] as? String {
-                versions[key] = date
+        
+        let rimeDir = RimePaths.user
+        if FileManager.default.fileExists(atPath: rimeDir.path) {
+            if !FileManager.default.isWritableFile(atPath: rimeDir.path) {
+                throw GinsRimeError.permissionDenied(rimeDir.path)
             }
         }
-        return versions
+    }
+
+    private func fetchRemoteMetadata() async throws -> [String: Any] {
+        let url = URL(string: "\(GinsSettings.workerBase)/version")!
+        let (data, _) = try await URLSession.shared.data(from: url)
+        return (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
+    }
+
+    private func updateScheme() async throws {
+        let url = URL(string: "\(GinsSettings.workerBase)/\(GinsSettings.schemeR2Key)")!
+        let (tmp, _) = try await URLSession.shared.download(from: url)
+        
+        let rimeDir = RimePaths.user
+        try FileManager.default.createDirectory(at: rimeDir, withIntermediateDirectories: true)
+        
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
+        task.arguments = ["-xzf", tmp.path, "-C", rimeDir.path, "--strip-components", "1"]
+        try task.run()
+        task.waitUntilExit()
     }
 
     private func downloadDict(_ name: String) async throws {
-        let url = URL(string: "\(workerBase)/dicts/\(name)")!
+        let url = URL(string: "\(GinsSettings.workerBase)/dicts/\(name)")!
         let dest = RimePaths.user.appendingPathComponent("\(name).dict.yaml")
         let (tmp, _) = try await URLSession.shared.download(from: url)
-        try? FileManager.default.removeItem(at: dest)
+        if FileManager.default.fileExists(atPath: dest.path) {
+            try FileManager.default.removeItem(at: dest)
+        }
         try FileManager.default.moveItem(at: tmp, to: dest)
     }
-
-    // MARK: - Local version store
 
     private func loadLocalVersions() -> [String: String] {
         guard let data = try? Data(contentsOf: RimePaths.versionsFile),
@@ -97,7 +128,7 @@ struct Update: AsyncParsableCommand {
     }
 
     private func saveLocalVersions(_ versions: [String: String]) {
-        guard let data = try? JSONSerialization.data(withJSONObject: versions, options: .prettyPrinted) else { return }
-        try? data.write(to: RimePaths.versionsFile)
+        let data = try? JSONSerialization.data(withJSONObject: versions, options: .prettyPrinted)
+        try? data?.write(to: RimePaths.versionsFile)
     }
 }

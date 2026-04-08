@@ -43,22 +43,25 @@ export default function HomeStatusPanel({ dictVersions }: Props) {
   return (
     <div class="flex flex-col gap-[0.6rem]">
 
-      {/* ── Dict cards — flex row for reliable equal height ── */}
-      <div class="flex gap-[0.6rem]">
+      {/* ── Dict cards — Grid for perfectly equal height ── */}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-[0.6rem]">
         {DICTS.map(({ key, name, sub }) => {
           const info = status?.[key as keyof ApiStatus] as DictInfo | undefined
           const ver = dictVersions[key] !== '—' ? dictVersions[key] : (info?.date ?? '—')
           const hasLines = !loading && info?.lines != null
           return (
-            <div key={key} class="flex-1 flex flex-col gap-[0.18rem] p-[0.85rem_1rem] min-h-[5rem] rounded-[var(--sl-border-radius-sm,8px)] border border-[var(--sl-color-hairline)] bg-[color-mix(in_srgb,var(--sl-color-accent)_4%,transparent)]">
+            <div key={key} class="flex flex-col p-[0.85rem_1rem] min-h-[5.5rem] rounded-[var(--sl-border-radius-sm,8px)] border border-[var(--sl-color-hairline)] bg-[color-mix(in_srgb,var(--sl-color-accent)_4%,transparent)]">
               <span class="font-semibold text-[0.875rem] text-[var(--sl-color-text)] truncate">{name}</span>
-              <span class="text-[0.68rem] text-[color-mix(in_srgb,var(--sl-color-text)_42%,transparent)] truncate">{sub}</span>
-              <span class="mt-auto pt-[0.45rem] text-[0.78rem] font-mono tabular-nums text-[var(--sl-color-text-accent)] truncate">
-                {loading ? '…' : ver}
-              </span>
-              <span class={`text-[0.68rem] tabular-nums text-[color-mix(in_srgb,var(--sl-color-text)_38%,transparent)]${hasLines ? '' : ' invisible'}`}>
-                {info?.lines != null ? `${info.lines.toLocaleString()} 条` : '0 条'}
-              </span>
+              <span class="text-[0.68rem] text-[color-mix(in_srgb,var(--sl-color-text)_42%,transparent)] truncate leading-relaxed">{sub}</span>
+              
+              <div class="mt-auto flex flex-col gap-[0.15rem]">
+                <span class="pt-[0.45rem] text-[0.78rem] font-mono tabular-nums text-[var(--sl-color-text-accent)] truncate">
+                  {loading ? '…' : ver}
+                </span>
+                <span class={`text-[0.62rem] tabular-nums text-[color-mix(in_srgb,var(--sl-color-text)_34%,transparent)]${hasLines ? '' : ' invisible'}`}>
+                  {info?.lines != null ? `${info.lines.toLocaleString()} entries` : '0 entries'}
+                </span>
+              </div>
             </div>
           )
         })}

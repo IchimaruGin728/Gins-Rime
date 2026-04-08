@@ -1,24 +1,38 @@
 # Gins-Rime
 
-个人 RIME 输入法配置，macOS 鼠须管 + iOS 元书 Hamster v3。
+> **个人定制分发版 (Personal Distribution)**
+> 
+> 本项目遵循 **GPL v3** 开源协议。
 
-基于万象拼音构建，合并萌娘百科、雾凇中英混输，以及自建维基百科标题词库。词库通过 GitHub Actions 构建，由 Cloudflare Worker 分发。
+个人 RIME 输入法配置，专为 macOS 鼠须管 (Squirrel) 与 iOS 元书 (Hamster) 打造。
+
+## 特色
+- **多端分发**：基于 Cloudflare Worker 实现词库与配置方案的海量全量云端同步。
+- **极致体验**：苹果官方风格 UI 深度定制。
+- **混合动力**：万象拼音内核 + 雾凇词库 + 自建维基/古诗词词库。
 
 ## 文档
-
-- [方案设计](docs/scheme.md)
-- [词库系统](docs/dicts.md)
-- [鼠须管配置](docs/squirrel.md)
-- [元书配置](docs/hamster.md)
-- [CI 构建与分发](docs/build.md)
-- [上游同步](docs/upstream.md)
+- [方案设计](docs/scheme.md) | [词库系统](docs/dicts.md) | [分发系统](docs/build.md)
 
 ---
 
-## 致谢
+## 致谢 (Credits & Upstreams)
 
-- [amzxyz/rime_wanxiang](https://github.com/amzxyz/rime_wanxiang) — 基础拼音方案、核心词库、Lua 脚本
-- [iDvel/rime-ice](https://github.com/iDvel/rime-ice) — melt_eng 中英混输、英文词库
-- [suiginko/moetype](https://github.com/suiginko/moetype) — 萌娘百科 ACG 词库
-- [chinese-poetry/chinese-poetry](https://github.com/chinese-poetry/chinese-poetry) — 古诗词数据源
-- [Wikimedia](https://dumps.wikimedia.org/zhwiki/) — 中文维基百科标题
+本方案“因巨人而强大”，核心组件源自以下优秀开源项目：
+
+1. **[amzxyz/rime_wanxiang](https://github.com/amzxyz/rime_wanxiang)** 
+   — 方案内核、Lua 脚本、基础词库（万象拼音）。
+2. **[iDvel/rime-ice](https://github.com/iDvel/rime-ice)** 
+   — melt_eng 混输逻辑、高质量英文词库（雾凇拼音）。
+3. **[suiginko/moetype](https://github.com/suiginko/moetype)** 
+   — 核心 ACG 扩展词库。
+4. **[chinese-poetry](https://github.com/chinese-poetry/chinese-poetry)** 
+   — 古诗词基础数据。
+5. **[Wikimedia](https://dumps.wikimedia.org/zhwiki/)** 
+   — 维基百科标题数据。
+
+---
+
+## 协议 (License)
+
+Copyright (c) 2026 IchimaruGin728. 基于 **GPL v3** 协议授权。核心上游文件遵循其原作者之授权协议。

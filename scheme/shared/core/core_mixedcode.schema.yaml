@@ -1,12 +1,12 @@
 # Rime schema settings
 # encoding: utf-8
 schema:
-  schema_id: wanxiang_reverse
-  name: "万象：拆分与笔画反查"
+  schema_id: core_mixedcode
+  name: "万象：英文与混合编码"
   version: "LTS"
   author: amzxyz
   description: |
-    万象的反查功能模块，方案融合了组字与笔画的能力
+    混合编码负责将英文、中英文混合、携带符号的词组等全部统一到这个方案中完成
 engine:
   processors:
     - key_binder
@@ -30,9 +30,8 @@ speller:
   alphabet: "abcdefghijklmnopqrstuvwxyz;"
   delimiter: " '"
   algebra:
-    __include: wanxiang_algebra:/reverse/全拼
-    __patch: wanxiang_algebra:/reverse/hspzn      #笔画类型有hspzn，hupvd及hslzy（适配乱序17）可选
-
+    __include: core_algebra:/mixed/通用派生规则
+    __patch: core_algebra:/mixed/全拼   #可选的选项有（全拼, 自然码, 小鹤双拼, 微软双拼, 搜狗双拼, 智能ABC, 紫光双拼, 拼音加加, 自然龙, 汉心龙）
 translator:
-  dictionary: wanxiang_reverse
+  dictionary: core_mixedcode
   enable_user_dict: false
