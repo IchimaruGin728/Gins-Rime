@@ -8,7 +8,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Gins-Rime',
-      description: '万象拼音 + 萌娘百科 + 雾凇中英混输，macOS / iOS 双平台',
+      description: '核心拼音 + 萌娘百科 + 雾凇中英混输，macOS / iOS 双平台',
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/IchimaruGin728/Gins-Rime' },
       ],
