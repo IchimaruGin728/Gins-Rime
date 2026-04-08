@@ -21,6 +21,6 @@
 
 | 文件 | 来源 |
 |------|------|
-| `core/wanxiang.schema.yaml` 等 | amzxyz/rime_wanxiang |
+| `core/core.schema.yaml` 等 | amzxyz/rime_wanxiang |
 | `core/melt_eng.schema.yaml` | iDvel/rime-ice |
 | `core/en_dicts/` | iDvel/rime-ice |
