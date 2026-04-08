@@ -15,12 +15,12 @@
 |------|------|
 | `tone_moe.dict.yaml` | [suiginko/moetype](https://github.com/suiginko/moetype) 发布时自动下载 |
 
-## 由 Sync 命令同步（`scheme/shared/upstream/`）
+## 由 Sync 命令同步（`scheme/shared/core/`）
 
-`gins-rime sync` 将 `scheme/shared/upstream/` 下的上游文件复制到 `~/Library/Rime/`：
+`gins-rime sync` 将 `scheme/shared/core/` 下的上游文件复制到 `~/Library/Rime/`：
 
 | 文件 | 来源 |
 |------|------|
-| `upstream/wanxiang.schema.yaml` 等 | amzxyz/rime_wanxiang |
-| `upstream/melt_eng.schema.yaml` | iDvel/rime-ice |
-| `upstream/en_dicts/` | iDvel/rime-ice |
+| `core/wanxiang.schema.yaml` 等 | amzxyz/rime_wanxiang |
+| `core/melt_eng.schema.yaml` | iDvel/rime-ice |
+| `core/en_dicts/` | iDvel/rime-ice |

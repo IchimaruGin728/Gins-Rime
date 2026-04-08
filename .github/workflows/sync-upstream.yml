@@ -152,9 +152,9 @@ jobs:
         if: steps.check.outputs.stale == 'true'
         run: |
           git clone --depth 1 https://github.com/iDvel/rime-ice.git /tmp/rime-ice
-          mkdir -p scheme/shared/upstream/en_dicts
-          cp /tmp/rime-ice/melt_eng.schema.yaml scheme/shared/upstream/
-          cp -r /tmp/rime-ice/en_dicts/. scheme/shared/upstream/en_dicts/
+          mkdir -p scheme/shared/core/en_dicts
+          cp /tmp/rime-ice/melt_eng.schema.yaml scheme/shared/core/
+          cp -r /tmp/rime-ice/en_dicts/. scheme/shared/core/en_dicts/
           mkdir -p .upstream && echo "${{ steps.meta.outputs.sha }}" > .upstream/rime-ice-melt.sha
 
       - name: Open PR
@@ -166,7 +166,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git add scheme/shared/upstream/ .upstream/rime-ice-melt.sha
+          git add scheme/shared/core/ .upstream/rime-ice-melt.sha
           git diff --cached --quiet && exit 0
           git commit -m "sync: rime-ice melt_eng ${{ steps.meta.outputs.sha }}"
           git push origin "$BRANCH"

@@ -30,9 +30,9 @@ enum ProjectPaths {
         return root.appendingPathComponent("scheme/squirrel")
     }
 
-    static func upstreamDir() throws -> URL {
+    static func coreDir() throws -> URL {
         guard let root = projectRoot() else { throw GinsRimeError.projectRootNotFound }
-        return root.appendingPathComponent("scheme/shared/upstream")
+        return root.appendingPathComponent("scheme/shared/core")
     }
 }
 

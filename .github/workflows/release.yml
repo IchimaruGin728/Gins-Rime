@@ -21,10 +21,10 @@ jobs:
           mkdir -p dist/scheme
           # Copy shared files
           cp scheme/shared/*.yaml dist/scheme/
-          # Copy upstream files and dictionaries
-          cp scheme/shared/upstream/*.yaml dist/scheme/
-          if [ -d "scheme/shared/upstream/en_dicts" ]; then
-            cp -r scheme/shared/upstream/en_dicts dist/scheme/
+          # Copy core files and dictionaries
+          cp scheme/shared/core/*.yaml dist/scheme/
+          if [ -d "scheme/shared/core/en_dicts" ]; then
+            cp -r scheme/shared/core/en_dicts dist/scheme/
           fi
           # Copy squirrel files
           cp scheme/squirrel/*.yaml dist/scheme/

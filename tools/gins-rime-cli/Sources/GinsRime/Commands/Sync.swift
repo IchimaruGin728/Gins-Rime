@@ -3,29 +3,29 @@ import Foundation
 
 struct Sync: AsyncParsableCommand {
     static let configuration = CommandConfiguration(
-        abstract: "将上游文件同步到 ~/Library/Rime"
+        abstract: "将核心文件同步到 ~/Library/Rime"
     )
 
     @Flag(name: .shortAndLong, help: "仅显示将要同步的文件，不实际复制")
     var dryRun: Bool = false
 
     func run() async throws {
-        let upstreamDir = try ProjectPaths.upstreamDir()
+        let coreDir = try ProjectPaths.coreDir()
         let rimeDir = RimePaths.user
 
-        guard FileManager.default.fileExists(atPath: upstreamDir.path) else {
-            print("upstream 目录不存在：\(upstreamDir.path)")
-            print("请先合并上游同步 PR，或运行 git pull")
+        guard FileManager.default.fileExists(atPath: coreDir.path) else {
+            print("core 目录不存在：\(coreDir.path)")
+            print("请运行 git pull 确保本地仓库已更新")
             return
         }
 
-        print("同步上游文件到 \(rimeDir.path)\(dryRun ? "（dry-run）" : "")")
+        print("同步核心文件到 \(rimeDir.path)\(dryRun ? "（dry-run）" : "")")
 
-        let files = try collectFiles(in: upstreamDir)
+        let files = try collectFiles(in: coreDir)
         var count = 0
 
         for src in files {
-            let relative = src.path.dropFirst(upstreamDir.path.count + 1)
+            let relative = src.path.dropFirst(coreDir.path.count + 1)
             let dest = rimeDir.appendingPathComponent(String(relative))
 
             let destDir = dest.deletingLastPathComponent()
