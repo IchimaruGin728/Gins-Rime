@@ -2,7 +2,7 @@
 # encoding: utf-8
 schema:
   schema_id: core_english
-  name: 万象英文
+  name: 核心英文
   version: "lts"
   author: amzxyz
   description: |

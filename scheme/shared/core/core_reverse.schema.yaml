@@ -2,11 +2,11 @@
 # encoding: utf-8
 schema:
   schema_id: core_reverse
-  name: "万象：拆分与笔画反查"
+  name: "核心：拆分与笔画反查"
   version: "LTS"
   author: amzxyz
   description: |
-    万象的反查功能模块，方案融合了组字与笔画的能力
+    核心的反查功能模块，方案融合了组字与笔画的能力
 engine:
   processors:
     - key_binder

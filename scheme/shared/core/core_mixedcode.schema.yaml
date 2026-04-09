@@ -2,7 +2,7 @@
 # encoding: utf-8
 schema:
   schema_id: core_mixedcode
-  name: "万象：英文与混合编码"
+  name: "核心：英文与混合编码"
   version: "LTS"
   author: amzxyz
   description: |

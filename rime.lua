@@ -1,9 +1,7 @@
 -- Gins-Rime Purified Logic Engine Entry Point
--- Generated for 100% rebranding and functional completeness
-
 core = require('core/core')
 
--- ── Processors ───────────────────────────────────────────────
+-- Processors
 core.auto_phrase = require('core/auto_phrase')
 core.input_statistics = require('core/input_statistics')
 core.key_binder = require('core/key_binder')
@@ -13,14 +11,14 @@ core.super_tips = require('core/super_tips')
 core.super_sequence = require('core/super_sequence')
 core.user_predict = require('core/user_predict')
 
--- ── Translators ──────────────────────────────────────────────
+-- Translators
 core.number_translator = require('core/number_translator')
 core.set_schema = require('core/set_schema')
 core.shijian = require('core/shijian')
 core.unicode = require('core/unicode')
 core.version_display = require('core/version_display')
 
--- ── Filters ──────────────────────────────────────────────────
+-- Filters
 core.charset_filter = require('core/charset_filter')
 core.super_calculator = require('core/super_calculator')
 core.super_comment_preedit = require('core/super_comment_preedit')
@@ -29,7 +27,7 @@ core.super_filter = require('core/super_filter')
 core.super_lookup = require('core/super_lookup')
 core.super_replacer = require('core/super_replacer')
 
--- Global exports for compatibility with legacy calls
+-- Global exports
 auto_phrase = core.auto_phrase
 input_statistics = core.input_statistics
 key_binder = core.key_binder
