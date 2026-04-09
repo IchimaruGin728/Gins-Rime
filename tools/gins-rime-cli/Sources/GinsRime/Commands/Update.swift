@@ -67,8 +67,12 @@ struct Update: AsyncParsableCommand {
         if hasChanges {
             saveLocalVersions(local)
             if deploy {
-                print("\n触发鼠须管重新部署...")
-                Squirrel.reload()
+                print("\n下载完成，正在执行物理部署...")
+                var deployCmd = Deploy()
+                deployCmd.remote = false
+                deployCmd.copyOnly = false
+                deployCmd.force = false
+                try await deployCmd.run()
                 Notifier.notify(title: "Gins-Rime 已更新", message: "配置与词库同步完成，方案已重新加载。")
             } else {
                 Notifier.notify(title: "Gins-Rime 下载完成", message: "新配置已就绪，请手动重新部署。")

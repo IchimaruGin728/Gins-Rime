@@ -34,6 +34,15 @@ struct Deploy: AsyncParsableCommand {
         // 1. 部署核心方案 (scheme/shared) -> ~/Library/Rime/
         let sharedDir = try ProjectPaths.sharedSchemeDir()
         copiedCount += try deployDirectory(sharedDir, to: rimeDir)
+        
+        // 1.1 针对核心子目录进行打平部署 (解决方案引用 __include 需要在根目录的问题)
+        let coreSchemaDir = sharedDir.appendingPathComponent("core")
+        if FileManager.default.fileExists(atPath: coreSchemaDir.path) {
+            copiedCount += try deployDirectory(coreSchemaDir, to: rimeDir, flatten: true)
+            // 清理掉冗余的 core 文件夹以保持整洁
+            let staleCoreDir = rimeDir.appendingPathComponent("core")
+            try? FileManager.default.removeItem(at: staleCoreDir)
+        }
 
         // 2. 部署核心词库 (打平到 ~/Library/Rime/dicts/)
         let coreDictsDir = sharedDir.appendingPathComponent("core/dicts")
