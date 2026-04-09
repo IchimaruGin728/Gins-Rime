@@ -50,7 +50,24 @@ jobs:
           cp /tmp/core/wanxiang_reverse.dict.yaml   scheme/shared/core/dicts/core_reverse.dict.yaml
           cp /tmp/core/wanxiang_reverse.schema.yaml  scheme/shared/core/core_reverse.schema.yaml
           
-          # Sync all other core dictionary files
+          # ── Large Model Sync (From Release Assets) ─────────────────
+          ASSET_URL=$(curl -s https://api.github.com/repos/amzxyz/rime_wanxiang/releases/latest \
+            | python3 -c "import sys,json; \
+              assets = json.load(sys.stdin).get('assets', []); \
+              for a in assets: \
+                  if a['name'] == 'rime-wanxiang-base.zip': \
+                      print(a['browser_download_url']); break")
+          
+          if [ ! -z "$ASSET_URL" ]; then
+            echo "Downloading Large Model from $ASSET_URL"
+            curl -L -o /tmp/model.zip "$ASSET_URL"
+            mkdir -p /tmp/model
+            unzip -o /tmp/model.zip -d /tmp/model
+            cp /tmp/model/*.dict.yaml scheme/shared/core/dicts/ 2>/dev/null || true
+          fi
+          # ──────────────────────────────────────────────────────────
+          
+          # Sync all other core dictionary files from repo
           cp /tmp/core/*.dict.yaml scheme/shared/core/dicts/ 2>/dev/null || true
           
           # Apply purification to internal dictionary names
