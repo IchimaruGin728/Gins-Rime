@@ -6,6 +6,7 @@ on:
     paths:
       - 'scheme/**'
       - 'lua/**'
+      - 'dicts/**'
       - 'rime.lua'
   workflow_dispatch:
 
@@ -34,6 +35,22 @@ jobs:
           # Copy Lua engine (Crucial for functionality)
           cp -r lua dist/scheme/
           cp rime.lua dist/scheme/
+
+          # Unified Dictionary Consolidation (Merging Core and Thematic dicts)
+          mkdir -p dist/scheme/dicts
+          
+          # 1. Copy core dictionaries from scheme/shared/core/dicts
+          if [ -d "scheme/shared/core/dicts" ]; then
+            cp scheme/shared/core/dicts/*.dict.yaml dist/scheme/dicts/ 2>/dev/null || true
+          fi
+          
+          # 2. Copy thematic dictionaries from root dicts/ folder
+          if [ -d "dicts" ]; then
+            cp -r dicts/* dist/scheme/dicts/ 2>/dev/null || true
+          fi
+          
+          # Cleanup: ensure no original wanxiang-branded files leaked (safety check)
+          find dist/scheme -type f -name "wanxiang*" -delete
           
           cd dist
           tar -czf scheme.tar.gz scheme/

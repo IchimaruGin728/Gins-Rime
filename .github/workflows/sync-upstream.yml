@@ -35,15 +35,24 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/core
           
-          # 1. Sync Scheme YAMLs
-          mkdir -p scheme/shared/core
+          # 1. Sync Scheme YAMLs & Dictionaries
+          mkdir -p scheme/shared/core/dicts
           cp /tmp/core/wanxiang.schema.yaml         scheme/shared/core/core.schema.yaml
           cp /tmp/core/wanxiang_algebra.yaml        scheme/shared/core/core_algebra.yaml
           cp /tmp/core/wanxiang_symbols.yaml        scheme/shared/core/core_symbols.yaml
-          cp /tmp/core/wanxiang_english.dict.yaml   scheme/shared/core/core_english.dict.yaml
-          cp /tmp/core/wanxiang_mixedcode.dict.yaml scheme/shared/core/core_mixedcode.dict.yaml
-          cp /tmp/core/wanxiang_reverse.dict.yaml   scheme/shared/core/core_reverse.dict.yaml
+          
+          # Sync core dictionaries (Crucial for engine functionality)
+          cp /tmp/core/wanxiang_english.dict.yaml   scheme/shared/core/dicts/core_english.dict.yaml
+          cp /tmp/core/wanxiang_mixedcode.dict.yaml scheme/shared/core/dicts/core_mixedcode.dict.yaml
+          cp /tmp/core/wanxiang_reverse.dict.yaml   scheme/shared/core/dicts/core_reverse.dict.yaml
           cp /tmp/core/wanxiang_reverse.schema.yaml  scheme/shared/core/core_reverse.schema.yaml
+          
+          # Sync all other core dictionary files
+          cp /tmp/core/*.dict.yaml scheme/shared/core/dicts/ 2>/dev/null || true
+          
+          # Apply purification to internal dictionary names
+          find scheme/shared/core/dicts -name "*.dict.yaml" -type f -exec sed -i 's/wanxiang/core/g' {} +
+          find scheme/shared/core/dicts -name "*.dict.yaml" -type f -exec sed -i 's/万象/核心/g' {} +
           
           # 2. Sync Lua Logic & Purify
           rm -rf lua/core lua/data
@@ -52,9 +61,11 @@ jobs:
           cp -r /tmp/core/lua/data/. lua/data/
           mv lua/core/wanxiang.lua lua/core/core.lua
           
-          # Apply branding purification to Lua
+          # Apply branding purification to Lua & YAML content (Deep Purification)
           find lua/core -name "*.lua" -type f -exec sed -i 's/wanxiang/core/g' {} +
           find lua/core -name "*.lua" -type f -exec sed -i 's/万象/核心/g' {} +
+          find scheme/shared/core -name "*.yaml" -type f -exec sed -i 's/wanxiang/core/g' {} +
+          find scheme/shared/core -name "*.yaml" -type f -exec sed -i 's/万象/核心/g' {} +
           
           # 3. Generate Purified rime.lua
           cat <<EOF > rime.lua

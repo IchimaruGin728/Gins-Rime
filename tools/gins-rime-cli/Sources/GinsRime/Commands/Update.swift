@@ -111,7 +111,10 @@ struct Update: AsyncParsableCommand {
 
     private func downloadDict(_ name: String) async throws {
         let url = URL(string: "\(GinsSettings.workerBase)/dicts/\(name)")!
-        let dest = RimePaths.user.appendingPathComponent("\(name).dict.yaml")
+        let dictsDir = RimePaths.user.appendingPathComponent("dicts")
+        try FileManager.default.createDirectory(at: dictsDir, withIntermediateDirectories: true)
+        
+        let dest = dictsDir.appendingPathComponent("\(name).dict.yaml")
         let (tmp, _) = try await URLSession.shared.download(from: url)
         if FileManager.default.fileExists(atPath: dest.path) {
             try FileManager.default.removeItem(at: dest)
