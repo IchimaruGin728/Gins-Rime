@@ -41,16 +41,18 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          MODEL_URL="https://github.com/amzxyz/RIME-LMDG/releases/download/LTS/wanxiang-lts-zh-hans.gram"
-          curl -L -o /tmp/wanxiang-lts-zh-hans.gram "$MODEL_URL"
-          npx wrangler r2 object put gins-rime/models/wanxiang-lts-zh-hans.gram \
-            --file /tmp/wanxiang-lts-zh-hans.gram \
-            --content-type "application/octet-stream"
+          curl -L -o /tmp/wanxiang-lts-zh-hans.gram "https://github.com/amzxyz/RIME-LMDG/releases/download/LTS/wanxiang-lts-zh-hans.gram"
+          npx wrangler r2 object put gins-rime/models/wanxiang-lts-zh-hans.gram --file /tmp/wanxiang-lts-zh-hans.gram
+          curl -X POST "https://rime.ichimarugin728.dev/api/metadata-update" -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" -H "Content-Type: application/json" -d "{\"key\": \"model\", \"val\": {\"date\": \"$(date +'%Y%m%d')\", \"url\": \"/models/wanxiang-lts-zh-hans.gram\"}}"
 
-      - name: Notify Metadata Update
+      - name: Sync Exogenous Dictionaries
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          DATE=$(date +%Y%m%d)
-          curl -X POST "https://rime.ichimarugin728.dev/api/metadata-update" \
-            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"key\": \"model\", \"val\": {\"date\": \"$DATE\", \"url\": \"/models/wanxiang-lts-zh-hans.gram\"}}"
+          curl -L -o /tmp/zhwiki.dict.yaml "https://raw.githubusercontent.com/iDvel/rime-ice/main/cn_dicts/8105.dict.yaml" || echo "Fallback for zhwiki"
+          curl -L -o /tmp/tone_moe.dict.yaml "https://raw.githubusercontent.com/iDvel/rime-ice/main/cn_dicts/base.dict.yaml" || echo "Fallback for tone_moe"
+          npx wrangler r2 object put gins-rime/dicts/zhwiki.dict.yaml --file /tmp/zhwiki.dict.yaml
+          npx wrangler r2 object put gins-rime/dicts/tone_moe.dict.yaml --file /tmp/tone_moe.dict.yaml
+          curl -X POST "https://rime.ichimarugin728.dev/api/metadata-update" -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" -H "Content-Type: application/json" -d "{\"key\": \"zhwiki\", \"val\": {\"date\": \"$(date +'%Y%m%d')\", \"url\": \"/dicts/zhwiki.dict.yaml\"}}"
+          curl -X POST "https://rime.ichimarugin728.dev/api/metadata-update" -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" -H "Content-Type: application/json" -d "{\"key\": \"tone_moe\", \"val\": {\"date\": \"$(date +'%Y%m%d')\", \"url\": \"/dicts/tone_moe.dict.yaml\"}}"
