@@ -113,7 +113,7 @@ struct Update: AsyncParsableCommand {
     }
 
     private func downloadDict(_ name: String) async throws {
-        let url = URL(string: "\(GinsSettings.workerBase)/dicts/\(name)")!
+        let url = URL(string: "\(GinsSettings.workerBase)/dicts/\(name).dict.yaml")!
         let dictsDir = RimePaths.user.appendingPathComponent("dicts")
         try FileManager.default.createDirectory(at: dictsDir, withIntermediateDirectories: true)
         

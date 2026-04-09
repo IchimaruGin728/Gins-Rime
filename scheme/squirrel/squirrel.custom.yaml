@@ -1,7 +1,7 @@
   style:
-    color_scheme: apple_purple_light
-    color_scheme_dark: apple_purple_dark
-    candidate_list_layout: linear
+    color_scheme: gins_liquid_light
+    color_scheme_dark: gins_liquid_dark
+    candidate_list_layout: horizontal
     text_orientation: horizontal
     inline_preedit: true
     inline_candidate: false
