@@ -144,6 +144,16 @@ export default {
         return json({ ok: true, version: body.version });
       }
 
+      if (path === "/api/metadata-update" && request.method === "POST") {
+        if (!isAuthorized(request, env)) return json({ error: "unauthorized" }, 401);
+
+        const body = await request.json<any>();
+        if (!body.key || !body.val) return json({ error: "missing fields" }, 400);
+
+        await updateMetadata(env.BUCKET, body.key, body.val);
+        return json({ ok: true });
+      }
+
       if (path.startsWith("/workflow/") && request.method === "GET") {
         const instance = await env.DICT_UPDATE_WORKFLOW.get(path.slice(10));
         return json({ id: instance.id, status: await instance.status() });

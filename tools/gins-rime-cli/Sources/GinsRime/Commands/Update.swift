@@ -42,7 +42,26 @@ struct Update: AsyncParsableCommand {
             }
         }
 
-        // 2. 处理词库更新 (Dicts)
+        // 2. 处理语法模型更新 (Grammar Model)
+        if let remoteModel = remote["model"] as? [String: Any],
+           let remoteDate = remoteModel["date"] as? String {
+            let localDate = local["_model"] ?? ""
+            
+            if remoteDate > localDate {
+                if checkOnly {
+                    print("  [model]: 可更新 \(localDate.isEmpty ? "(未安装)" : localDate) → \(remoteDate)")
+                } else {
+                    print("  [model]: \(localDate.isEmpty ? "未安装" : localDate) → \(remoteDate)，正在下载 (201MB)...")
+                    try await updateModel()
+                    local["_model"] = remoteDate
+                    hasChanges = true
+                }
+            } else {
+                print("  [model]: 已是最新 (\(localDate))")
+            }
+        }
+
+        // 3. 处理词库更新 (Dicts)
         for dict in GinsSettings.managedDicts {
             guard let remoteInfo = remote[dict] as? [String: Any],
                   let remoteDate = remoteInfo["date"] as? String else {
@@ -114,6 +133,16 @@ struct Update: AsyncParsableCommand {
         task.arguments = ["-xzf", tmp.path, "-C", rimeDir.path, "--strip-components", "1"]
         try task.run()
         task.waitUntilExit()
+    }
+
+    private func updateModel() async throws {
+        let url = URL(string: "\(GinsSettings.workerBase)/\(GinsSettings.modelR2Key)")!
+        let dest = RimePaths.user.appendingPathComponent(GinsSettings.modelLocalName)
+        let (tmp, _) = try await URLSession.shared.download(from: url)
+        if FileManager.default.fileExists(atPath: dest.path) {
+            try FileManager.default.removeItem(at: dest)
+        }
+        try FileManager.default.moveItem(at: tmp, to: dest)
     }
 
     private func downloadDict(_ name: String) async throws {
