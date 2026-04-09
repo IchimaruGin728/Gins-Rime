@@ -74,6 +74,7 @@ enum GinsRimeError: Error, CustomStringConvertible {
     case projectRootNotFound
     case commandNotFound(String)
     case permissionDenied(String)
+    case downloadFailed(String)
 
     var description: String {
         switch self {
@@ -83,6 +84,8 @@ enum GinsRimeError: Error, CustomStringConvertible {
             return "Required command not found: \(cmd). Please ensure it is in your PATH."
         case .permissionDenied(let path):
             return "Permission denied: Cannot write to \(path). Please check your directory permissions."
+        case .downloadFailed(let url):
+            return "Download failed: Cannot fetch from \(url). Please check your network or Cloudflare R2 status."
         }
     }
 }
