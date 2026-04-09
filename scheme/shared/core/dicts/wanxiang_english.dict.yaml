@@ -1,0 +1,10 @@
+# Rime dictionary
+# encoding: utf-8
+
+# 英文输入方案的词库
+---
+name: core_english
+version: "lts"
+import_tables:
+  - dicts/en     # 英文主词库
+...

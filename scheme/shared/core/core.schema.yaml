@@ -3,13 +3,13 @@
 # 方案说明
 schema:
   schema_id: core
-  name: Gins-Core
+  name: 核心拼音
   version: "LTS"
   author:
-    - Gins
+    - amzxyz
   description: |
-    核心拼音（基于万象），标准版本，带声调词库，支持语法模型，全拼、简拼、整句、声调辅助筛选，提供极致的输入体验。
-    【输入提示：支持多种双拼方案切换，详见 README.md】
+    请勾选【核心拼音】以启用，核心拼音标准版本，带声调的词库，支持语法模型，全拼、简拼、整句、声调辅助筛选，拥有超越大厂的输入体验！
+    【文本框输入：/pinyin全拼，/zrm自然码,/flypy小鹤，/mspy,/sogou,/pyjj等，详见README.md】
   dependencies:
     - core_mixedcode    #混合编码
     - core_reverse      #部件拆字，反查及辅码
@@ -25,12 +25,12 @@ switches:
     states: [ 中标, 英标 ]
   - name: full_shape                    #全角、半角字符输出
     states: [ 半角, 全角 ]
-  - name: emoji                         #候选出现emoji滤镜，会显示在相应的候选后面，万象侧重于tips提示，避免候选被占用，因此默认为reset: 0，归属opencc emoji滤镜
+  - name: emoji                         #候选出现emoji滤镜，会显示在相应的候选后面，核心侧重于tips提示，避免候选被占用，因此默认为reset: 0，归属opencc emoji滤镜
     states: [表情关, 表情开]
-  - name: chinese_english               #候选进入翻译模式滤镜，会显示在相应的候选后面，万象侧重于tips提示，避免候选被占用，归属opencc 翻译滤镜
+  - name: chinese_english               #候选进入翻译模式滤镜，会显示在相应的候选后面，核心侧重于tips提示，避免候选被占用，归属opencc 翻译滤镜
     states: [ 翻译关, 翻译开 ]
   - name: prediction
-    states: [ 预测关, 预测开 ]            # 这个名称能用于插件也能用于万象的lua实现，用来开启关闭预测功能
+    states: [ 预测关, 预测开 ]            # 这个名称能用于插件也能用于核心的lua实现，用来开启关闭预测功能
   - options: [ raw_input, tone_display, full_pinyin ]   #开启后在输入编码的位置实时转换为带声调全拼或者不带声调全拼，不开启则采用系统配置原始编码，影响的是preedit_format,归属：super_preedit.lua
     states: [ 原编码, 有声调, 无声调 ]
 #    reset: 2     #对于开关组从0开始数，第几个就reset几可设为默认
@@ -78,7 +78,7 @@ engine:
     - punct_translator                     #配合 punct_segmentor 转换标点符号
     - script_translator                    #脚本翻译器，用于拼音、粤拼等基于音节表的输入方案
     - lua_translator@*core.user_predict*T       #靠自己养的专属预测联想处理器，不再依赖前端插件以及固定数据
-    - lua_translator@*core.version_display      #输入'/wx'，显示万象项目网址和当前版本号
+    - lua_translator@*core.version_display      #输入'/wx'，显示核心项目网址和当前版本号
     - lua_translator@*core.set_schema           #输入'/zrm'，快速切换为自然码双拼， /flypy→小鹤双拼 /mspy→微软双拼 /zrm→自然码 /sogou→搜狗双拼 /abc→智能ABC /ziguang→紫光双拼 /pyjj→拼音加加 /gbpy→国标双拼 /lxsq→乱序17 /pinyin→全拼
     - lua_translator@*core.shijian              #农历、日期、节气、节日、时间、周、问候模板等等，触发清单看下文
     - lua_translator@*core.unicode              #通过输入大写U引导，并输入Unicode编码获得汉字输出
@@ -105,17 +105,16 @@ engine:
 
 grammar:
   language: core-lts-zh-hans
-  collocation_max_length: 7
+  collocation_max_length: 8
   collocation_min_length: 2
   collocation_penalty: -10
-  non_collocation_penalty: 3
+  non_collocation_penalty: 0
   weak_collocation_penalty: -35
   rear_penalty: -12
 
 super_comment:                  # 超级注释模块，子项配置 true 开启，false 关闭
   candidate_length: 2           # 候选词辅助码提醒的生效长度，0为关闭  但同时清空其它，应当使用上面开关来处理
   corrector_type: "〔comment〕"  # 随意更换左右括号，比如"〔comment〕" 不加括号为无括号，comment占位不能动
-  chaifen: "〔chaifen〕"         # 随意更换左右括号，比如"〔chaifen〕" 不加括号为无括号，chaifen占位不能动
   cand_type:
     user_phrase: ""
     sentence: "∞"
@@ -163,6 +162,36 @@ super_tips:
     - "禁用类型B"
     # 禁用的 tips 类型，初始化 tips 数据库的时候会直接忽略相关规则，修改部署后生效
     # 可选项为：偏旁，符号，化学式，时间，符号，组字，翻译，表情，货币，车牌, 单位
+
+
+# super_replacer处理插件 - 配置说明书
+
+# 【基础配置】
+# db_name:        数据库存储路径
+# delimiter:      txt词库中一键多词的分割符，默认 "|"
+# comment_format: 注释内容的显示格式，例如 "〔%s〕"
+# 
+# 【触发条件】
+# option:         触发开关。支持单值 (如 emoji), 列表 (如 [s2t, s2hk]), 或常驻 (true)
+# tags:           生效的引擎 tag 范围 (如 [abc])
+#
+# 【核心模式 (mode)】
+#   - append  : 新增候选模式。保留原候选，在后面追加新词 (如输入'哈哈' -> 1.哈哈 2.😄)
+#   - replace : 替换候选模式。直接覆盖原候选文本，并自动向下一个滤镜传递 (如简繁转换)
+#   - comment : 纯注释模式。不改文本，仅在原词条旁追加注释 (词库提示等于已输入编码时不显示)
+#   - abbrev  : 简码/自定义短语模式。根据输入码精准匹配，提取词条并插队置顶
+#
+# 【注释策略 (comment_mode)】
+#   - none    : 不处理原词注释 (默认)
+#   - text    : 狸猫换太子，将【原候选文本】变成【新候选的注释】 (如 'hello' -> '你好〔hello〕')
+#   - append  : 继承保留原候选自带的系统注释 (简繁转换时推荐使用)
+#
+# 【附加高级选项】
+# sentence:         (true/false) 开启长句分词(FMM)匹配，适用于简繁转换等整句处理场景
+# cand_type:        自定义候选词的 type 名称 (如 custom_emoji)，方便给不同候选词挂载独立皮肤样式
+# t9_optimization:  (true/false) T9九宫格优化，自动将词库里的字母键转换为数字键，携带预编辑码
+# abbrev_rule:      (仅 abbrev 模式生效) 格式为 "数量,位置"。(如 "1,6" 表示将词库前 1 个词插队到第 6 候选位，其余全部放在最后面兜底)
+# files:            要读取的 txt 词库文件列表 (支持多文件合并，UserDir 优先于 SharedDir)
 
 super_replacer:
   db_name: lua/replacer
@@ -253,7 +282,7 @@ charset:
   - option: charset_filter
     base: a  #可以填入多个类别如aj
     addlist:
-      - "诶濛硷氽尛躝〇冇吔咗囧屌鲶芶咲畑垅𰻝𰻞龍"
+      - "诶濛硷氽尛躝〇冇吔咗囧屌鲶芶咲畑垅𰻝𰻞龍朙"
     blacklist: []
   - option: s2t
     base: fa
@@ -579,7 +608,7 @@ core_reverse:
 core_lookup: #设置归属于super_lookup.lua
   tags: [ abc, add_user_dict ]  # 检索当前tag的候选
   key: "`"       # 输入中反查引导符，要添加到 speller/alphabet
-  lookup: [ core_reverse ] #反查滤镜数据库，万象都合并为一个了
+  lookup: [ core_reverse ] #反查滤镜数据库，核心都合并为一个了
   data_source: [db]  #对于pro版本能从注释中加载词库辅助码，详情见Pro版本，base这里无需修改。
   enable_tone: true  #启用声调反查
 
