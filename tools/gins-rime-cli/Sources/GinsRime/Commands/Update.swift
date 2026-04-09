@@ -138,7 +138,12 @@ struct Update: AsyncParsableCommand {
     private func updateModel() async throws {
         let url = URL(string: "\(GinsSettings.workerBase)/\(GinsSettings.modelR2Key)")!
         let dest = RimePaths.user.appendingPathComponent(GinsSettings.modelLocalName)
-        let (tmp, _) = try await URLSession.shared.download(from: url)
+        let (tmp, response) = try await URLSession.shared.download(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw GinsRimeError.downloadFailed(url.absoluteString)
+        }
+        
         if FileManager.default.fileExists(atPath: dest.path) {
             try FileManager.default.removeItem(at: dest)
         }
