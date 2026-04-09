@@ -112,6 +112,10 @@ export default {
         return serveR2(env.BUCKET, `dicts/${path.slice(7)}`);
       }
 
+      if (path.startsWith("/models/")) {
+        return serveR2(env.BUCKET, `models/${path.slice(8)}`);
+      }
+
       if (path.startsWith("/releases/")) {
         return serveR2(env.BUCKET, path.slice(1));
       }
