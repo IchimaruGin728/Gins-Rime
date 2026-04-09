@@ -1,107 +1,55 @@
+patch:
   style:
     color_scheme: gins_liquid_light
     color_scheme_dark: gins_liquid_dark
+    # ── 强制锁定官方横向布局 ─────────────────────────────────────
+    horizontal: true
     candidate_list_layout: horizontal
     text_orientation: horizontal
     inline_preedit: true
     inline_candidate: false
-    memorize_size: false
-    translucency: true
-    mutual_exclusive: false
-    show_paging: true
-    corner_radius: 100
+    # ── 官方比例：极其扁平，胶囊选中 ──────────────────────────────
+    corner_radius: 10
     hilited_corner_radius: 100
-    border_height: 4
-    border_width: 6
-    spacing: 12
+    border_height: 3
+    border_width: 10
+    spacing: 16
     font_face: "SF Pro Text"
-    font_point: 14
-    label_font_point: 10
+    font_point: 16
+    label_font_point: 0
     shadow_size: 4
+    line_spacing: 0
 
-  # ── Apple Purple：100% 仿苹果官方 + 紫色高亮 ──────────────────────────
-  preset_color_schemes/apple_purple_light:
-    name: "Apple Purple Light"
-    author: "IchimaruGin728"
-    back_color: 0xCCF2F2F2
-    border_color: 0x19000000
-    text_color: 0xFF222222
-    hilited_text_color: 0xFFFFFFFF
-    hilited_back_color: 0x00FFFFFF  # 透明，靠 hilited_candidate_back_color
-    candidate_text_color: 0xFF222222
-    hilited_candidate_text_color: 0xFFFFFFFF
-    hilited_candidate_back_color: 0xFFB915D8
-    comment_text_color: 0xFF8E8E93
-    hilited_comment_text_color: 0xFFFFFFFF
-    label_color: 0xFF8E8E93
-    hilited_label_color: 0x99FFFFFF
+  preset_color_schemes:
+    gins_liquid_light:
+      name: "Gins Liquid Light"
+      author: "IchimaruGin728"
+      back_color: 0xF2F2F2
+      border_color: 0xE2E2E2
+      text_color: 0x444444
+      hilited_text_color: 0xFFFFFFFF
+      hilited_back_color: 0x00FFFFFF
+      candidate_text_color: 0x444444
+      hilited_candidate_text_color: 0xFFFFFFFF
+      hilited_candidate_back_color: 0xCCB915D8
+      comment_text_color: 0x999999
+      hilited_comment_text_color: 0x99FFFFFF
+      label_color: 0x00000000
+      hilited_label_color: 0x00000000
 
-  preset_color_schemes/apple_purple_dark:
-    name: "Apple Purple Dark"
-    author: "IchimaruGin728"
-    back_color: 0xCC1C1C1E
-    border_color: 0x33FFFFFF
-    text_color: 0xFFEBEBF5
-    hilited_text_color: 0xFFFFFFFF
-    hilited_back_color: 0x00FFFFFF
-    candidate_text_color: 0xFFEBEBF5
-    hilited_candidate_text_color: 0xFFFFFFFF
-    hilited_candidate_back_color: 0xFFB915D8
-    comment_text_color: 0xFF8E8E93
-    hilited_comment_text_color: 0xFFFFFFFF
-    label_color: 0xFF8E8E93
-    hilited_label_color: 0x99FFFFFF
 
-  # ── 浅色：磨砂白玻璃 + 紫色高亮 ──────────────────────────────────
-  preset_color_schemes/gins_liquid_light:
-    name: "Gins Liquid Light"
-    author: "IchimaruGin728"
-    font_face: "SF Pro Text"
-    font_point: 14
-    label_font_face: "SF Pro Text"
-    label_font_point: 11
-    comment_font_face: "SF Mono"
-    comment_font_point: 12
-    corner_radius: 100
-    hilited_corner_radius: 10
-    border_height: 2
-    border_width: 4
-    back_color: 0x99FFFFFF
-    border_color: 0x19000000
-    text_color: 0xFF3C3C43
-    hilited_text_color: 0xFF3C3C43
-    hilited_back_color: 0x14B915D8
-    candidate_text_color: 0xFF3C3C43
-    hilited_candidate_text_color: 0xFFFFFFFF
-    hilited_candidate_back_color: 0xFFB915D8
-    comment_text_color: 0xFF8E8E93
-    hilited_comment_text_color: 0xFFFFFFFF
-    label_color: 0xFF000000
-    hilited_label_color: 0xFFFFFFFF
-
-  # ── 深色：磨砂黑玻璃 + 紫色高亮 ──────────────────────────────────
-  preset_color_schemes/gins_liquid_dark:
-    name: "Gins Liquid Dark"
-    author: "IchimaruGin728"
-    font_face: "SF Pro Text"
-    font_point: 14
-    label_font_face: "SF Pro Text"
-    label_font_point: 11
-    comment_font_face: "SF Mono"
-    comment_font_point: 12
-    corner_radius: 100
-    hilited_corner_radius: 10
-    border_height: 2
-    border_width: 4
-    back_color: 0xAA1C1C1E
-    border_color: 0x33FFFFFF
-    text_color: 0xFFEBEBF5
-    hilited_text_color: 0xFFFFFFFF
-    hilited_back_color: 0x1AB915D8
-    candidate_text_color: 0xFFEBEBF5
-    hilited_candidate_text_color: 0xFFFFFFFF
-    hilited_candidate_back_color: 0xFFB915D8
-    comment_text_color: 0xFF8E8E93
-    hilited_comment_text_color: 0xFFFFFFFF
-    label_color: 0xFFFFFFFF
-    hilited_label_color: 0xFFFFFFFF
+    gins_liquid_dark:
+      name: "Gins Liquid Dark"
+      author: "IchimaruGin728"
+      back_color: 0x1C1C1E
+      border_color: 0x33FFFFFF
+      text_color: 0xEBEBF5
+      hilited_text_color: 0xFFFFFFFF
+      hilited_back_color: 0x00FFFFFF
+      candidate_text_color: 0xEBEBF5
+      hilited_candidate_text_color: 0xFFFFFFFF
+      hilited_candidate_back_color: 0xCCB915D8
+      comment_text_color: 0x8E8E93
+      hilited_comment_text_color: 0xFFFFFFFF
+      label_color: 0x00000000
+      hilited_label_color: 0x00000000

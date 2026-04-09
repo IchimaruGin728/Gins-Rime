@@ -1,4 +1,25 @@
 patch:
+  style:
+    color_scheme: gins_liquid_light
+    color_scheme_dark: gins_liquid_dark
+    # ── 绝对锁定：三重保险确保横向 ────────────────────────────────
+    horizontal: true
+    candidate_list_layout: horizontal
+    text_orientation: horizontal
+    inline_preedit: true
+    inline_candidate: false
+    # ── 官方比例：极其扁平 ──────────────────────────────────────
+    corner_radius: 10
+    hilited_corner_radius: 100
+    border_height: 3
+    border_width: 10
+    spacing: 16
+    font_face: "SF Pro Text"
+    font_point: 16
+    label_font_point: 0
+    shadow_size: 4
+    line_spacing: 0
+
   schema/dependencies/+:
     - melt_eng
 
