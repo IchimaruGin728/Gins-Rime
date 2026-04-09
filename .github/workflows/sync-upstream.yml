@@ -131,15 +131,18 @@ jobs:
           BRANCH="sync/core-${{ steps.meta.outputs.tag }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
+          git checkout -b "$BRANCH" || git checkout "$BRANCH"
           git add scheme/shared/core/ lua/ rime.lua .upstream/core.tag
-          git diff --cached --quiet && exit 0
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
           git commit -m "sync: core engine ${{ steps.meta.outputs.tag }}"
-          git push origin "$BRANCH"
+          git push origin "$BRANCH" --force
           gh pr create \
             --title "sync: core engine ${{ steps.meta.outputs.tag }}" \
             --body "Auto-synced core logic from upstream releases." \
-            --base main --head "$BRANCH"
+            --base main --head "$BRANCH" || true
 
   # ── 萌娘百科 ────────────────────────────────────────────────
   sync-moetype:
@@ -198,14 +201,18 @@ jobs:
           BRANCH="sync/moetype-${{ steps.meta.outputs.tag }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
+          git checkout -b "$BRANCH" || git checkout "$BRANCH"
           git add dicts/tone_moe.dict.yaml .upstream/moetype.tag
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
           git commit -m "sync: moetype ${{ steps.meta.outputs.tag }}"
-          git push origin "$BRANCH"
+          git push origin "$BRANCH" --force
           gh pr create \
             --title "sync: moetype ${{ steps.meta.outputs.tag }}" \
             --body "Auto-synced from [moetype](https://github.com/suiginko/moetype/releases/tag/${{ steps.meta.outputs.tag }})." \
-            --base main --head "$BRANCH"
+            --base main --head "$BRANCH" || true
 
   # ── 雾凇 melt_eng ───────────────────────────────────────────
   sync-melt-eng:
@@ -243,15 +250,18 @@ jobs:
           BRANCH="sync/melt-eng-${{ steps.meta.outputs.sha }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
+          git checkout -b "$BRANCH" || git checkout "$BRANCH"
           git add scheme/shared/core/ .upstream/rime-ice-melt.sha
-          git diff --cached --quiet && exit 0
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
           git commit -m "sync: rime-ice melt_eng ${{ steps.meta.outputs.sha }}"
-          git push origin "$BRANCH"
+          git push origin "$BRANCH" --force
           gh pr create \
             --title "sync: rime-ice melt_eng ${{ steps.meta.outputs.sha }}" \
             --body "Auto-synced melt_eng + en_dicts from [rime-ice](https://github.com/iDvel/rime-ice)." \
-            --base main --head "$BRANCH"
+            --base main --head "$BRANCH" || true
 
   # ── 古诗词 ──────────────────────────────────────────────────
   sync-chinese-poetry:
@@ -285,11 +295,15 @@ jobs:
           BRANCH="sync/chinese-poetry-${{ steps.meta.outputs.sha }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
+          git checkout -b "$BRANCH" || git checkout "$BRANCH"
           git add .upstream/chinese-poetry.sha
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
           git commit -m "sync: chinese-poetry ${{ steps.meta.outputs.sha }}"
-          git push origin "$BRANCH"
+          git push origin "$BRANCH" --force
           gh pr create \
             --title "sync: chinese-poetry ${{ steps.meta.outputs.sha }}" \
             --body "Upstream [chinese-poetry](https://github.com/chinese-poetry/chinese-poetry) updated. Merge to trigger shici rebuild." \
-            --base main --head "$BRANCH"
+            --base main --head "$BRANCH" || true

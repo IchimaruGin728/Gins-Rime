@@ -38,17 +38,17 @@ jobs:
       - name: Clone chinese-poetry
         run: git clone --depth 1 https://github.com/chinese-poetry/chinese-poetry.git /tmp/chinese-poetry
 
-      - name: Clone wanxiang for dedup reference
+      - name: Clone core for dedup reference
         run: |
-          git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/wanxiang
-          SHICI=$(find /tmp/wanxiang -name "*shici*.yaml" ! -name "*.schema.*" | head -1)
-          echo "WANXIANG_SHICI=$SHICI" >> $GITHUB_ENV
+          git clone --depth 1 https://github.com/amzxyz/rime_wanxiang.git /tmp/core
+          SHICI=$(find /tmp/core -name "*shici*.yaml" ! -name "*.schema.*" | head -1)
+          echo "CORE_SHICI=$SHICI" >> $GITHUB_ENV
 
       - name: Build dictionary
         run: |
           ./tools/shici-builder/target/release/shici-builder \
             --poetry-dir /tmp/chinese-poetry \
-            --wanxiang-shici "$WANXIANG_SHICI" \
+            --core-shici "$CORE_SHICI" \
             --output gins-shici.dict.yaml \
             --min-len 3 --max-len 20
           LINES=$(wc -l < gins-shici.dict.yaml)
