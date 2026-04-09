@@ -9,6 +9,12 @@ struct Deploy: AsyncParsableCommand {
     @Flag(name: .long, help: "从云端同步最新方案（不使用本地文件）")
     var remote: Bool = false
 
+    @Flag(name: .shortAndLong, help: "仅同步文件，不触发鼠须管重新部署")
+    var copyOnly: Bool = false
+
+    @Flag(name: .shortAndLong, help: "强制覆盖已存在的文件")
+    var force: Bool = false
+
     func run() async throws {
         let rimeDir = RimePaths.user
         

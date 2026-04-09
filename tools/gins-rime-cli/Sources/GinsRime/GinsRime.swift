@@ -11,6 +11,8 @@ struct GinsRime: AsyncParsableCommand {
             Update.self,
             Sync.self,
             Status.self,
+            SelfInstall.self,
+            Service.self,
         ],
         defaultSubcommand: Status.self
     )

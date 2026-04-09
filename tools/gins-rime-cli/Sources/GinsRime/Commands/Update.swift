@@ -69,6 +69,9 @@ struct Update: AsyncParsableCommand {
             if deploy {
                 print("\n触发鼠须管重新部署...")
                 Squirrel.reload()
+                Notifier.notify(title: "Gins-Rime 已更新", message: "配置与词库同步完成，方案已重新加载。")
+            } else {
+                Notifier.notify(title: "Gins-Rime 下载完成", message: "新配置已就绪，请手动重新部署。")
             }
         } else if !checkOnly {
             print("\n所有内容已是最新")

@@ -18,7 +18,7 @@ jobs:
   sync-core:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Get latest tag
         id: meta
@@ -151,7 +151,7 @@ jobs:
   sync-moetype:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Get latest release
         id: meta
@@ -221,7 +221,7 @@ jobs:
   sync-melt-eng:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Get latest commit sha
         id: meta
@@ -270,7 +270,7 @@ jobs:
   sync-chinese-poetry:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Get latest commit sha
         id: meta

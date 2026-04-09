@@ -9,6 +9,8 @@ struct Sync: AsyncParsableCommand {
     @Flag(name: .shortAndLong, help: "仅显示将要同步的文件，不实际复制")
     var dryRun: Bool = false
 
+    func run() async throws {
+        let rimeDir = RimePaths.user
         print("同步核心文件到 \(rimeDir.path)\(dryRun ? "（dry-run）" : "")")
 
         // 1. 同步 YAML 配置文件 (Shared Core)
@@ -41,11 +43,13 @@ struct Sync: AsyncParsableCommand {
         }
 
         print("\n\(count) 个文件\(dryRun ? "待同步" : "已同步")")
+        
+        if !dryRun {
+            print("建议执行 gins-rime deploy --copy-only 后重新部署")
+        }
     }
 
     private func syncFile(_ src: URL, to dest: URL, dryRun: Bool) throws -> Bool {
-        let relative = src.path.components(separatedBy: "/").last ?? ""
-        
         if !dryRun {
             let destDir = dest.deletingLastPathComponent()
             try FileManager.default.createDirectory(at: destDir, withIntermediateDirectories: true)
@@ -55,11 +59,6 @@ struct Sync: AsyncParsableCommand {
         
         print("  \(dryRun ? "~" : "+") \(dest.path.replacingOccurrences(of: RimePaths.user.path + "/", with: ""))")
         return true
-    }
-
-        if !dryRun {
-            print("建议执行 gins-rime deploy --copy-only 后重新部署")
-        }
     }
 
     private func collectFiles(in dir: URL) throws -> [URL] {
