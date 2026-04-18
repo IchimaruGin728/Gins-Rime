@@ -18,7 +18,7 @@
 
 ## 外挂词库
 
-外挂词库通过 CI 构建并上传到 Cloudflare R2，部署时由 `gins-rime deploy` 下载到本地。
+外挂词库通过 CI 构建并上传到 Cloudflare R2，部署时由 `gins-rime update` 或 Swift CLI 的 `update` 命令下载到本地，并由 `gins.dict.yaml` 直接参与主词典聚合。
 
 ### tone_moe（萌娘百科）
 

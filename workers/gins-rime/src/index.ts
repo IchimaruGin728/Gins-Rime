@@ -10,6 +10,7 @@ interface Env {
   DICT_UPDATE_WORKFLOW: Workflow;
   ASSETS: Fetcher;
   GITHUB_REPO: string;
+  WORKER_API_TOKEN?: string;
 }
 
 interface DictUpdateParams {
@@ -121,7 +122,7 @@ export default {
       }
 
       if (path === "/workflow/dict-update" && request.method === "POST") {
-        if (!isAuthorized(request)) return json({ error: "unauthorized" }, 401);
+        if (!isAuthorized(request, env)) return json({ error: "unauthorized" }, 401);
 
         const body = await request.json<DictUpdateParams>();
         if (!body.dict || !body.r2Key || !body.date) return json({ error: "missing fields" }, 400);
@@ -134,7 +135,7 @@ export default {
       }
 
       if (path === "/api/scheme-update" && request.method === "POST") {
-        if (!isAuthorized(request)) return json({ error: "unauthorized" }, 401);
+        if (!isAuthorized(request, env)) return json({ error: "unauthorized" }, 401);
 
         const body = await request.json<SchemeUpdateParams>();
         if (!body.version || !body.r2Key) return json({ error: "missing fields" }, 400);
@@ -187,9 +188,12 @@ async function updateMetadata(bucket: R2Bucket, key: string, val: any) {
   });
 }
 
-function isAuthorized(req: Request): boolean {
+function isAuthorized(req: Request, env: Env): boolean {
+  const expectedToken = env.WORKER_API_TOKEN?.trim();
+  if (!expectedToken) return false;
+
   const auth = req.headers.get("Authorization");
-  return !!auth?.startsWith("Bearer ");
+  return auth === `Bearer ${expectedToken}`;
 }
 
 async function serveR2(bucket: R2Bucket, key: string): Promise<Response> {

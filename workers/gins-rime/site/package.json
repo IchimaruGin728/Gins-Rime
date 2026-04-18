@@ -2,19 +2,23 @@
   "name": "gins-rime-site",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=25.9.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview"
   },
   "dependencies": {
-    "@astrojs/preact": "^4.0.0",
-    "@astrojs/starlight": "^0.33.0",
+    "@astrojs/preact": "^5.1.1",
+    "@astrojs/starlight": "^0.38.3",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@fontsource-variable/outfit": "^5.2.8",
-    "astro": "^5.0.0",
-    "preact": "^10.0.0"
+    "astro": "^6.1.6",
+    "preact": "^10.29.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -24,8 +28,8 @@
     ]
   },
   "devDependencies": {
-    "@unocss/astro": "^66.6.7",
-    "sass": "^1.98.0",
-    "unocss": "^66.6.7"
+    "@unocss/astro": "^66.6.8",
+    "sass": "^1.99.0",
+    "unocss": "^66.6.8"
   }
 }

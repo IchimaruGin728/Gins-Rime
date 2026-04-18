@@ -4,11 +4,13 @@ import preact from '@astrojs/preact'
 import UnoCSS from '@unocss/astro'
 
 export default defineConfig({
+  site: 'https://rime.ichimarugin728.dev',
   output: 'static',
   integrations: [
     starlight({
       title: 'Gins-Rime',
       description: '核心拼音 + 萌娘百科 + 雾凇中英混输，macOS / iOS 双平台',
+      disable404Route: true,
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/IchimaruGin728/Gins-Rime' },
       ],

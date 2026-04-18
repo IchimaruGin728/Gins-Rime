@@ -1,0 +1,19 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro'
+
+export const prerender = true
+---
+
+<StarlightPage
+  hasSidebar={false}
+  frontmatter={{
+    title: '404',
+    template: 'splash',
+    editUrl: false,
+    pagefind: false,
+    hero: {
+      tagline: '你访问的页面不存在，返回首页继续查看 Gins-Rime 文档。',
+      actions: [{ text: '返回首页', link: '/' }],
+    },
+  }}
+/>

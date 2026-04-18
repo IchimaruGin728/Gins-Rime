@@ -14,7 +14,7 @@ import_tables:
   - dicts/renming
   - dicts/wuzhong
   - dicts/cn&en
-#  - dicts/zhwiki
-#  - dicts/tone_moe
-#  - dicts/gins-shici
+  - dicts/zhwiki
+  - dicts/tone_moe
+  - dicts/gins-shici
 ...

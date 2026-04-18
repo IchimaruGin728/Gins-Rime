@@ -48,7 +48,7 @@
 
 同步到仓库的上游文件放在 `scheme/shared/core/`，不直接覆盖我们的配置，由 CLI 的 `gins-rime sync` 命令负责将 core/ 内容复制到 `~/Library/Rime/`。合并上游 PR 之前该目录为空，`gins-rime sync` 会提示 "0 个文件"，属正常现象。
 
-版本记录在 `.core/`，由 CI 自动更新：
+版本记录在 `.upstream/`，由 CI 自动更新：
 
 | 文件 | 来源 |
 |------|------|

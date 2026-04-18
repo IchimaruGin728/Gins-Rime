@@ -135,7 +135,7 @@ v     = json.loads(sys.argv[1])
 ddir  = sys.argv[2]
 names = {'zhwiki': '维基百科标题', 'tone_moe': '萌娘百科', 'gins-shici': '古诗词补充'}
 for key, label in names.items():
-    exists = os.path.exists(f"{ddir}/{key}.dict.yaml")
+    exists = os.path.exists(f"{ddir}/dicts/{key}.dict.yaml")
     date   = v.get(key, '')
     mark   = '✓' if exists else '✗'
     print(f"  {mark} {key:<12} {label}  {date}")
@@ -150,7 +150,7 @@ EOF
     chinese-poetry.sha "古诗词"
   )
   for key val in ${(kv)labels}; do
-    local f=$root/.core/$key
+    local f=$root/.upstream/$key
     [[ -f $f ]] && print "  $val: $(< $f)" || print "  $val: —"
   done
 }

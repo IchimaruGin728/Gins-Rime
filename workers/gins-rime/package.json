@@ -2,16 +2,24 @@
   "name": "gins-rime",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=25.9.0"
+  },
   "scripts": {
+    "build": "pnpm run build:site",
+    "check": "tsc --noEmit",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "build:site": "cd site && pnpm build",
-    "deploy:full": "cd site && pnpm build && cd .. && wrangler deploy",
+    "build:site": "pnpm --dir site build",
+    "site:dev": "pnpm --dir site dev",
+    "site:preview": "pnpm --dir site preview",
+    "deploy:full": "pnpm --dir site build && wrangler deploy",
     "tail": "wrangler tail"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241230.0",
-    "typescript": "^5.7.0",
-    "wrangler": "^4.0.0"
+    "@cloudflare/workers-types": "^4.20260414.1",
+    "typescript": "^6.0.2",
+    "wrangler": "^4.82.2"
   }
 }

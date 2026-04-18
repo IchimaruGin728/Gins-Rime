@@ -1,66 +1,138 @@
-# CI 构建与分发
+# 部署、构建与分发
 
-## 架构
+## 最短部署路径
 
+如果你要部署自己的 `Gins-Rime` 分发站，按这个顺序走：
+
+```bash
+cd workers/gins-rime
+nvm use
+pnpm install
+pnpm --dir site install
+pnpm run deploy:full
 ```
-GitHub Actions (构建词库) → Cloudflare R2 (存储) → Worker API (分发) → 客户端
+
+这会做两件事：
+
+1. 构建 `Astro 6 + Starlight` 文档站
+2. 部署 Cloudflare Worker API 与静态资产
+
+## 当前工具链
+
+- `Node.js 25.9.0+`
+- `pnpm 10.33+`
+- `Wrangler 4.82+`
+- `TypeScript 6.0+`
+- `Astro 6.1+`
+- `Starlight 0.38+`
+
+## Worker 目录
+
+`workers/gins-rime/package.json` 提供的常用命令：
+
+```bash
+pnpm run check
+pnpm run build
+pnpm run site:dev
+pnpm run site:preview
+pnpm run deploy
+pnpm run deploy:full
 ```
 
-## 词库构建流程
+说明：
 
-### zhwiki
+- `pnpm run check`: 检查 Worker TypeScript
+- `pnpm run build`: 构建文档站
+- `pnpm run site:dev`: 本地启动 Astro 文档站
+- `pnpm run deploy`: 只部署 Worker
+- `pnpm run deploy:full`: 先构建文档站，再部署 Worker
 
-触发：每周一次（cron），或手动触发
+## Cloudflare 侧资源
 
-1. 下载 `zhwiki-latest-all-titles-in-ns0.gz`（~100MB）
-2. Rust `zhwiki-builder` 处理：过滤 ns=0 标题 → OpenCC T2S+S2SG 转换 → 生成带调拼音
-3. 验证条目数 > 100k
-4. 上传 `zhwiki.dict.yaml` 到 R2
-5. 触发 Worker 的 `DictUpdateWorkflow`
+`workers/gins-rime/wrangler.jsonc` 里当前依赖：
 
-构建耗时约 5 分钟（瓶颈是 gzip 解压，非计算）。
+- `R2`: 词库与发布产物
+- `Workers Assets`: 文档站静态产物
+- `Queues`: 构建通知
+- `Workflows`: `DictUpdateWorkflow`
 
-### gins-shici
+部署前至少确认：
 
-触发：手动，或 chinese-poetry 仓库更新时
+1. `r2_buckets` 已指向你的 bucket
+2. `queues` 已创建
+3. `workflows` 可用
+4. 自定义域名或 route 已配置
+5. `WORKER_API_TOKEN` 已设置为 Worker secret
 
-1. Clone `chinese-poetry/chinese-poetry`
-2. Rust `shici-builder` 处理：解析 JSON → T2S 转换 → 与核心 shici 去重 → 生成带调拼音
-3. 上传 `gins-shici.dict.yaml` 到 R2
+设置 secret：
 
-构建耗时 < 2 分钟。
+```bash
+wrangler secret put WORKER_API_TOKEN
+```
 
-## Worker
+## 词库构建链路
 
-`workers/api/` 和 `workers/site/` 已合并为 `workers/gins-rime/`，部署在 `rime.ichimarugin728.dev`。
+### `zhwiki`
 
-- `src/index.ts` — Worker 入口，处理所有 API 路由
-- `site/` — Astro Starlight 文档站（静态构建，通过 Workers Assets 分发）
+触发方式：
 
-| 路由 | 说明 |
-|------|------|
-| `GET /health` | 健康检查 |
-| `GET /version` | 最新版本信息 |
-| `GET /api/status` | 文档站词库状态（供 Preact island 调用） |
-| `GET /dicts/:name` | 下载词库文件 |
-| `GET /releases/:version/:file` | 下载发布产物 |
-| `POST /workflow/dict-update` | 触发 DictUpdateWorkflow |
-| `GET /workflow/:id` | 查询 Workflow 状态 |
-| `*` | 静态资产（Astro site） |
+- GitHub Actions 定时任务
+- 手动触发
 
-## DictUpdateWorkflow
+流程：
 
-Cloudflare Workflow，在词库更新后：
+1. 下载 `zhwiki-latest-all-titles-in-ns0.gz`
+2. `zhwiki-builder` 过滤与转换标题
+3. 生成 `zhwiki.dict.yaml`
+4. 上传到 `R2`
+5. 触发 `DictUpdateWorkflow`
 
-1. 验证 R2 中的文件是否存在且有效
-2. 更新 `latest.json` 版本清单
-3. 向队列推送更新通知
+### `gins-shici`
 
-Workflow 使用 durable execution，步骤失败自动重试，不会因 Worker 超时中断。
+流程：
+
+1. 拉取 `chinese-poetry`
+2. `shici-builder` 去重、转简、生成拼音
+3. 上传 `gins-shici.dict.yaml` 到 `R2`
+
+## 客户端更新流
+
+分发链路：
+
+```text
+GitHub Actions / Manual Build
+  -> R2
+  -> Worker /version + /dicts/*
+  -> macOS gins-rime 脚本 / Swift CLI
+  -> iOS Hamster 导入与同步
+```
+
+## 常见操作
+
+### 本地构建文档站
+
+```bash
+cd workers/gins-rime
+pnpm --dir site build
+```
+
+### 本地跑 Worker 类型检查
+
+```bash
+cd workers/gins-rime
+pnpm run check
+```
+
+### 完整部署
+
+```bash
+cd workers/gins-rime
+pnpm run deploy:full
+```
 
 ## CI 依赖
 
-构建环境需要 `libopencc-dev`（Ubuntu）：
+Ubuntu 构建 Rust 词库时仍需要 `OpenCC`：
 
 ```yaml
 - name: Install OpenCC
