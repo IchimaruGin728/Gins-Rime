@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "pnpm run build:site",
-    "check": "tsc --noEmit",
+    "check": "tsc --noEmit && pnpm --dir site run check",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "build:site": "pnpm --dir site build",

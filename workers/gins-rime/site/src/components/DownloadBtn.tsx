@@ -15,7 +15,7 @@ export default function DownloadBtn() {
       .catch(() => {})
   }, [])
 
-  const href = 'https://rime.ichimarugin728.dev/releases/latest/gins-rime'
+  const href = '/releases/latest/gins-rime'
 
   return (
     <div class="flex flex-col gap-3 my-6">

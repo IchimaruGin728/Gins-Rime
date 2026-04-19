@@ -1,0 +1,49 @@
+name: build-shici
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 14 * * 0'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install worker deps
+        working-directory: workers/gins-rime
+        run: pnpm install --frozen-lockfile
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install OpenCC
+        run: sudo apt-get update && sudo apt-get install -y libopencc-dev
+
+      - name: Fetch chinese-poetry
+        run: git clone --depth=1 https://github.com/chinese-poetry/chinese-poetry.git /tmp/chinese-poetry
+
+      - name: Build gins-shici.dict.yaml
+        run: |
+          cargo run --manifest-path tools/shici-builder/Cargo.toml --release -- \
+            --poetry-dir /tmp/chinese-poetry \
+            --core-shici scheme/shared/core/dicts/shici.dict.yaml \
+            --output /tmp/gins-shici.dict.yaml
+
+      - name: Publish gins-shici to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          lines=$(grep -cvE '^(#|$|---|name:|version:|sort:|\.\.\.)' /tmp/gins-shici.dict.yaml || true)
+          bash tools/publish-r2-dict.sh gins-shici /tmp/gins-shici.dict.yaml "$(date -u +%Y%m%d)" "$lines" github-actions

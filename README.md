@@ -13,7 +13,7 @@
 - `pnpm 10.33+` for `workers/gins-rime/site`
 - `Wrangler 4.82+`
 - `Astro 6.1+` + `Starlight 0.38+`
-- `TypeScript 6.0+`
+- `TypeScript 5.9+`
 - `Cloudflare Workers / R2 / Workflows / Queues`
 - `Swift Package Manager` for `gins-rime-cli`
 - `Rust` for `zhwiki-builder` and `shici-builder`
@@ -55,13 +55,7 @@ cd workers/gins-rime
 nvm use
 pnpm install
 pnpm --dir site install
-pnpm run build
-wrangler deploy
-```
-
-如果要连文档站一起部署:
-
-```bash
+pnpm run check
 pnpm run deploy:full
 ```
 
@@ -98,7 +92,14 @@ pnpm run deploy:full
 1. 准备 `R2`、`Queue`、`Workflow`
 2. 配置 `workers/gins-rime/wrangler.jsonc`
 3. 安装 worker 与 site 依赖
-4. 执行 `pnpm run deploy:full`
+4. 执行 `pnpm run check`
+5. 执行 `pnpm run deploy:full`
+
+如果你希望本地脚本或 Swift CLI 指向你自己的 Worker，而不是默认的官方域名：
+
+```bash
+export GINS_RIME_WORKER="https://your-rime.example.com"
+```
 
 更详细的流程见：
 

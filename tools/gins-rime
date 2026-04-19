@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 set -euo pipefail
 
-WORKER="https://rime.ichimarugin728.dev"
+WORKER="${GINS_RIME_WORKER:-https://rime.ichimarugin728.dev}"
 RIME="$HOME/Library/Rime"
 SQUIRREL="/Library/Input Methods/Squirrel.app/Contents/MacOS/Squirrel"
 VERSIONS="$RIME/.gins-versions"
@@ -23,22 +23,53 @@ _squirrel_reload() {
   $SQUIRREL --reload
 }
 
+_copy_file() {
+  local src=$1 dest=$2 label=${3:-}
+  mkdir -p ${dest:h}
+  cp $src $dest
+  print "  ${label:-${dest:t}}"
+}
+
+_copy_dir_flat_yaml() {
+  local src=$1 dest=$2 prefix=${3:-}
+  [[ -d $src ]] || return 0
+  mkdir -p $dest
+  local f
+  while IFS= read -r -d '' f; do
+    cp $f $dest/${f:t}
+    print "  ${prefix}${f:t}"
+  done < <(find $src -maxdepth 1 -type f -name '*.yaml' -print0)
+}
+
+_copy_tree() {
+  local src=$1 dest=$2 prefix=${3:-}
+  [[ -d $src ]] || return 0
+  local f rel
+  while IFS= read -r -d '' f; do
+    rel=${f#$src/}
+    mkdir -p $dest/${rel:h}
+    cp $f $dest/$rel
+    print "  ${prefix}$rel"
+  done < <(find $src -type f -print0)
+}
+
 # ── commands ───────────────────────────────────────────────────
 
 cmd_deploy() {
+  local root=$(_root)
   mkdir -p $RIME
 
-  print "下载方案包..."
-  local tmp=$(mktemp -d)
-  trap "rm -rf $tmp" EXIT INT TERM
-  curl -fsSL $WORKER/releases/latest/squirrel.tar.gz | tar -xz -C $tmp \
-    || { print -u2 "下载失败，请检查网络"; exit 1 }
+  print "部署本地方案文件..."
+  _copy_dir_flat_yaml $root/scheme/shared $RIME
+  _copy_dir_flat_yaml $root/scheme/shared/core $RIME
+  _copy_dir_flat_yaml $root/scheme/shared/core/dicts $RIME/dicts "dicts/"
+  _copy_dir_flat_yaml $root/dicts $RIME/dicts "dicts/"
+  _copy_dir_flat_yaml $root/scheme/squirrel $RIME
 
-  print "部署方案文件..."
-  for f in $tmp/scheme/shared/*.yaml $tmp/scheme/shared/core/*.yaml(N) $tmp/scheme/squirrel/*.yaml; do
-    cp $f $RIME/${f:t}
-    print "  ${f:t}"
-  done
+  if [[ -f $root/rime.lua ]]; then
+    _copy_file $root/rime.lua $RIME/rime.lua
+  fi
+  _copy_tree $root/lua $RIME/lua "lua/"
 
   print "重新部署鼠须管..."
   _squirrel_reload
@@ -58,8 +89,11 @@ import sys, json, urllib.request, os
 
 latest   = json.load(open(sys.argv[1]))
 versions_path = sys.argv[2]
-dicts_dir = sys.argv[3]
+rime_dir = sys.argv[3]
 worker   = sys.argv[4]
+dicts_dir = os.path.join(rime_dir, "dicts")
+
+os.makedirs(dicts_dir, exist_ok=True)
 
 try:
     local = json.load(open(versions_path))

@@ -1,0 +1,46 @@
+name: build-tone-moe
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '35 14 * * 6'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install worker deps
+        working-directory: workers/gins-rime
+        run: pnpm install --frozen-lockfile
+
+      - name: Fetch latest tone_moe asset
+        run: |
+          curl -fsSL https://api.github.com/repos/suiginko/moetype/releases/latest > /tmp/moetype-release.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          release = json.loads(Path('/tmp/moetype-release.json').read_text(encoding='utf-8'))
+          asset = next(a for a in release['assets'] if a['name'] == 'tone_moe.dict.yaml')
+          Path('/tmp/tone_moe_url').write_text(asset['browser_download_url'], encoding='utf-8')
+          Path('/tmp/tone_moe_tag').write_text(release['tag_name'], encoding='utf-8')
+          PY
+          curl -fsSL "$(cat /tmp/tone_moe_url)" -o /tmp/tone_moe.dict.yaml
+
+      - name: Publish tone_moe to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          lines=$(grep -cvE '^(#|$|---|name:|version:|sort:|\.\.\.)' /tmp/tone_moe.dict.yaml || true)
+          bash tools/publish-r2-dict.sh tone_moe /tmp/tone_moe.dict.yaml "$(cat /tmp/tone_moe_tag)" "$lines" github-actions

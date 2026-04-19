@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle};
-use opencc_rust::{DefaultConfig, OpenCC};
+use opencc_rs::{Config, OpenCC};
 use pinyin::ToPinyin;
 use rayon::prelude::*;
 use regex::Regex;
@@ -46,7 +46,7 @@ fn main() -> Result<()> {
         .init();
 
     let cli = Cli::parse();
-    let t2s = OpenCC::new(DefaultConfig::T2S).map_err(|e| anyhow::anyhow!("OpenCC init failed: {}", e))?;
+    let t2s = OpenCC::new([Config::T2S]).map_err(|e| anyhow::anyhow!("OpenCC init failed: {}", e))?;
 
     info!("Loading core shici for dedup...");
     let core_set = load_core_shici(&cli.core_shici)?;
@@ -88,7 +88,13 @@ fn main() -> Result<()> {
                     continue;
                 }
 
-                let normalized = t2s.convert(&cleaned);
+                let normalized = match t2s.convert(&cleaned) {
+                    Ok(value) => value,
+                    Err(err) => {
+                        warn!("Skip text failed OpenCC conversion: {}: {}", cleaned, err);
+                        continue;
+                    }
+                };
                 let char_count = normalized.chars().count();
 
                 if char_count >= cli.min_len && char_count <= cli.max_len && !core_set.contains(&normalized) {

@@ -1,0 +1,48 @@
+name: build-zhwiki
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 16 2 * *'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install worker deps
+        working-directory: workers/gins-rime
+        run: pnpm install --frozen-lockfile
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install OpenCC
+        run: sudo apt-get update && sudo apt-get install -y libopencc-dev
+
+      - name: Download zhwiki titles dump
+        run: curl -fsSL https://dumps.wikimedia.org/zhwiki/latest/zhwiki-latest-all-titles-in-ns0.gz -o /tmp/zhwiki-titles.gz
+
+      - name: Build zhwiki.dict.yaml
+        run: |
+          cargo run --manifest-path tools/zhwiki-builder/Cargo.toml --release -- \
+            --input /tmp/zhwiki-titles.gz \
+            --output /tmp/zhwiki.dict.yaml
+
+      - name: Publish zhwiki to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          lines=$(grep -cvE '^(#|$|---|name:|version:|sort:|\.\.\.)' /tmp/zhwiki.dict.yaml || true)
+          bash tools/publish-r2-dict.sh zhwiki /tmp/zhwiki.dict.yaml "$(date -u +%Y%m)" "$lines" github-actions

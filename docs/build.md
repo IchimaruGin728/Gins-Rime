@@ -22,7 +22,7 @@ pnpm run deploy:full
 - `Node.js 25.9.0+`
 - `pnpm 10.33+`
 - `Wrangler 4.82+`
-- `TypeScript 6.0+`
+- `TypeScript 5.9+`
 - `Astro 6.1+`
 - `Starlight 0.38+`
 
@@ -41,7 +41,7 @@ pnpm run deploy:full
 
 说明：
 
-- `pnpm run check`: 检查 Worker TypeScript
+- `pnpm run check`: 检查 Worker TypeScript + Astro/Starlight 站点
 - `pnpm run build`: 构建文档站
 - `pnpm run site:dev`: 本地启动 Astro 文档站
 - `pnpm run deploy`: 只部署 Worker
@@ -68,6 +68,18 @@ pnpm run deploy:full
 
 ```bash
 wrangler secret put WORKER_API_TOKEN
+```
+
+如果你是 fork 后自部署：
+
+- 文档站里的下载链接已经使用相对路径，不需要改页面代码
+- 本地脚本和 Swift CLI 如需指向你自己的 Worker，可设置环境变量 `GINS_RIME_WORKER`
+
+例如：
+
+```bash
+export GINS_RIME_WORKER="https://your-rime.example.com"
+./tools/gins-rime update
 ```
 
 ## 词库构建链路

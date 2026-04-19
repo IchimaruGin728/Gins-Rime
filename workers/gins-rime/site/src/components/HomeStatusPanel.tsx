@@ -18,7 +18,7 @@ const DICTS: { key: string; name: string; sub: string }[] = [
   { key: 'gins-shici',  name: '古诗词',       sub: 'chinese-poetry' },
 ]
 
-const CLI_HREF = 'https://rime.ichimarugin728.dev/releases/latest/gins-rime'
+const CLI_HREF = '/releases/latest/gins-rime'
 const INSTALL_CMD = `curl -fsSL ${CLI_HREF} -o gins-rime && chmod +x gins-rime`
 
 const CARD_BASE = [

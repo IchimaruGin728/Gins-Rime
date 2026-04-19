@@ -2,14 +2,14 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use flate2::read::GzDecoder;
 use indicatif::{ProgressBar, ProgressStyle};
-use opencc_rust::{DefaultConfig, OpenCC};
+use opencc_rs::{Config, OpenCC};
 use pinyin::ToPinyin;
 use rayon::prelude::*;
 use regex::Regex;
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::path::PathBuf;
-use tracing::info;
+use tracing::{info, warn};
 
 #[derive(Parser)]
 #[command(name = "zhwiki-builder")]
@@ -42,7 +42,7 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let t2s = OpenCC::new(DefaultConfig::T2S)
+    let t2s = OpenCC::new([Config::T2S])
         .map_err(|e| anyhow::anyhow!("Failed to init OpenCC T2S: {}", e))?;
 
     info!("Reading titles: {}", cli.input.display());
@@ -79,7 +79,13 @@ fn main() -> Result<()> {
             continue;
         }
 
-        let normalized = t2s.convert(text);
+        let normalized = match t2s.convert(text) {
+            Ok(value) => value,
+            Err(err) => {
+                warn!("Skip title failed OpenCC conversion: {text}: {err}");
+                continue;
+            }
+        };
         let char_count = normalized.chars().count();
 
         if char_count >= cli.min_len
