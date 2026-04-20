@@ -34,26 +34,26 @@ export default function DictStatus() {
 
   if (!data) {
     return (
-      <div class="grid gap-4 my-6" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+      <div class="my-6 grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4">
         {Object.keys(DICT_LABELS).map(k => (
-          <div key={k} class="dict-card skeleton" />
+          <div key={k} class="surface-card h-[4.5rem] animate-pulse" />
         ))}
       </div>
     )
   }
 
   return (
-    <div class="grid gap-4 my-6" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); align-items:stretch">
+    <div class="my-6 grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] items-stretch gap-4">
       {Object.entries(DICT_LABELS).map(([key, label]) => {
         const info = data[key as keyof VersionData]
         return (
-          <div key={key} class="dict-card flex flex-col gap-1 p-4 h-full min-h-[4.5rem] box-border">
-            <span class="font-semibold text-[0.9rem] text-[var(--sl-color-text)]">{label}</span>
-            <span class="text-[0.8rem] tabular-nums text-[var(--sl-color-text-accent)]">
+          <div key={key} class="surface-card box-border flex h-full min-h-[4.5rem] flex-col gap-1">
+            <span class="text-[0.9rem] font-semibold text-[var(--sl-color-white)]">{label}</span>
+            <span class="tabular-nums surface-meta">
               {info?.date ?? '—'}
             </span>
             {info?.lines != null && (
-              <span class="text-[0.75rem] text-[color-mix(in_srgb,var(--sl-color-text)_55%,transparent)]">
+              <span class="text-xs text-[var(--sl-color-gray-3)]">
                 {info.lines.toLocaleString()} 条
               </span>
             )}

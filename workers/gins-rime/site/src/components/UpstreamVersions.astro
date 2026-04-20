@@ -52,126 +52,19 @@ const sources = [
 ]
 ---
 
-<div class="upstream-grid" role="list">
+<div class="my-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5" role="list">
   {sources.map(s => (
     <a
       href={s.href}
       target="_blank"
       rel="noopener noreferrer"
-      class="upstream-card"
+      class="surface-card-hover"
       role="listitem"
       aria-label={`${s.name} — ${s.version}`}
     >
-      <span class="upstream-name">{s.name}</span>
-      <span class="upstream-label">{s.label}</span>
-      <span class="upstream-version">{s.version}</span>
+      <span class="surface-title">{s.name}</span>
+      <span class="surface-sub">{s.label}</span>
+      <span class="mt-2 block truncate surface-meta">{s.version}</span>
     </a>
   ))}
 </div>
-
-<style>
-  .upstream-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.65rem;
-    margin: 1.5rem 0;
-  }
-
-  @media (max-width: 780px) {
-    .upstream-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .upstream-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  .upstream-card {
-    display: grid;
-    grid-template-rows: auto auto 1fr;
-    gap: 0.18rem;
-    padding: 0.85rem 1rem;
-    border-radius: var(--sl-border-radius-sm, 8px);
-    border: 1px solid var(--sl-color-hairline);
-    background: color-mix(in srgb, var(--sl-color-accent) 4%, transparent);
-    text-decoration: none;
-    /* GPU-composited props only — no layout thrash */
-    transition:
-      background 0.14s ease,
-      border-color 0.14s ease,
-      transform 0.12s ease,
-      box-shadow 0.12s ease;
-    will-change: auto;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-    contain: layout style;
-  }
-
-  .upstream-card:hover {
-    background: color-mix(in srgb, var(--sl-color-accent) 11%, transparent);
-    border-color: color-mix(in srgb, var(--sl-color-accent) 60%, transparent);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px color-mix(in srgb, var(--sl-color-accent) 18%, transparent);
-    will-change: transform;
-  }
-
-  .upstream-card:active {
-    transform: scale(0.96) translateY(0);
-    box-shadow: none;
-    background: color-mix(in srgb, var(--sl-color-accent) 16%, transparent);
-    transition-duration: 0.06s;
-  }
-
-  .upstream-card:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
-    border-color: var(--sl-color-accent);
-  }
-
-  /* Reset will-change after transition to free compositor resources */
-  .upstream-card:not(:hover):not(:active) {
-    will-change: auto;
-  }
-
-  .upstream-name {
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: var(--sl-color-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .upstream-label {
-    font-size: 0.68rem;
-    color: color-mix(in srgb, var(--sl-color-text) 45%, transparent);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .upstream-version {
-    font-size: 0.78rem;
-    font-family: var(--sl-font-mono);
-    font-variant-numeric: tabular-nums;
-    color: var(--sl-color-text-accent);
-    margin-top: 0.4rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .upstream-card {
-      transition: background 0.1s, border-color 0.1s;
-    }
-    .upstream-card:hover,
-    .upstream-card:active {
-      transform: none;
-      box-shadow: none;
-    }
-  }
-</style>

@@ -19,15 +19,15 @@ export default function DownloadBtn() {
 
   return (
     <div class="flex flex-col gap-3 my-6">
-      <a class="download-btn" href={href} download="gins-rime">
+      <a class="primary-btn" href={href} download="gins-rime">
         下载 gins-rime CLI
       </a>
       {meta?.date && (
-        <span class="text-[0.8rem] tabular-nums text-[color-mix(in_srgb,var(--sl-color-text)_55%,transparent)]">
+        <span class="surface-meta-muted tabular-nums">
           {meta.date}{meta.sha ? ` · ${meta.sha}` : ''}
         </span>
       )}
-      <pre class="text-[0.85rem] overflow-x-auto px-4 py-3 rounded-[var(--sl-border-radius-sm)] bg-white/5 border border-white/8 font-mono">
+      <pre class="overflow-x-auto rounded-xl border border-[var(--sl-color-hairline)] bg-black/20 px-4 py-3 font-mono text-[0.85rem] text-[var(--sl-color-gray-2)]">
         {'curl -fsSL ' + href + ' -o gins-rime && chmod +x gins-rime'}
       </pre>
     </div>

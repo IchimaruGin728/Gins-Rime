@@ -21,13 +21,6 @@ const DICTS: { key: string; name: string; sub: string }[] = [
 const CLI_HREF = '/releases/latest/gins-rime'
 const INSTALL_CMD = `curl -fsSL ${CLI_HREF} -o gins-rime && chmod +x gins-rime`
 
-const CARD_BASE = [
-  'border-radius:var(--sl-border-radius-sm,8px)',
-  'border:1px solid var(--sl-color-hairline)',
-  'background:color-mix(in srgb,var(--sl-color-accent) 4%,transparent)',
-  'contain:layout style',
-].join(';')
-
 export default function HomeStatusPanel({ dictVersions }: Props) {
   const [status, setStatus] = useState<ApiStatus | null>(null)
 
@@ -41,24 +34,25 @@ export default function HomeStatusPanel({ dictVersions }: Props) {
   const loading = status === null
 
   return (
-    <div class="flex flex-col gap-[0.6rem]">
-
-      {/* ── Dict cards — Grid for perfectly equal height ── */}
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-[0.6rem]">
+    <div class="space-y-4">
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         {DICTS.map(({ key, name, sub }) => {
           const info = status?.[key as keyof ApiStatus] as DictInfo | undefined
           const ver = dictVersions[key] !== '—' ? dictVersions[key] : (info?.date ?? '—')
           const hasLines = !loading && info?.lines != null
           return (
-            <div key={key} class="flex flex-col p-[0.85rem_1rem] min-h-[5.5rem] rounded-[var(--sl-border-radius-sm,8px)] border border-[var(--sl-color-hairline)] bg-[color-mix(in_srgb,var(--sl-color-accent)_4%,transparent)]">
-              <span class="font-semibold text-[0.875rem] text-[var(--sl-color-text)] truncate">{name}</span>
-              <span class="text-[0.68rem] text-[color-mix(in_srgb,var(--sl-color-text)_42%,transparent)] truncate leading-relaxed">{sub}</span>
+            <div
+              key={key}
+              class="surface-card"
+            >
+              <span class="surface-title">{name}</span>
+              <span class="surface-sub">{sub}</span>
               
-              <div class="mt-auto flex flex-col gap-[0.15rem]">
-                <span class="pt-[0.45rem] text-[0.78rem] font-mono tabular-nums text-[var(--sl-color-text-accent)] truncate">
+              <div class="mt-4 flex flex-col gap-1">
+                <span class="surface-meta">
                   {loading ? '…' : ver}
                 </span>
-                <span class={`text-[0.62rem] tabular-nums text-[color-mix(in_srgb,var(--sl-color-text)_34%,transparent)]${hasLines ? '' : ' invisible'}`}>
+                <span class={`surface-meta-muted${hasLines ? '' : ' invisible'}`}>
                   {info?.lines != null ? `${info.lines.toLocaleString()} entries` : '0 entries'}
                 </span>
               </div>
@@ -67,45 +61,27 @@ export default function HomeStatusPanel({ dictVersions }: Props) {
         })}
       </div>
 
-      {/* ── CLI — full-width bar, horizontal layout ── */}
-      <div style={`display:grid;grid-template-columns:1fr auto;align-items:center;gap:0.75rem 1.25rem;padding:0.85rem 1rem;${CARD_BASE}`}>
-        {/* Left: name + version */}
-        <div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;min-width:0">
-          <span style="font-weight:600;font-size:0.875rem;color:var(--sl-color-text);white-space:nowrap">Gin's-Rime CLI</span>
-          {status?.cli?.date && (
-            <span style="font-size:0.7rem;font-family:var(--sl-font-mono);color:color-mix(in srgb,var(--sl-color-text) 42%,transparent);font-variant-numeric:tabular-nums;white-space:nowrap">
-              {status.cli.date}{status.cli.sha ? ` · ${status.cli.sha}` : ''}
-            </span>
-          )}
+      <div class="surface-card md:p-5">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div class="min-w-0">
+            <span class="block text-lg font-semibold text-[var(--sl-color-white)]">Gin's-Rime CLI</span>
+            {status?.cli?.date && (
+              <span class="mt-1 block surface-meta-muted">
+                {status.cli.date}{status.cli.sha ? ` · ${status.cli.sha}` : ''}
+              </span>
+            )}
+          </div>
+          <a
+            class="primary-btn"
+            href={CLI_HREF}
+            download="gins-rime"
+          >
+            下载
+          </a>
         </div>
 
-        {/* Right: download button */}
-        <a
-          class="download-btn"
-          href={CLI_HREF}
-          download="gins-rime"
-          style="font-size:0.78rem;padding:0.35rem 0.9rem;white-space:nowrap"
-        >
-          下载
-        </a>
-
-        {/* Bottom: install command, spans both columns */}
-        <pre style={[
-          'grid-column:1/-1',
-          'margin:0',
-          'font-size:0.7rem',
-          'font-family:var(--sl-font-mono)',
-          'overflow-x:auto',
-          'padding:0.45rem 0.7rem',
-          'border-radius:var(--sl-border-radius-sm,8px)',
-          'background:var(--sl-color-bg-sidebar)',
-          'border:1px solid var(--sl-color-hairline)',
-          'white-space:pre',
-          'line-height:1.5',
-          'color:color-mix(in srgb,var(--sl-color-text) 65%,transparent)',
-        ].join(';')}>{INSTALL_CMD}</pre>
+        <pre class="mt-4 overflow-x-auto rounded-xl border border-[var(--sl-color-hairline)] bg-black/20 px-4 py-3 text-xs text-[var(--sl-color-gray-2)]">{INSTALL_CMD}</pre>
       </div>
-
     </div>
   )
 }

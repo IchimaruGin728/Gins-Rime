@@ -21,8 +21,13 @@ export default defineConfig({
   },
 
   shortcuts: {
-    // 和 Blog 完全一样的 glass-panel
-    'glass-panel': 'bg-white/10 backdrop-blur-xl border border-white/10 shadow-xl',
-    'glass-dark':  'bg-black/20 backdrop-blur-xl border border-white/8 shadow-xl',
+    'section-label': 'text-xs font-semibold uppercase tracking-[0.16em] text-[var(--sl-color-text-accent)]/70',
+    'surface-card': 'rounded-2xl border border-[var(--sl-color-hairline)] bg-[var(--sl-color-gray-7)]/20 p-4',
+    'surface-card-hover': 'block rounded-2xl border border-[var(--sl-color-hairline)] bg-[var(--sl-color-gray-7)]/20 p-4 no-underline transition duration-150 ease-out hover:-translate-y-0.5 hover:border-[var(--sl-color-text-accent)]/30 hover:bg-[var(--sl-color-gray-6)]/30',
+    'surface-title': 'block text-sm font-semibold text-[var(--sl-color-white)]',
+    'surface-sub': 'mt-1 block text-xs text-[var(--sl-color-gray-3)]',
+    'surface-meta': 'font-mono text-sm text-[var(--sl-color-text-accent)]',
+    'surface-meta-muted': 'text-xs text-[var(--sl-color-gray-3)]',
+    'primary-btn': 'inline-flex w-fit items-center justify-center rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white no-underline shadow-lg shadow-violet-900/25 transition duration-150 hover:bg-violet-500',
   },
 })

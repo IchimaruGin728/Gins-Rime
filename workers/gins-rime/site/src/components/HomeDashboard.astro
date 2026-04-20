@@ -43,26 +43,32 @@ const upstream = [
 ]
 ---
 
-<div class="home-dashboard">
-
-  <p class="panel-label">上游版本</p>
-  <div class="panel-grid">
+<div class="my-8 space-y-8">
+  <section class="space-y-3">
+    <p class="section-label">
+      上游版本
+    </p>
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
     {upstream.map(s => (
       <a
         href={s.href}
         target="_blank"
         rel="noopener noreferrer"
-        class="hp-card"
+        class="surface-card-hover"
         aria-label={`${s.name} — ${s.version}`}
       >
-        <span class="hp-name">{s.name}</span>
-        <span class="hp-sub">{s.label}</span>
-        <span class="hp-ver">{s.version}</span>
+        <span class="surface-title">{s.name}</span>
+        <span class="surface-sub">{s.label}</span>
+        <span class="mt-4 block surface-meta">{s.version}</span>
       </a>
     ))}
-  </div>
+    </div>
+  </section>
 
-  <p class="panel-label">词库 & 安装</p>
+  <section class="space-y-3">
+    <p class="section-label">
+      词库 & 安装
+    </p>
   <HomeStatusPanel
     dictVersions={{
       zhwiki:      read('zhwiki.month'),
@@ -71,41 +77,5 @@ const upstream = [
     }}
     client:load
   />
-
+  </section>
 </div>
-
-<style>
-  .home-dashboard {
-    margin: 2rem 0;
-  }
-
-  /* ── Section label ── */
-  .panel-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--sl-color-text) 40%, transparent);
-    margin: 0 0 0.55rem;
-
-    &:not(:first-child) {
-      margin-top: 1.5rem;
-    }
-  }
-
-  /* ── Shared 5-col grid ── */
-  .panel-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.6rem;
-  }
-
-  @media (max-width: 780px) {
-    .panel-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 480px) {
-    .panel-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-
-  /* .hp-card 及排版类已移至 gins.scss 全局 */
-</style>
