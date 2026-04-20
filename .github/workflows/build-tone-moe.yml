@@ -41,7 +41,7 @@ jobs:
 
       - name: Publish tone_moe to R2
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: |
           lines=$(grep -cvE '^(#|$|---|name:|version:|sort:|\.\.\.)' /tmp/tone_moe.dict.yaml || true)
           bash tools/publish-r2-dict.sh tone_moe /tmp/tone_moe.dict.yaml "$(cat /tmp/tone_moe_tag)" "$lines" github-actions

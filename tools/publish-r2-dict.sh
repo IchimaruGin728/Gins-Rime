@@ -20,10 +20,12 @@ LATEST_JSON_REMOTE="$TMP_DIR/latest-remote.json"
 
 mkdir -p "$TMP_DIR"
 
-if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
-  echo "CLOUDFLARE_API_TOKEN is not set" >&2
+if [[ -z "${CLOUDFLARE_API_TOKEN:-${CF_API_TOKEN:-}}" ]]; then
+  echo "CF_API_TOKEN/CLOUDFLARE_API_TOKEN is not set" >&2
   exit 1
 fi
+
+export CLOUDFLARE_API_TOKEN="${CLOUDFLARE_API_TOKEN:-${CF_API_TOKEN:-}}"
 
 if [[ ! -f "$DICT_FILE" ]]; then
   echo "dict file not found: $DICT_FILE" >&2

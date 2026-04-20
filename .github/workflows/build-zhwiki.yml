@@ -43,7 +43,7 @@ jobs:
 
       - name: Publish zhwiki to R2
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: |
           lines=$(grep -cvE '^(#|$|---|name:|version:|sort:|\.\.\.)' /tmp/zhwiki.dict.yaml || true)
           bash tools/publish-r2-dict.sh zhwiki /tmp/zhwiki.dict.yaml "$(date -u +%Y%m)" "$lines" github-actions

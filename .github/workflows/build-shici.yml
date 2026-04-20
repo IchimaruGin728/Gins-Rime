@@ -44,7 +44,7 @@ jobs:
 
       - name: Publish gins-shici to R2
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: |
           lines=$(grep -cvE '^(#|$|---|name:|version:|sort:|\.\.\.)' /tmp/gins-shici.dict.yaml || true)
           bash tools/publish-r2-dict.sh gins-shici /tmp/gins-shici.dict.yaml "$(date -u +%Y%m%d)" "$lines" github-actions

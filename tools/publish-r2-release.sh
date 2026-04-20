@@ -29,10 +29,12 @@ if [[ ! -f "$CLI_FILE" ]]; then
   exit 1
 fi
 
-if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
-  echo "CLOUDFLARE_API_TOKEN is not set" >&2
+if [[ -z "${CLOUDFLARE_API_TOKEN:-${CF_API_TOKEN:-}}" ]]; then
+  echo "CF_API_TOKEN/CLOUDFLARE_API_TOKEN is not set" >&2
   exit 1
 fi
+
+export CLOUDFLARE_API_TOKEN="${CLOUDFLARE_API_TOKEN:-${CF_API_TOKEN:-}}"
 
 echo "Packaging scheme from $SCHEME_DIR"
 tar -czf "$SCHEME_TAR" -C "$SCHEME_DIR" .

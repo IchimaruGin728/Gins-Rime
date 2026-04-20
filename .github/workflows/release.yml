@@ -32,5 +32,5 @@ jobs:
 
       - name: Publish release assets to R2
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: bash tools/publish-r2-release.sh
