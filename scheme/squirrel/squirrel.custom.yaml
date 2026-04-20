@@ -1,55 +1,65 @@
 patch:
   style:
-    color_scheme: gins_liquid_light
-    color_scheme_dark: gins_liquid_dark
-    # ── 强制锁定官方横向布局 ─────────────────────────────────────
+    color_scheme: squirrel_official_light
+    color_scheme_dark: squirrel_official_dark
+    # ── 鼠须管：贴近官方候选条外观 ────────────────────────────────────
     horizontal: true
-    candidate_list_layout: horizontal
+    candidate_list_layout: linear
     text_orientation: horizontal
+    translucency: true
     inline_preedit: true
     inline_candidate: false
-    # ── 官方比例：极其扁平，胶囊选中 ──────────────────────────────
-    corner_radius: 10
-    hilited_corner_radius: 100
-    border_height: 3
-    border_width: 10
-    spacing: 16
+
+    # ── 官方候选条比例：灰色磨砂底板 + 紫色高亮胶囊 ──────────────────────
+    layout:
+      hilite_padding_x: 20
+      hilite_padding_y: 3
+      margin_x: 8
+      margin_y: 5
+      spacing: 4
+      candidate_spacing: 4
+
+    corner_radius: 22
+    hilited_corner_radius: 20
+    border_height: 5
+    border_width: 7
+    spacing: 6
     font_face: "SF Pro Text"
-    font_point: 16
-    label_font_point: 0
-    shadow_size: 4
+    font_point: 17
+    label_font_point: 10
+    shadow_size: 2
     line_spacing: 0
 
   preset_color_schemes:
-    gins_liquid_light:
-      name: "Gins Liquid Light"
+    squirrel_official_light:
+      name: "Squirrel Official Light"
       author: "IchimaruGin728"
-      back_color: 0xF2F2F2
-      border_color: 0xE2E2E2
-      text_color: 0x444444
+      back_color: 0xF0F2F2F7
+      border_color: 0x16000000
+      text_color: 0xFF1F1F1F
       hilited_text_color: 0xFFFFFFFF
       hilited_back_color: 0x00FFFFFF
-      candidate_text_color: 0x444444
+      candidate_text_color: 0xFF1F1F1F
       hilited_candidate_text_color: 0xFFFFFFFF
-      hilited_candidate_back_color: 0xCCB915D8
-      comment_text_color: 0x999999
-      hilited_comment_text_color: 0x99FFFFFF
-      label_color: 0x00000000
-      hilited_label_color: 0x00000000
+      hilited_candidate_back_color: 0xE6B915D8
+      comment_text_color: 0x00000000
+      hilited_comment_text_color: 0x00000000
+      label_color: 0x99575757
+      hilited_label_color: 0xFFFFFFFF
 
 
-    gins_liquid_dark:
-      name: "Gins Liquid Dark"
+    squirrel_official_dark:
+      name: "Squirrel Official Dark"
       author: "IchimaruGin728"
-      back_color: 0x1C1C1E
+      back_color: 0xD82C2C2E
       border_color: 0x33FFFFFF
-      text_color: 0xEBEBF5
+      text_color: 0xFFF2F2F7
       hilited_text_color: 0xFFFFFFFF
       hilited_back_color: 0x00FFFFFF
-      candidate_text_color: 0xEBEBF5
+      candidate_text_color: 0xFFF2F2F7
       hilited_candidate_text_color: 0xFFFFFFFF
-      hilited_candidate_back_color: 0xCCB915D8
-      comment_text_color: 0x8E8E93
-      hilited_comment_text_color: 0xFFFFFFFF
-      label_color: 0x00000000
-      hilited_label_color: 0x00000000
+      hilited_candidate_back_color: 0xE6B915D8
+      comment_text_color: 0x00000000
+      hilited_comment_text_color: 0x00000000
+      label_color: 0x99D0D0D0
+      hilited_label_color: 0xFFFFFFFF
