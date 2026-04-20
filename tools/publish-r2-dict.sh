@@ -20,6 +20,11 @@ LATEST_JSON_REMOTE="$TMP_DIR/latest-remote.json"
 
 mkdir -p "$TMP_DIR"
 
+if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
+  echo "CLOUDFLARE_API_TOKEN is not set" >&2
+  exit 1
+fi
+
 if [[ ! -f "$DICT_FILE" ]]; then
   echo "dict file not found: $DICT_FILE" >&2
   exit 1
@@ -37,7 +42,10 @@ out, existing_path, dict_key, dict_date, line_count, triggered_by = sys.argv[1:]
 data = {}
 path = Path(existing_path)
 if path.exists():
-    data = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        data = {}
 
 payload = {
     "date": dict_date,

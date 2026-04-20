@@ -24,13 +24,13 @@ if [[ ! -d "$SCHEME_DIR" ]]; then
   exit 1
 fi
 
-if [[ ! -f "$MODEL_FILE" ]]; then
-  echo "model file not found: $MODEL_FILE" >&2
+if [[ ! -f "$CLI_FILE" ]]; then
+  echo "cli file not found: $CLI_FILE" >&2
   exit 1
 fi
 
-if [[ ! -f "$CLI_FILE" ]]; then
-  echo "cli file not found: $CLI_FILE" >&2
+if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
+  echo "CLOUDFLARE_API_TOKEN is not set" >&2
   exit 1
 fi
 
@@ -41,26 +41,31 @@ cd "$WORKER_DIR"
 
 npx wrangler r2 object get gins-rime/releases/latest.json --remote --file "$LATEST_JSON_REMOTE" >/dev/null 2>&1 || true
 
-python3 - "$LATEST_JSON" "$LATEST_JSON_REMOTE" "$SCHEME_VERSION" "$MODEL_DATE" "$CLI_VERSION" "$CLI_DATE" "$CLI_SHA" <<'PY'
+python3 - "$LATEST_JSON" "$LATEST_JSON_REMOTE" "$SCHEME_VERSION" "$MODEL_DATE" "$CLI_VERSION" "$CLI_DATE" "$CLI_SHA" "$MODEL_FILE" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-out, existing_path, scheme_version, model_date, cli_version, cli_date, cli_sha = sys.argv[1:]
+out, existing_path, scheme_version, model_date, cli_version, cli_date, cli_sha, model_file = sys.argv[1:]
 data = {}
 path = Path(existing_path)
 if path.exists():
-    data = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        data = {}
 
 data["scheme"] = {
     "version": scheme_version,
     "url": "/releases/scheme.tar.gz",
     "triggeredBy": "manual-release",
 }
-data["model"] = {
-    "date": model_date,
-    "url": "/models/wanxiang-lts-zh-hans.gram",
-}
+if Path(model_file).is_file():
+    data["model"] = {
+        "date": model_date,
+        "url": "/models/wanxiang-lts-zh-hans.gram",
+        "triggeredBy": "manual-release",
+    }
 data["cli"] = {
     "version": cli_version,
     "date": cli_date,
@@ -90,8 +95,12 @@ PY
 echo "Uploading scheme.tar.gz"
 npx wrangler r2 object put gins-rime/releases/scheme.tar.gz --remote --file "$SCHEME_TAR" --content-type application/gzip --cache-control "public, max-age=3600"
 
-echo "Uploading model"
-npx wrangler r2 object put gins-rime/models/wanxiang-lts-zh-hans.gram --remote --file "$MODEL_FILE" --content-type application/octet-stream --cache-control "public, max-age=3600"
+if [[ -f "$MODEL_FILE" ]]; then
+  echo "Uploading model"
+  npx wrangler r2 object put gins-rime/models/wanxiang-lts-zh-hans.gram --remote --file "$MODEL_FILE" --content-type application/octet-stream --cache-control "public, max-age=3600"
+else
+  echo "Skipping model upload: $MODEL_FILE not found"
+fi
 
 echo "Uploading CLI binary"
 npx wrangler r2 object put gins-rime/releases/latest/gins-rime --remote --file "$CLI_FILE" --content-type application/octet-stream --content-disposition 'attachment; filename="gins-rime"' --cache-control "public, max-age=3600"

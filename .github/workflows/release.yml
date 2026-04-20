@@ -24,6 +24,12 @@ jobs:
         working-directory: workers/gins-rime
         run: pnpm install --frozen-lockfile
 
+      - name: Build Swift CLI
+        working-directory: tools/gins-rime-cli
+        run: |
+          swift build -c release
+          echo "CLI_FILE=$(swift build -c release --show-bin-path)/GinsRime" >> "$GITHUB_ENV"
+
       - name: Publish release assets to R2
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
