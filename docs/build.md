@@ -62,13 +62,19 @@ pnpm run deploy:full
 2. `queues` 已创建
 3. `workflows` 可用
 4. 自定义域名或 route 已配置
-5. `WORKER_API_TOKEN` 已设置为 Worker secret
+5. `WORKER_API_TOKEN` 已设置为 Worker secret，用于保护 Worker 内部写接口
+6. GitHub Actions 仓库 secret `CF_API_TOKEN` 已配置，用于发布到 Cloudflare R2
 
-设置 secret：
+设置 Worker secret：
 
 ```bash
 wrangler secret put WORKER_API_TOKEN
 ```
+
+设置 GitHub Actions secret：
+
+- 名称：`CF_API_TOKEN`
+- 用途：让 `release.yml`、`build-tone-moe.yml`、`build-shici.yml`、`build-zhwiki.yml` 能上传 R2 对象
 
 如果你是 fork 后自部署：
 
